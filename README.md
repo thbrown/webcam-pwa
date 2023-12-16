@@ -1,2 +1,11 @@
-# webcam-pwa
-A web cam application for taking timelaps and stopmotion videos. All from the browser!
+# Web Timelapse 
+
+Web timelaps video recorder.
+
+### Develop
+
+`npm run serve`
+
+### Prod Build
+
+`npm run build`
