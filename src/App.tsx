@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { WebcamTimelapse } from "./Main";
+import { Main } from "./Main";
 import "./App.scss";
 
 export type RecordingStatus = "Stopped" | "Recording" | "Paused";
@@ -29,10 +29,10 @@ export const App: React.FC = () => {
   return (
     <div className="wrapper" style={{ backgroundColor }}>
       <div className="main-margin">
-        <WebcamTimelapse
+        <Main
           recordingStatus={recordingStatus}
           setRecordingStatus={setRecordingStatus}
-        ></WebcamTimelapse>
+        ></Main>
       </div>
     </div>
   );

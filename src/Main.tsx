@@ -5,21 +5,36 @@ import { RecordingsPanel } from "./RecordingsPanel";
 import { FolderOpen, Camera } from "@blueprintjs/icons";
 import "./Main.scss";
 import { RecordingStatus } from "./App";
+import localforage from "localforage";
 
 export type MainPanel = "camera" | "recordings";
 
-interface WebcamTimelapseProps {
+interface MainProps {
   recordingStatus: RecordingStatus;
   setRecordingStatus: (v: RecordingStatus) => void;
 }
 
-export function WebcamTimelapse(props: WebcamTimelapseProps): JSX.Element {
+export function Main(props: MainProps): JSX.Element {
   const [mainPanel, setMainPanel] = useState<MainPanel>("camera");
+  const [recordingCount, setRecordingCount] = useState<number | undefined>(
+    undefined
+  );
 
   const handleTabChange = (targetPanel: MainPanel) => {
-    console.log("Tab change", targetPanel);
     setMainPanel(targetPanel);
   };
+
+  useEffect(() => {
+    const fetchRecordingCount = async () => {
+      try {
+        const count = await localforage.length();
+        setRecordingCount(count);
+      } catch (error) {
+        console.error("Error fetching recording count:", error);
+      }
+    };
+    fetchRecordingCount();
+  });
 
   return (
     <Tabs
@@ -46,7 +61,7 @@ export function WebcamTimelapse(props: WebcamTimelapseProps): JSX.Element {
         title={<div className="spacer">Recordings</div>}
         panel={<RecordingsPanel />}
         icon={<FolderOpen />}
-        tagContent={4}
+        tagContent={recordingCount}
       />
     </Tabs>
   );

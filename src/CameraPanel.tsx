@@ -11,6 +11,7 @@ import { Time, Stopwatch, Clean } from "@blueprintjs/icons";
 import { TimelapseParameters } from "./TimelapseParameters";
 import { Control } from "./Control";
 import { RecordingStatus } from "./App";
+import localforage from "localforage";
 
 export type RecordingMode = "Timelapse" | "StopMotion" | "Astronomical";
 export type OutputSpec = "FPS" | "Duration";
@@ -18,6 +19,17 @@ export type OutputSpec = "FPS" | "Duration";
 interface CameraPanelProps {
   recordingStatus: RecordingStatus;
   setRecordingStatus: (v: RecordingStatus) => void;
+}
+
+export type SavedVideo = {
+  name: String;
+  type: RecordingMode;
+  blob: Blob;
+  timestamp: number;
+};
+
+export function getIndexDbRefFromSequence(type: string, timestamp: number) {
+  return "save_" + type + "_" + timestamp;
 }
 
 export function CameraPanel(props: CameraPanelProps): JSX.Element {
@@ -140,6 +152,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         intervalIdRef.current = null; // Clear the stored interval ID
       }
       props.setRecordingStatus("Stopped");
+
+      // TODO: show loading overlay
+
       // Wait for the last frames to be captured before compiling the video
       setTimeout(() => {
         console.log(
@@ -184,6 +199,46 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       downloadLink.textContent = "Download Timelapse Video";
       downloadLinkContainer.appendChild(downloadLink);
     }
+
+    const currentdate = new Date();
+    const datetime =
+      currentdate.getDate() +
+      "/" +
+      (currentdate.getMonth() + 1) +
+      "/" +
+      currentdate.getFullYear() +
+      "@" +
+      currentdate.getHours() +
+      ":" +
+      currentdate.getMinutes() +
+      ":" +
+      currentdate.getSeconds();
+
+    const videoToSave: SavedVideo = {
+      name: recordingMode + "-" + datetime,
+      type: recordingMode,
+      blob: videoBlob,
+      timestamp: Date.now(),
+    };
+
+    const save = async (toSave: SavedVideo) => {
+      try {
+        const length = await localforage.length();
+        const key = getIndexDbRefFromSequence(
+          videoToSave.type,
+          videoToSave.timestamp
+        );
+        console.log("SAVING", key, toSave);
+
+        await localforage.setItem(key, toSave);
+        console.log("Success!", await localforage.length());
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    console.log("SAVING VIDEO", videoToSave);
+    save(videoToSave);
   };
 
   function uint8ArrayToBlob(
@@ -349,7 +404,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   }
 
   return (
-    <div className="WebcamTimelapse">
+    <div className="Main">
       <div>
         {cameraOverlay}
         <video

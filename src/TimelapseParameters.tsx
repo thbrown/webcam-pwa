@@ -13,7 +13,7 @@ import { RecordingsPanel } from "./RecordingsPanel";
 import { FolderOpen, Camera } from "@blueprintjs/icons";
 import "./Main.scss";
 
-interface WebcamTimelapseProps {
+interface MainProps {
   timeLapseInterval: number;
   outputFPS: number;
   outputDuration: number;
@@ -24,7 +24,7 @@ interface WebcamTimelapseProps {
   setOutputSpec: (spec: OutputSpec) => void;
 }
 
-export function TimelapseParameters(props: WebcamTimelapseProps): JSX.Element {
+export function TimelapseParameters(props: MainProps): JSX.Element {
   const initialTimeLapseInterval = useMemo(() => props.timeLapseInterval, []);
   const initialDuration = useMemo(() => props.outputDuration, []);
   const initialFPS = useMemo(() => props.outputFPS, []);

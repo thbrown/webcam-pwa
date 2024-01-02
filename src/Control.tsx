@@ -15,7 +15,7 @@ export function Control(props: ControlProps): JSX.Element {
   if (props.recordingStatus === "Recording") {
     return (
       <div className="footer" style={{ display: "flex" }}>
-        <Button
+        {/*<Button
           className={"big-button simple-label"}
           icon={<Pause />}
           large={true}
@@ -24,7 +24,7 @@ export function Control(props: ControlProps): JSX.Element {
           style={{ paddingRight: "2px" }}
         >
           Pause
-        </Button>
+    </Button>*/}
         <Button
           className={"big-button simple-label"}
           icon={<Stop />}
