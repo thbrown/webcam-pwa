@@ -124,7 +124,7 @@ export function SavedVideoPanel(
         borderRadius: "3px",
       }}
     >
-      <div>{getIconForType(props.type)}</div>
+      <div style={{ marginLeft: "10px" }}>{getIconForType(props.type)}</div>
       <div>
         <img
           //style={{ width: "50px" }}

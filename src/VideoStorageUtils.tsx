@@ -173,7 +173,7 @@ export const getAllSavedVideosMetadata = async () => {
     (video) => video !== null
   ) as SavedVideoMetadata[];
 
-  return filteredVideos;
+  return filteredVideos.sort((a, b) => b.timestamp - a.timestamp);
 };
 
 async function resizeBase64Image(

@@ -19,6 +19,7 @@ import {
   getVideoElement,
   saveVideo,
 } from "./VideoStorageUtils";
+import { RecordingStats } from "./RecordingStats";
 
 export type RecordingMode = "Timelapse" | "StopMotion" | "Astronomical";
 export type OutputSpec = "FPS" | "Duration";
@@ -28,10 +29,6 @@ interface CameraPanelProps {
   setRecordingStatus: (v: RecordingStatus) => void;
   reloadSavedVideos: () => void;
   setVideoToShow: (video: Blob) => void;
-}
-
-export function getIndexDbRefFromSequence(type: string, timestamp: number) {
-  return "save_" + type + "_" + timestamp;
 }
 
 export function CameraPanel(props: CameraPanelProps): JSX.Element {
@@ -160,14 +157,19 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           "Number of frames before compiling:",
           capturedFrames.length
         );
-        const videoBlob = await compileVideo(capturedFrames, outputFPS); // TODO: duration here too
-        const savedVideoMetadata = await saveVideo(
+        const calculatedFPS =
+          outputSpec === "FPS"
+            ? outputFPS
+            : (capturedFrames.length / outputDuration) * 1000;
+        const videoBlob = await compileVideo(capturedFrames, calculatedFPS);
+        await saveVideo(
           videoBlob.blob,
           videoBlob.previewImage,
           recordingMode,
           props.reloadSavedVideos
         );
         props.setVideoToShow(videoBlob.blob);
+        setCapturedFrames([]);
         setSavingVideo(false);
       }, timeLapseInterval + 100); // Wait slightly longer than the capture interval
     }
@@ -185,117 +187,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     }
     props.setRecordingStatus("Paused");
   };
-
-  /*
-  // Compile frames into a video
-  const compileTimelapseVideo = (): void => {
-    const videoBlob = framesToVideo(capturedFrames);
-    const videoUrl = URL.createObjectURL(videoBlob);
-    const videoElement = document.createElement("video");
-    videoElement.src = videoUrl;
-    videoElement.controls = true;
-    videoElement.autoplay = true;
-    setVideoUrl(videoUrl);
-
-    const playbackContainer = document.getElementById(
-      "timelapsePlaybackContainer"
-    );
-    const downloadLinkContainer = document.getElementById("downloadLink");
-    if (playbackContainer) {
-      playbackContainer.innerHTML = "";
-      playbackContainer.appendChild(videoElement);
-
-      // Provide download link for the video
-      const downloadLink = document.createElement("a");
-      downloadLink.href = videoUrl;
-      downloadLink.download = "timelapse.webm";
-      downloadLink.textContent = "Download Timelapse Video";
-      downloadLinkContainer.appendChild(downloadLink);
-    }
-
-    const currentdate = new Date();
-    const datetime =
-      currentdate.getDate() +
-      "/" +
-      (currentdate.getMonth() + 1) +
-      "/" +
-      currentdate.getFullYear() +
-      "@" +
-      currentdate.getHours() +
-      ":" +
-      currentdate.getMinutes() +
-      ":" +
-      currentdate.getSeconds();
-
-    const videoToSave: SavedVideo = {
-      name: recordingMode + "-" + datetime,
-      type: recordingMode,
-      blob: videoBlob,
-      timestamp: Date.now(),
-    };
-
-    const save = async (toSave: SavedVideo) => {
-      try {
-        const length = await localforage.length();
-        const key = getIndexDbRefFromSequence(
-          videoToSave.type,
-          videoToSave.timestamp
-        );
-        console.log("SAVING", key, toSave);
-
-        await localforage.setItem(key, toSave);
-        props.reloadSavedVideos();
-        console.log("Success!", await localforage.length());
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    console.log("SAVING VIDEO", videoToSave);
-    save(videoToSave);
-  };
-
-  function uint8ArrayToBlob(
-    uint8Array: Uint8Array,
-    mimeType = "application/octet-stream"
-  ) {
-    // Create a new Blob from the Uint8Array
-    return new Blob([uint8Array], { type: mimeType });
-  }
-
-  // Convert captured frames to a video blob
-  const framesToVideo = (frames: string[]): Blob => {
-    //const webmBlob = tsWhammy.fromImageArray(frames, 1000 / timeLapseInterval);
-    const webmBlob = tsWhammy.fromImageArray(frames, outputFPS);
-    console.log("BLOB IS", webmBlob);
-    if (webmBlob instanceof Uint8Array) {
-      console.log(
-        "webm output is Uint8Array converting... not sure if this is correct"
-      );
-      return uint8ArrayToBlob(webmBlob);
-    }
-    return webmBlob;
-  };
-
-  // Cleanup resources after compiling the video
-  const cleanupResources = (videoUrl: string): void => {
-    console.log("Clean up resources");
-
-    // Revoke the object URL to free up memory
-    URL.revokeObjectURL(videoUrl);
-
-    // Clear the captured frames
-    setCapturedFrames([]);
-
-    // Stop the video stream
-    
-    if (videoRef.current && videoRef.current.srcObject) {
-      const mediaStream = videoRef.current.srcObject as MediaStream;
-      mediaStream.getTracks().forEach(track => track.stop());
-      videoRef.current.srcObject = null;
-    }
-  };
-  */
 
   const resizeVideo = () => {
     if (videoRef.current) {
@@ -451,16 +342,28 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           id="Timelapse"
           title={<div className="spacer">Timelapse</div>}
           panel={
-            <TimelapseParameters
-              timeLapseInterval={timeLapseInterval}
-              outputFPS={outputFPS}
-              outputDuration={outputDuration}
-              outputSpec={outputSpec}
-              setTimeLapseInterval={setTimeLapseInterval}
-              setOutputFPS={setOutputFPS}
-              setOutputDuration={setOutputDuration}
-              setOutputSpec={setOutputSpec}
-            />
+            props.recordingStatus === "Recording" ||
+            props.recordingStatus === "Paused" ? (
+              <RecordingStats
+                mode={recordingMode}
+                framesCaptured={capturedFrames.length}
+                outputFPS={outputFPS}
+                outputSpec={outputSpec}
+                outputDuration={outputDuration}
+                timeLapseInterval={timeLapseInterval}
+              />
+            ) : (
+              <TimelapseParameters
+                timeLapseInterval={timeLapseInterval}
+                outputFPS={outputFPS}
+                outputDuration={outputDuration}
+                outputSpec={outputSpec}
+                setTimeLapseInterval={setTimeLapseInterval}
+                setOutputFPS={setOutputFPS}
+                setOutputDuration={setOutputDuration}
+                setOutputSpec={setOutputSpec}
+              />
+            )
           }
           icon={<Time />}
         />

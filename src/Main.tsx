@@ -91,7 +91,10 @@ export function Main(props: MainProps): JSX.Element {
           style={{ width: "90vw" }}
           icon={<FolderOpen />}
         >
-          {getVideoElement(videoToShow)}
+          {getVideoElement(videoToShow, {
+            maxHeight: "82vh",
+            backgroundColor: "black",
+          })}
         </Dialog>
       ) : null}
     </>
