@@ -1,4 +1,4 @@
-import { Button, Spinner, Tab, TabId, Tabs } from "@blueprintjs/core";
+import { Button, Dialog, Spinner, Tab, TabId, Tabs } from "@blueprintjs/core";
 import React, {
   useRef,
   useState,
@@ -12,6 +12,13 @@ import { TimelapseParameters } from "./TimelapseParameters";
 import { Control } from "./Control";
 import { RecordingStatus } from "./App";
 import localforage from "localforage";
+import {
+  SavedVideoMetadata,
+  compileVideo,
+  getVideoBlob,
+  getVideoElement,
+  saveVideo,
+} from "./VideoStorageUtils";
 
 export type RecordingMode = "Timelapse" | "StopMotion" | "Astronomical";
 export type OutputSpec = "FPS" | "Duration";
@@ -20,14 +27,8 @@ interface CameraPanelProps {
   recordingStatus: RecordingStatus;
   setRecordingStatus: (v: RecordingStatus) => void;
   reloadSavedVideos: () => void;
+  setVideoToShow: (video: Blob) => void;
 }
-
-export type SavedVideo = {
-  name: String;
-  type: RecordingMode;
-  blob: Blob;
-  timestamp: number;
-};
 
 export function getIndexDbRefFromSequence(type: string, timestamp: number) {
   return "save_" + type + "_" + timestamp;
@@ -40,10 +41,10 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [recordingMode, setRecordingMode] =
     useState<RecordingMode>("Timelapse");
   const [capturedFrames, setCapturedFrames] = useState<string[]>([]);
-  const [videoUrl, setVideoUrl] = useState<string>("");
   const [cameraPermission, setCameraPermission] = useState<
     PermissionState | undefined
   >(undefined);
+  const [savingVideo, setSavingVideo] = useState<boolean>(false);
 
   // Timelapse Mode
   const [outputDuration, setOutputDuration] = useState<number>(1000);
@@ -68,6 +69,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           });
       } catch (error) {
         // Permission denied or error occurred
+        // TODO: Does FF end up here? Because it can't check perms for "camera"?
         setCameraPermission("denied");
       }
     };
@@ -105,23 +107,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       .finally(() => resizeVideo());
   };
 
-  // Start time-lapse recording
-  const startTimelapse = (): void => {
-    if (
-      props.recordingStatus === "Stopped" ||
-      props.recordingStatus === "Paused"
-    ) {
-      if (videoUrl !== undefined) {
-        cleanupResources(videoUrl);
-      }
-      props.setRecordingStatus("Recording");
-      captureFrame();
-      // Store the interval ID in the ref
-      intervalIdRef.current = setInterval(captureFrame, timeLapseInterval);
-      console.log("Start recording!!", intervalIdRef.current);
-    }
-  };
-
   // Draw video frame to canvas
   const captureFrame = (): void => {
     if (canvasRef.current && videoRef.current) {
@@ -144,37 +129,64 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     }
   };
 
+  // Start time-lapse recording
+  const startTimelapse = (): void => {
+    if (
+      props.recordingStatus === "Stopped" ||
+      props.recordingStatus === "Paused"
+    ) {
+      props.setRecordingStatus("Recording");
+      captureFrame();
+      // Store the interval ID in the ref
+      intervalIdRef.current = setInterval(captureFrame, timeLapseInterval);
+      console.log("Start recording!!", intervalIdRef.current);
+    }
+  };
+
   // Stop time-lapse recording
-  const stopTimelapse = (): void => {
+  const stopTimelapse = () => {
     if (props.recordingStatus) {
       console.log("Stop recording!!", intervalIdRef.current);
+      setSavingVideo(true); // TODO: show loading overlay
       if (intervalIdRef.current) {
         clearInterval(intervalIdRef.current);
         intervalIdRef.current = null; // Clear the stored interval ID
       }
       props.setRecordingStatus("Stopped");
 
-      // TODO: show loading overlay
-
       // Wait for the last frames to be captured before compiling the video
-      setTimeout(() => {
+      setTimeout(async () => {
         console.log(
           "Number of frames before compiling:",
           capturedFrames.length
         );
-        compileTimelapseVideo();
+        const videoBlob = await compileVideo(capturedFrames, outputFPS); // TODO: duration here too
+        const savedVideoMetadata = await saveVideo(
+          videoBlob.blob,
+          videoBlob.previewImage,
+          recordingMode,
+          props.reloadSavedVideos
+        );
+        props.setVideoToShow(videoBlob.blob);
+        setSavingVideo(false);
       }, timeLapseInterval + 100); // Wait slightly longer than the capture interval
     }
   };
 
   // Pause time-lapse recording
   const pauseTimelapse = (): void => {
-    if (props.recordingStatus === "Recording") {
-      props.setRecordingStatus("Paused");
+    // TODO: how should we handle pause restarts? Take a frame immediately? Store the paused time time?
+    if (props.recordingStatus !== "Recording") {
+      return;
     }
-    console.warn("PAUSE NOT IMPLEMENTED");
+    if (intervalIdRef.current) {
+      clearInterval(intervalIdRef.current);
+      intervalIdRef.current = null; // Clear the stored interval ID
+    }
+    props.setRecordingStatus("Paused");
   };
 
+  /*
   // Compile frames into a video
   const compileTimelapseVideo = (): void => {
     const videoBlob = framesToVideo(capturedFrames);
@@ -276,14 +288,14 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     setCapturedFrames([]);
 
     // Stop the video stream
-    /*
+    
     if (videoRef.current && videoRef.current.srcObject) {
       const mediaStream = videoRef.current.srcObject as MediaStream;
       mediaStream.getTracks().forEach(track => track.stop());
       videoRef.current.srcObject = null;
     }
-    */
   };
+  */
 
   const resizeVideo = () => {
     if (videoRef.current) {
@@ -401,7 +413,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   }, [cameraPermission]);
 
   function handelRecordModeChange(targetPanel: RecordingMode): void {
-    console.log("Tab change", targetPanel);
     setRecordingMode(targetPanel);
   }
 
@@ -466,6 +477,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           title={<div className="spacer">Astronomical</div>}
           panel={<div>ASTRONOMICAL - NOT IMPLEMENTED</div>}
           icon={<Clean />}
+          // https://gml.noaa.gov/grad/solcalc/table.php?lat=39.74&lon=-104.99&year=2024
         />
       </Tabs>
 

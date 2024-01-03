@@ -1,12 +1,12 @@
 import React, { useRef, useState, useEffect, useMemo } from "react";
-import localforage from "localforage";
 import { Spinner } from "@blueprintjs/core";
-import { SavedVideo, getIndexDbRefFromSequence } from "./CameraPanel";
 import { SavedVideoPanel } from "./SavedVideo";
+import { SavedVideoMetadata } from "./VideoStorageUtils";
 
 interface RecordingPanelProps {
-  savedVideos: SavedVideo[];
+  savedVideos: SavedVideoMetadata[];
   reloadSavedVideos: () => void;
+  setVideoToShow: (video: Blob) => void;
 }
 
 export function RecordingsPanel(props: RecordingPanelProps): JSX.Element {
@@ -19,17 +19,47 @@ export function RecordingsPanel(props: RecordingPanelProps): JSX.Element {
     );
   }
 
-  const panels: JSX.Element[] = props.savedVideos.map((video, index) => (
+  if (props.savedVideos.length === 0) {
+    return (
+      <div style={{ margin: "50px", textAlign: "center" }}>
+        There are currently no saved videos.
+      </div>
+    );
+  }
+
+  const panels: JSX.Element[] = props.savedVideos.map((video) => (
+    // TODO: use spread op here somehow if it's possible?
     <SavedVideoPanel
-      name={video.name}
       type={video.type}
-      blob={video.blob}
+      size={video.size}
       timestamp={video.timestamp}
-      indexDbKey={getIndexDbRefFromSequence(video.type, video.timestamp)}
-      key={index}
+      saveUuid={video.saveUuid}
+      previewImage={video.previewImage}
+      key={video.saveUuid}
       reloadSavedVideos={props.reloadSavedVideos}
+      setVideoToShow={props.setVideoToShow}
     />
   ));
 
-  return <div>{panels}</div>;
+  return (
+    <div>
+      <div
+        style={{
+          marginLeft: "10px",
+          marginRight: "10px",
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <div>Type</div>
+        <div>Img</div>
+        <div>Date/Time</div>
+        <div>Size</div>
+        <div>Play</div>
+        <div>Download</div>
+        <div>Delete</div>
+      </div>
+      {panels}
+    </div>
+  );
 }

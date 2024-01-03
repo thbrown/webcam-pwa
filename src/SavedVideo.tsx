@@ -1,25 +1,44 @@
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import localforage from "localforage";
 import { Button, Checkbox, Spinner } from "@blueprintjs/core";
-import { RecordingMode, SavedVideo } from "./CameraPanel";
-import { Time, Stopwatch, Clean, Download, Trash } from "@blueprintjs/icons";
+import { RecordingMode } from "./CameraPanel";
+import {
+  Time,
+  Stopwatch,
+  Clean,
+  Download,
+  Trash,
+  Play,
+} from "@blueprintjs/icons";
+import {
+  SavedVideoMetadata,
+  deleteVideo,
+  downloadVideo,
+  getVideoBlob,
+} from "./VideoStorageUtils";
 
 export function SavedVideoPanel(
-  props: SavedVideo & { indexDbKey: string; reloadSavedVideos: () => void }
+  props: SavedVideoMetadata & {
+    reloadSavedVideos: () => void;
+    setVideoToShow: (video: Blob) => void;
+  }
 ): JSX.Element {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  const handleDownload = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDownload = async (event: React.MouseEvent<HTMLButtonElement>) => {
     console.log("DOWNLOAD", event.target);
-
-    PIZZA;
+    downloadVideo(await getVideoBlob(props.saveUuid));
   };
 
   const handleDelete = async (event: React.MouseEvent<HTMLButtonElement>) => {
     setIsDeleting(true);
-    await localforage.removeItem(props.indexDbKey);
+    await deleteVideo(props.saveUuid);
     setIsDeleting(false);
     props.reloadSavedVideos();
+  };
+
+  const handlePlayVideo = async () => {
+    props.setVideoToShow(await getVideoBlob(props.saveUuid));
   };
 
   /**
@@ -106,19 +125,20 @@ export function SavedVideoPanel(
       }}
     >
       <div>{getIconForType(props.type)}</div>
-      <div
-        style={{
-          textOverflow: "ellipsis",
-          maxWidth: "132px",
-        }}
-      >
-        {props.name}
+      <div>
+        <img
+          //style={{ width: "50px" }}
+          id="myImage"
+          src={props.previewImage}
+          alt="Image from String"
+        />
       </div>
       <div>
         <div>{date}</div>
         <div>{time}</div>
       </div>
-      <div>{humanFileSize(props.blob.size)}</div>
+      <div>{humanFileSize(props.size)}</div>
+      <Button large={true} icon={<Play />} onClick={handlePlayVideo} />
       <Button large={true} icon={<Download />} onClick={handleDownload} />
       <Button large={true} icon={<Trash />} onClick={handleDelete} />
     </div>
