@@ -19,6 +19,7 @@ export type OutputSpec = "FPS" | "Duration";
 interface CameraPanelProps {
   recordingStatus: RecordingStatus;
   setRecordingStatus: (v: RecordingStatus) => void;
+  reloadSavedVideos: () => void;
 }
 
 export type SavedVideo = {
@@ -231,6 +232,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         console.log("SAVING", key, toSave);
 
         await localforage.setItem(key, toSave);
+        props.reloadSavedVideos();
         console.log("Success!", await localforage.length());
       } catch (err) {
         console.error(err);
@@ -455,14 +457,14 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           className="no-highlight minimal-top-margin"
           id="StopMotion"
           title={<div className="spacer">Stop Motion</div>}
-          panel={<div>STOP MOTION</div>}
+          panel={<div>STOP MOTION - NOT IMPLEMENTED</div>}
           icon={<Stopwatch />}
         />
         <Tab
           className="no-highlight minimal-top-margin"
           id="Astronomical"
           title={<div className="spacer">Astronomical</div>}
-          panel={<div>ASTRONOMICAL</div>}
+          panel={<div>ASTRONOMICAL - NOT IMPLEMENTED</div>}
           icon={<Clean />}
         />
       </Tabs>

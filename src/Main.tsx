@@ -1,6 +1,6 @@
 import { Tab, Tabs } from "@blueprintjs/core";
-import React, { useRef, useState, useEffect } from "react";
-import { CameraPanel } from "./CameraPanel";
+import React, { useRef, useState, useEffect, useMemo } from "react";
+import { CameraPanel, SavedVideo } from "./CameraPanel";
 import { RecordingsPanel } from "./RecordingsPanel";
 import { FolderOpen, Camera } from "@blueprintjs/icons";
 import "./Main.scss";
@@ -16,25 +16,37 @@ interface MainProps {
 
 export function Main(props: MainProps): JSX.Element {
   const [mainPanel, setMainPanel] = useState<MainPanel>("camera");
-  const [recordingCount, setRecordingCount] = useState<number | undefined>(
+  const [savedVideos, setSavedVideos] = useState<SavedVideo[] | undefined>(
     undefined
   );
+
+  const reloadSavedVideos = async (): Promise<SavedVideo[]> => {
+    const allStoredPromises: Promise<SavedVideo | null>[] = [];
+    const length = await localforage.length();
+
+    for (let i = 0; i < length; i++) {
+      allStoredPromises.push(
+        localforage.getItem<SavedVideo | null>(await localforage.key(i))
+      );
+    }
+
+    const resolvedPromises = await Promise.all(allStoredPromises);
+
+    // Filter out null values and ensure type safety
+    const filteredVideos: SavedVideo[] = resolvedPromises.filter(
+      (video) => video !== null
+    ) as SavedVideo[];
+
+    setSavedVideos(filteredVideos);
+
+    return filteredVideos;
+  };
+
+  useMemo(reloadSavedVideos, []);
 
   const handleTabChange = (targetPanel: MainPanel) => {
     setMainPanel(targetPanel);
   };
-
-  useEffect(() => {
-    const fetchRecordingCount = async () => {
-      try {
-        const count = await localforage.length();
-        setRecordingCount(count);
-      } catch (error) {
-        console.error("Error fetching recording count:", error);
-      }
-    };
-    fetchRecordingCount();
-  });
 
   return (
     <Tabs
@@ -51,6 +63,7 @@ export function Main(props: MainProps): JSX.Element {
           <CameraPanel
             recordingStatus={props.recordingStatus}
             setRecordingStatus={props.setRecordingStatus}
+            reloadSavedVideos={reloadSavedVideos}
           />
         }
         icon={<Camera />}
@@ -59,9 +72,14 @@ export function Main(props: MainProps): JSX.Element {
         className="no-highlight minimal-top-margin"
         id="recordings"
         title={<div className="spacer">Recordings</div>}
-        panel={<RecordingsPanel />}
+        panel={
+          <RecordingsPanel
+            savedVideos={savedVideos}
+            reloadSavedVideos={reloadSavedVideos}
+          />
+        }
         icon={<FolderOpen />}
-        tagContent={recordingCount}
+        tagContent={savedVideos === undefined ? undefined : savedVideos.length}
       />
     </Tabs>
   );

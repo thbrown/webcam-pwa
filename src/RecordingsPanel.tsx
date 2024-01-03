@@ -4,37 +4,14 @@ import { Spinner } from "@blueprintjs/core";
 import { SavedVideo, getIndexDbRefFromSequence } from "./CameraPanel";
 import { SavedVideoPanel } from "./SavedVideo";
 
-export function RecordingsPanel(): JSX.Element {
-  const [savedVideos, setSavedVideos] = useState<SavedVideo[] | undefined>([]);
+interface RecordingPanelProps {
+  savedVideos: SavedVideo[];
+  reloadSavedVideos: () => void;
+}
 
-  const getSavedVideos = async (): Promise<SavedVideo[]> => {
-    const allStoredPromises: Promise<SavedVideo | null>[] = [];
-    const length = await localforage.length();
-
-    for (let i = 0; i < length; i++) {
-      allStoredPromises.push(
-        localforage.getItem<SavedVideo | null>(await localforage.key(i))
-      );
-    }
-
-    const resolvedPromises = await Promise.all(allStoredPromises);
-
-    // Filter out null values and ensure type safety
-    const filteredVideos: SavedVideo[] = resolvedPromises.filter(
-      (video) => video !== null
-    ) as SavedVideo[];
-
-    return filteredVideos;
-  };
-
-  useMemo(async () => {
-    const result = await getSavedVideos();
-    setSavedVideos(result);
-    return result;
-  }, []);
-
+export function RecordingsPanel(props: RecordingPanelProps): JSX.Element {
   // Loading...
-  if (savedVideos === undefined) {
+  if (props.savedVideos === undefined) {
     return (
       <div>
         <Spinner size={64} />
@@ -42,14 +19,15 @@ export function RecordingsPanel(): JSX.Element {
     );
   }
 
-  const panels: JSX.Element[] = savedVideos.map((video, index) => (
+  const panels: JSX.Element[] = props.savedVideos.map((video, index) => (
     <SavedVideoPanel
       name={video.name}
       type={video.type}
-      blob={undefined}
+      blob={video.blob}
       timestamp={video.timestamp}
       indexDbKey={getIndexDbRefFromSequence(video.type, video.timestamp)}
       key={index}
+      reloadSavedVideos={props.reloadSavedVideos}
     />
   ));
 
