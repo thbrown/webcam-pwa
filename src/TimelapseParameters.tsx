@@ -66,7 +66,6 @@ export function TimelapseParameters(props: MainProps): JSX.Element {
           />
         </label>
       </div>
-      <Divider style={{ marginTop: "-1px" }} />
       <RadioGroup
         selectedValue={props.outputSpec}
         onChange={(e: React.FormEvent<HTMLInputElement>): void => {
@@ -118,7 +117,6 @@ export function TimelapseParameters(props: MainProps): JSX.Element {
           />
         </div>
       )}
-      <Divider style={{ marginTop: "-1px" }} />
     </div>
   );
 }

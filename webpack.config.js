@@ -1,7 +1,10 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
+  mode: "production",
+  devtool: "inline-source-map",
   output: {
     path: path.join(__dirname, "/docs"), // docs for github pages
     filename: "bundle.js", // the name of the bundle
@@ -17,7 +20,12 @@ module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
   },
-  devtool: "inline-source-map",
+  // This breaks dev mode
+  //plugins: [
+  //  new CopyPlugin({
+  //    patterns: [{ from: "src/assets", to: "" }],
+  //  }),
+  //],
   module: {
     rules: [
       {

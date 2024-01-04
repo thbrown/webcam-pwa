@@ -39,7 +39,7 @@ export function Control(props: ControlProps): JSX.Element {
     );
   } else if (props.recordingStatus === "Stopped") {
     return (
-      <div className="footer">
+      <div style={{ marginTop: "3px" }} className="footer">
         <Button
           className={"big-button simple-label"}
           icon={<Record />}
