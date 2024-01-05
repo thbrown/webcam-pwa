@@ -1,47 +1,15 @@
-import {
-  Button,
-  Classes,
-  Collapse,
-  Dialog,
-  Label,
-  RadioGroup,
-  SegmentedControl,
-  Slider,
-  Spinner,
-  Tab,
-  TabId,
-  Tabs,
-  TextArea,
-} from "@blueprintjs/core";
-import React, {
-  useRef,
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  FormEvent,
-} from "react";
-import tsWhammy from "ts-whammy/src/libs";
-import {
-  Time,
-  Stopwatch,
-  Clean,
-  ChevronRight,
-  ChevronDown,
-  Camera,
-} from "@blueprintjs/icons";
+import { Button, Spinner, Tab, Tabs } from "@blueprintjs/core";
+import React, { useRef, useState, useEffect, useMemo } from "react";
+import { Time, Stopwatch, Clean, Camera } from "@blueprintjs/icons";
 import { TimelapseParameters } from "./TimelapseParameters";
-import { Control } from "./Control";
+import { TimelapseControl } from "./TimelapseControl";
 import { RecordingStatus } from "./App";
-import localforage from "localforage";
-import {
-  SavedVideoMetadata,
-  compileVideo,
-  getVideoBlob,
-  getVideoElement,
-  saveVideo,
-} from "./VideoStorageUtils";
-import { RecordingStats } from "./RecordingStats";
+import { compileVideo, saveVideo } from "./VideoStorageUtils";
+import { TimelapseRecordingStats } from "./TimelapseRecordingStats";
+import { StopMotionRecordingStats } from "./TimelapseRecordingStats";
+import { StopMotionControl } from "./StopMotionControl";
+import { AdvancedCameraOptions } from "./AdvancedCameraOptions";
+import { StopMotionParameters } from "./StopMotionParameters";
 
 export type RecordingMode = "Timelapse" | "StopMotion" | "Astronomical";
 export type OutputSpec = "FPS" | "Duration";
@@ -53,11 +21,11 @@ interface CameraPanelProps {
   setVideoToShow: (video: Blob) => void;
 }
 
-type CameraSettings = {
+export type CameraSettings = {
   [key: string]: string | number;
 };
 
-type CameraCapabilities = {
+export type CameraCapabilities = {
   [key: string]:
     | {
         max: number;
@@ -85,8 +53,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [cameraSettings, setCameraSettings] = useState<
     CameraSettings | undefined
   >(undefined);
-  const [areAdvancedOptionsEnabled, setAreAdvancedOptionsEnabled] =
-    useState<boolean>(false);
+
   const [activeTrack, setActiveTrack] = useState<MediaStreamTrack>(undefined);
 
   // Timelapse State
@@ -128,10 +95,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     // Check if camera permission has already been granted
     checkCameraPermission();
   }, []);
-
-  const clamp = (value: number, min: number, max: number): number => {
-    return Math.min(Math.max(value, min), max);
-  };
 
   // Use useRef to store the interval ID so it persists across renders
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
@@ -176,124 +139,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       .finally(() => resizeVideo());
   };
 
-  const handleAdvancedOptionChange = (
-    value: string | number,
-    settingsKey: keyof MediaTrackConstraintSet
-  ): void => {
-    console.log("Advanced Option Change", value, settingsKey);
-    const patch: MediaTrackConstraintSet = {};
-    patch[settingsKey] = value;
-    const constraints: MediaTrackConstraints = {
-      advanced: [patch],
-    };
-    activeTrack.applyConstraints(constraints);
-    setCameraSettings({
-      ...cameraSettings,
-      ...(patch as Partial<CameraSettings>),
-    });
-  };
-
-  const generateUIForCameraCapabilities = (
-    capabilities: CameraCapabilities | undefined,
-    settings: CameraSettings | undefined
-  ): JSX.Element[] => {
-    if (capabilities === undefined) {
-      return [
-        <div style={{ padding: "20px" }}>
-          <Spinner size={64} />
-        </div>,
-      ];
-    }
-    console.log("rendering capabilities", capabilities);
-    return Object.entries(capabilities).map((capability, index) => {
-      const [key, value] = capability;
-
-      const renderSettingUI = () => {
-        if (Array.isArray(value)) {
-          // Render radio buttons for arrays
-          return (
-            <Label style={{ display: "flex" }}>
-              <div style={{ marginRight: "15px", width: "100%" }}>{key}</div>
-              <SegmentedControl
-                className="capability-input"
-                key={index}
-                inline
-                fill={true}
-                options={value.map((item) => ({
-                  label: item.toString(),
-                  value: item.toString(),
-                }))}
-                value={String(settings[key])}
-                onValueChange={(v) =>
-                  handleAdvancedOptionChange(
-                    v,
-                    key as keyof MediaTrackConstraintSet
-                  )
-                }
-              />
-            </Label>
-          );
-        } else if (typeof value === "string" || typeof value === "number") {
-          // We wont render anything for these, there is only one option
-          /*
-          return (
-            <Label style={{ display: "flex" }}>
-              <div style={{ marginRight: "15px", width: "100%" }}>{key}</div>
-              <input
-                type="string"
-                className={Classes.INPUT}
-                placeholder={settings[key]}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {}}
-              />
-            </Label>
-          );
-          */
-        } else {
-          // Render slider for object with min, max, step properties
-          const {
-            min,
-            max,
-            step = 1,
-          } = value as { min: number; max: number; step?: number };
-
-          console.log("SLIDER", key, parseInt(String(settings[key])));
-          const NUM_STEPS = 4;
-          const calcStepSize = (max - min) / NUM_STEPS;
-          return (
-            <Label style={{ display: "flex" }}>
-              <div style={{ marginRight: "15px", width: "100%" }}>{key}</div>
-              <Slider
-                key={index}
-                min={min}
-                max={max}
-                stepSize={Math.round(step)}
-                value={clamp(parseInt(String(settings[key])), min, max)}
-                labelStepSize={calcStepSize}
-                onChange={(v) =>
-                  handleAdvancedOptionChange(
-                    v,
-                    key as keyof MediaTrackConstraintSet
-                  )
-                }
-              />
-            </Label>
-          );
-        }
-      };
-
-      return (
-        <div
-          key={index}
-          style={{
-            padding: "0px 30px",
-          }}
-        >
-          {renderSettingUI()}
-        </div>
-      );
-    });
-  };
-
   // Draw video frame to canvas
   const captureFrame = (): void => {
     if (canvasRef.current && videoRef.current) {
@@ -316,6 +161,14 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     }
   };
 
+  const captureStopMotionFrame = (): void => {
+    props.setRecordingStatus("Recording");
+    captureFrame();
+    setTimeout(() => {
+      props.setRecordingStatus("Paused");
+    }, 100); // TODO: this might be annoying, remove?
+  };
+
   // Start time-lapse recording
   const startTimelapse = (): void => {
     if (
@@ -331,7 +184,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   };
 
   // Stop time-lapse recording
-  const stopTimelapse = () => {
+  const stopAndSave = () => {
     if (props.recordingStatus) {
       console.log("Stop recording!!", intervalIdRef.current);
       setSavingVideo(true); // TODO: show loading overlay
@@ -406,10 +259,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const setLoadingAndStartVideo = () => {
     setCameraPermission(undefined);
     startVideo();
-  };
-
-  const handleToggleAdvancedOptions = () => {
-    setAreAdvancedOptionsEnabled(!areAdvancedOptionsEnabled);
   };
 
   useEffect(() => {
@@ -501,6 +350,31 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     setRecordingMode(targetPanel);
   }
 
+  const getControls = () => {
+    switch (recordingMode) {
+      case "StopMotion":
+        return (
+          <StopMotionControl
+            recordingStatus={props.recordingStatus}
+            onStart={captureStopMotionFrame}
+            onSnapshot={captureStopMotionFrame}
+            onStop={stopAndSave}
+          />
+        );
+      case "Timelapse":
+        return (
+          <TimelapseControl
+            recordingStatus={props.recordingStatus}
+            onStart={startTimelapse}
+            onStop={stopAndSave}
+            onPause={pauseTimelapse}
+          />
+        );
+      default:
+        return <div> CONTROLS NOT IMPLEMENTED </div>;
+    }
+  };
+
   return (
     <div className="Main">
       <div>
@@ -524,7 +398,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         width="640"
         height="480"
       />
-
       {savingVideo ? (
         <div>
           <div style={{ padding: "20px", textAlign: "center" }}>
@@ -546,7 +419,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             panel={
               props.recordingStatus === "Recording" ||
               props.recordingStatus === "Paused" ? (
-                <RecordingStats
+                <TimelapseRecordingStats
                   mode={recordingMode}
                   framesCaptured={capturedFrames.length}
                   outputFPS={outputFPS}
@@ -566,53 +439,63 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     setOutputDuration={setOutputDuration}
                     setOutputSpec={setOutputSpec}
                   />
-                  {cameraPermission === "granted" ? (
-                    <Button
-                      icon={
-                        areAdvancedOptionsEnabled ? (
-                          <ChevronDown />
-                        ) : (
-                          <ChevronRight />
-                        )
-                      }
-                      alignText={"left"}
-                      onClick={handleToggleAdvancedOptions}
-                      fill={true}
-                      outlined={false}
-                      style={{ marginBottom: "5px" }}
-                      minimal={true}
-                    >
-                      {areAdvancedOptionsEnabled ? "Hide" : "Show"} advanced
-                      options
-                    </Button>
-                  ) : null}
-                  <Collapse isOpen={areAdvancedOptionsEnabled}>
-                    <div
-                      style={{
-                        height: "25vh",
-                        overflow: "auto",
-                        background: "#2d72d212", //lightblue
-                        paddingTop: "10px",
-                        borderRadius: "3px",
-                      }}
-                    >
-                      {generateUIForCameraCapabilities(
-                        supportedCameraCapabilities,
-                        cameraSettings
-                      )}
-                    </div>
-                  </Collapse>
+                  <AdvancedCameraOptions
+                    setCameraSettings={setCameraSettings}
+                    cameraPermission={cameraPermission}
+                    cameraSettings={cameraSettings}
+                    activeTrack={activeTrack}
+                    supportedCameraCapabilities={supportedCameraCapabilities}
+                  />
                 </div>
               )
             }
             icon={<Time />}
+            disabled={
+              props.recordingStatus === "Recording" ||
+              props.recordingStatus === "Paused"
+            }
           />
           <Tab
             className="no-highlight minimal-top-margin"
             id="StopMotion"
             title={<div className="spacer">Stop Motion</div>}
-            panel={<div>STOP MOTION - NOT IMPLEMENTED</div>}
+            panel={
+              <>
+                {props.recordingStatus === "Recording" ||
+                props.recordingStatus === "Paused" ? (
+                  <TimelapseRecordingStats
+                    mode={recordingMode}
+                    framesCaptured={capturedFrames.length}
+                    outputFPS={outputFPS}
+                    outputSpec={outputSpec}
+                    outputDuration={outputDuration}
+                    timeLapseInterval={timeLapseInterval}
+                  />
+                ) : null}
+                <div>
+                  <StopMotionParameters
+                    outputFPS={outputFPS}
+                    outputDuration={outputDuration}
+                    outputSpec={outputSpec}
+                    setOutputFPS={setOutputFPS}
+                    setOutputDuration={setOutputDuration}
+                    setOutputSpec={setOutputSpec}
+                  />
+                  <AdvancedCameraOptions
+                    setCameraSettings={setCameraSettings}
+                    cameraPermission={cameraPermission}
+                    cameraSettings={cameraSettings}
+                    activeTrack={activeTrack}
+                    supportedCameraCapabilities={supportedCameraCapabilities}
+                  />
+                </div>
+              </>
+            }
             icon={<Stopwatch />}
+            disabled={
+              props.recordingStatus === "Recording" ||
+              props.recordingStatus === "Paused"
+            }
           />
           <Tab
             className="no-highlight minimal-top-margin"
@@ -620,19 +503,15 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             title={<div className="spacer">Astronomical</div>}
             panel={<div>ASTRONOMICAL - NOT IMPLEMENTED</div>}
             icon={<Clean />}
+            disabled={
+              props.recordingStatus === "Recording" ||
+              props.recordingStatus === "Paused"
+            }
             // https://gml.noaa.gov/grad/solcalc/table.php?lat=39.74&lon=-104.99&year=2024
           />
         </Tabs>
       )}
-
-      {cameraPermission === "granted" && !savingVideo ? (
-        <Control
-          onStart={startTimelapse}
-          onStop={stopTimelapse}
-          onPause={pauseTimelapse}
-          recordingStatus={props.recordingStatus}
-        />
-      ) : null}
+      {cameraPermission === "granted" && !savingVideo ? getControls() : null}
     </div>
   );
 }

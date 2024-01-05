@@ -5,9 +5,8 @@ import { Record, Stop, Pause } from "@blueprintjs/icons";
 import { RecordingStatus } from "./App";
 import { OutputSpec, RecordingMode } from "./CameraPanel";
 import humanizeDuration from "humanize-duration";
-//const humanizeDuration = require("humanize-duration");
 
-interface RecordingStatsProps {
+interface TimelapseRecordingStatsProps {
   mode: RecordingMode;
   framesCaptured: number;
   outputFPS: number;
@@ -16,7 +15,9 @@ interface RecordingStatsProps {
   outputSpec: OutputSpec;
 }
 
-export function RecordingStats(props: RecordingStatsProps): JSX.Element {
+export function TimelapseRecordingStats(
+  props: TimelapseRecordingStatsProps
+): JSX.Element {
   return (
     <div style={{ padding: "10px" }}>
       <div>

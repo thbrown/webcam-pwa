@@ -14,43 +14,20 @@ import { FolderOpen, Camera } from "@blueprintjs/icons";
 import "./Main.scss";
 import { OutputSpecProps } from "./OutputSpec";
 
-interface MainProps {
-  timeLapseInterval: number;
+interface StopMotionParametersProps {
   outputFPS: number;
   outputDuration: number;
   outputSpec: OutputSpec;
-  setTimeLapseInterval: (interval: number) => void;
   setOutputFPS: (fps: number) => void;
   setOutputDuration: (duration: number) => void;
   setOutputSpec: (spec: OutputSpec) => void;
 }
 
-export function TimelapseParameters(props: MainProps): JSX.Element {
-  const initialTimeLapseInterval = useMemo(() => props.timeLapseInterval, []);
-
+export function StopMotionParameters(
+  props: StopMotionParametersProps
+): JSX.Element {
   return (
     <div>
-      <div className="complex-radio-group">
-        <label className="radio-option">
-          <Label style={{ marginBottom: "5px" }} htmlFor="time-between-frames">
-            Time Between Frames (ms)
-          </Label>
-          <input
-            type="number"
-            id="time-between-frames"
-            className={Classes.INPUT}
-            placeholder={String(initialTimeLapseInterval)}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const newValue = Number(e.target.value);
-              props.setTimeLapseInterval(
-                isNaN(newValue) || newValue <= 0
-                  ? initialTimeLapseInterval
-                  : newValue
-              );
-            }}
-          />
-        </label>
-      </div>
       <OutputSpecProps
         outputFPS={props.outputFPS}
         outputDuration={props.outputDuration}

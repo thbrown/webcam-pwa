@@ -1,6 +1,5 @@
 import { Dialog, Tab, Tabs } from "@blueprintjs/core";
 import React, { useRef, useState, useEffect, useMemo } from "react";
-import { CameraPanel } from "./CameraPanel";
 import { RecordingsPanel } from "./RecordingsPanel";
 import { FolderOpen, Camera } from "@blueprintjs/icons";
 import "./Main.scss";
@@ -11,6 +10,7 @@ import {
   getAllSavedVideosMetadata,
   getVideoElement,
 } from "./VideoStorageUtils";
+import { CameraPanel } from "./CameraPanel";
 
 export type MainPanel = "camera" | "recordings";
 

@@ -127,7 +127,7 @@ export function SavedVideoPanel(
       <div style={{ marginLeft: "10px" }}>{getIconForType(props.type)}</div>
       <div>
         <img
-          //style={{ width: "50px" }}
+          style={{ borderRadius: "3px" }}
           id="myImage"
           src={props.previewImage}
           alt="Image from String"

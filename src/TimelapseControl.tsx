@@ -4,14 +4,14 @@ import React, { useRef, useState, useEffect } from "react";
 import { Record, Stop, Pause } from "@blueprintjs/icons";
 import { RecordingStatus } from "./App";
 
-interface ControlProps {
+interface TimelapseControlProps {
   recordingStatus: RecordingStatus;
   onStop: () => void;
   onPause: () => void;
   onStart: () => void;
 }
 
-export function Control(props: ControlProps): JSX.Element {
+export function TimelapseControl(props: TimelapseControlProps): JSX.Element {
   if (props.recordingStatus === "Recording") {
     return (
       <div className="footer" style={{ display: "flex" }}>

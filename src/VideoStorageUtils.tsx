@@ -1,4 +1,4 @@
-import { RecordingMode, getIndexDbRefFromSequence } from "./CameraPanel";
+import { RecordingMode } from "./CameraPanel";
 import { v4 as uuidv4 } from "uuid";
 import tsWhammy from "ts-whammy/src/libs";
 import localforage from "localforage";
