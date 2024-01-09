@@ -50,7 +50,7 @@ export const compileVideo = async (
       previewImage: await resizeBase64Image(inputFrames[0], 50, 41),
     };
   } catch (e) {
-    alert("Video compile error: " + e);
+    alert("Video compile error: " + e + " - " + e.stack);
   }
 };
 

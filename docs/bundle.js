@@ -8542,7 +8542,7 @@ function AdvancedCameraOptions(props) {
         paddingTop: "10px",
         borderRadius: "3px"
       }
-    }, generateUIForCameraCapabilities(props.supportedCameraCapabilities, props.cameraSettings))));
+    }, areAdvancedOptionsEnabled ? generateUIForCameraCapabilities(props.supportedCameraCapabilities, props.cameraSettings) : null)));
   } catch (e) {
     console.log(e);
     alert(e + " - " + e.stack);
@@ -9932,7 +9932,7 @@ var compileVideo = /*#__PURE__*/function () {
         case 13:
           _context.prev = 13;
           _context.t2 = _context["catch"](0);
-          alert("Video compile error: " + _context.t2);
+          alert("Video compile error: " + _context.t2 + " - " + _context.t2.stack);
         case 16:
         case "end":
           return _context.stop();

@@ -170,10 +170,12 @@ export function AdvancedCameraOptions(
               borderRadius: "3px",
             }}
           >
-            {generateUIForCameraCapabilities(
-              props.supportedCameraCapabilities,
-              props.cameraSettings
-            )}
+            {areAdvancedOptionsEnabled
+              ? generateUIForCameraCapabilities(
+                  props.supportedCameraCapabilities,
+                  props.cameraSettings
+                )
+              : null}
           </div>
         </Collapse>
       </>
