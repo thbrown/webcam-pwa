@@ -30,21 +30,28 @@ export const compileVideo = async (
   inputFrames: string[],
   outputFPS: number
 ): Promise<CompiledVideo> => {
-  const videoBlob = tsWhammy.fromImageArray(inputFrames, outputFPS);
+  try {
+    const videoBlob = tsWhammy.fromImageArray(inputFrames, outputFPS);
 
-  // This is to satisfy type checking, I'm not sure it actually can happen
-  if (videoBlob instanceof Uint8Array) {
-    console.log(
-      "webm output is Uint8Array converting... not sure if this is correct"
-    );
-    return { blob: uint8ArrayToBlob(videoBlob), previewImage: inputFrames[0] };
+    // This is to satisfy type checking, I'm not sure it actually can happen
+    if (videoBlob instanceof Uint8Array) {
+      console.log(
+        "webm output is Uint8Array converting... not sure if this is correct"
+      );
+      return {
+        blob: uint8ArrayToBlob(videoBlob),
+        previewImage: inputFrames[0],
+      };
+    }
+
+    console.log("COMPILED VIDEO", videoBlob);
+    return {
+      blob: videoBlob,
+      previewImage: await resizeBase64Image(inputFrames[0], 50, 41),
+    };
+  } catch (e) {
+    alert("Video compile error: " + e);
   }
-
-  console.log("COMPILED VIDEO", videoBlob);
-  return {
-    blob: videoBlob,
-    previewImage: await resizeBase64Image(inputFrames[0], 50, 41),
-  };
 };
 
 const METADATA_PREFIX = "metadata_";
