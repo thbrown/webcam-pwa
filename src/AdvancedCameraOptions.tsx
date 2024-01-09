@@ -56,7 +56,7 @@ export function AdvancedCameraOptions(
     ): JSX.Element[] => {
       if (capabilities === undefined) {
         return [
-          <div style={{ padding: "20px" }}>
+          <div key={"only"} style={{ padding: "20px" }}>
             <Spinner size={64} />
           </div>,
         ];

@@ -139,6 +139,10 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       .finally(() => resizeVideo());
   };
 
+  const isWebP = (base64String: string) => {
+    return base64String.startsWith("data:image/webp;base64,");
+  };
+
   // Draw video frame to canvas
   const captureFrame = (): void => {
     if (canvasRef.current && videoRef.current) {
@@ -152,6 +156,12 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           canvasRef.current.height
         );
         const frame = canvasRef.current.toDataURL("image/webp");
+        if (!isWebP(frame)) {
+          alert(
+            "Error: the .webp image format is not supported in this browser. As of 2023 the latest versions of all major browsers support this feature. Please update your browser and try again"
+          );
+          throw new Error("Webp not supported");
+        }
         setCapturedFrames((prevFrames) => {
           const newFrames = [...prevFrames, frame];
           console.log("Capturing frame!", newFrames.length); // Log the number of frames captured
