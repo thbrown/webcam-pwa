@@ -7675,6 +7675,7 @@ const defaultFps = 1;
     const curFps = fps || defaultFps;
     return (0,_utils_toWebM__WEBPACK_IMPORTED_MODULE_0__["default"])(images.map((image, index) => {
       try {
+        alert("DECODING " + image.slice(23))
         const webp = (0,_utils_parseWebP__WEBPACK_IMPORTED_MODULE_1__["default"])((0,_utils_parseRIFF2__WEBPACK_IMPORTED_MODULE_2__["default"])((0,_utils_adaptor__WEBPACK_IMPORTED_MODULE_3__.autoAtob)(image.slice(23))));
         const webpFrame = {
           ...webp,
