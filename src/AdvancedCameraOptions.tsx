@@ -160,6 +160,22 @@ export function AdvancedCameraOptions(
             {areAdvancedOptionsEnabled ? "Hide" : "Show"} advanced options
           </Button>
         ) : null}
+        {areAdvancedOptionsEnabled
+          ? generateUIForCameraCapabilities(
+              props.supportedCameraCapabilities,
+              props.cameraSettings
+            )
+          : null}
+      </>
+    );
+  } catch (e) {
+    console.log(e);
+    alert(e + " - " + e.stack);
+  }
+}
+
+/*
+
         <Collapse isOpen={areAdvancedOptionsEnabled}>
           <div
             style={{
@@ -178,10 +194,4 @@ export function AdvancedCameraOptions(
               : null}
           </div>
         </Collapse>
-      </>
-    );
-  } catch (e) {
-    console.log(e);
-    alert(e + " - " + e.stack);
-  }
-}
+        */
