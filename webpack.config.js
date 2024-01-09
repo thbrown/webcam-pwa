@@ -1,10 +1,12 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
+const BundleAnalyzerPlugin =
+  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 module.exports = {
   mode: "production",
-  devtool: "inline-source-map",
+  devtool: "source-map",
   output: {
     path: path.join(__dirname, "/docs"), // docs for github pages
     filename: "bundle.js", // the name of the bundle
@@ -20,6 +22,7 @@ module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
   },
+  plugins: [new BundleAnalyzerPlugin()],
   // This breaks dev mode
   //plugins: [
   //  new CopyPlugin({

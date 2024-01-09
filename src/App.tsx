@@ -25,15 +25,19 @@ export const App: React.FC = () => {
       backgroundColor = "white";
       break;
   }
-
-  return (
-    <div className="wrapper" style={{ backgroundColor }}>
-      <div className="main-margin">
-        <Main
-          recordingStatus={recordingStatus}
-          setRecordingStatus={setRecordingStatus}
-        ></Main>
+  try {
+    return (
+      <div className="wrapper" style={{ backgroundColor }}>
+        <div className="main-margin">
+          <Main
+            recordingStatus={recordingStatus}
+            setRecordingStatus={setRecordingStatus}
+          ></Main>
+        </div>
       </div>
-    </div>
-  );
+    );
+  } catch (e) {
+    console.log(e);
+    alert("Top level error" + e + " - " + e.stack);
+  }
 };

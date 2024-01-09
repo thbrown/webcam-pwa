@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, { useState } from "react";
 import {
   Button,
   Collapse,
@@ -7,8 +7,6 @@ import {
   Slider,
   Spinner,
 } from "@blueprintjs/core";
-import { SavedVideoPanel } from "./SavedVideo";
-import { SavedVideoMetadata } from "./VideoStorageUtils";
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
 import { CameraCapabilities, CameraSettings } from "./CameraPanel";
 
@@ -182,6 +180,6 @@ export function AdvancedCameraOptions(
     );
   } catch (e) {
     console.log(e);
-    alert(e);
+    alert(e + " - " + e.stack);
   }
 }
