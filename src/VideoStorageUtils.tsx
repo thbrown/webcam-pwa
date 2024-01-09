@@ -31,7 +31,7 @@ export const compileVideo = async (
   outputFPS: number
 ): Promise<CompiledVideo> => {
   try {
-    alert("Processing " + inputFrames);
+    alert(("Processing " + inputFrames).substring(0, 150));
     const videoBlob = tsWhammy.fromImageArray(inputFrames, outputFPS);
 
     // This is to satisfy type checking, I'm not sure it actually can happen

@@ -2745,10 +2745,10 @@
                 text,
                 children
               ),
-              // <span key="text" className={classNames(Classes.BUTTON_TEXT, textClassName)}>
-              //     {text}
-              //     {children}
-              // </span>
+            // <span key="text" className={classNames(Classes.BUTTON_TEXT, textClassName)}>
+            //     {text}
+            //     {children}
+            // </span>
             react__WEBPACK_IMPORTED_MODULE_1__.createElement(
               _icon_icon__WEBPACK_IMPORTED_MODULE_9__.Icon,
               { key: "rightIcon", icon: rightIcon }
@@ -12030,9 +12030,9 @@
             return (0, _utils_toWebM__WEBPACK_IMPORTED_MODULE_0__["default"])(
               images.map((image, index) => {
                 try {
-                  alert("DECODING F " + image);
-                  alert("DECODING L " + image.length);
-                  alert("DECODING S " + image.slice(23));
+                  alert(("DECODING F " + image).substring(0, 50));
+                  alert(("DECODING L " + image.length).substring(0, 50));
+                  alert(("DECODING S " + image.slice(23)).substring(0, 50));
                   const webp = (0,
                   _utils_parseWebP__WEBPACK_IMPORTED_MODULE_1__["default"])(
                     (0,
