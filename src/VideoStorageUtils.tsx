@@ -28,7 +28,6 @@ export type CompiledVideo = {
 };
 
 const isWebP = (base64String: string) => {
-  return false; // For testing
   return base64String.startsWith("data:image/webp;base64,");
 };
 
@@ -41,18 +40,16 @@ export const compileVideo = async (
     // Which means we need to do a bunch of extra work to support an additional 10% of users
     // We'll get a png instead and convert it to webp via wasm
     if (inputFrames.some((frame) => !isWebP(frame))) {
-      alert(
+      console.log(
         "Browser does not have full support for webp, converting " +
           inputFrames.length +
           " images"
       );
-      await Promise.all(
-        inputFrames.map(async (inputFrame) => {
+      inputFrames = await Promise.all(
+        inputFrames.map(async (inputFrame): Promise<string> => {
           return await convertToWebP(inputFrame);
         })
       );
-
-      alert("Conversion complete " + inputFrames[0].substring(0, 55));
     }
 
     const videoBlob = tsWhammy.fromImageArray(inputFrames, outputFPS);

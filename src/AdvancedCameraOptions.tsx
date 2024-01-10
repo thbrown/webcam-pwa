@@ -70,8 +70,6 @@ export function AdvancedCameraOptions(
           if (Array.isArray(value)) {
             // Render radio buttons for arrays
             return (
-              <div>ARRAY</div>
-              /*
               <Label style={{ display: "flex" }}>
                 <div style={{ marginRight: "15px", width: "100%" }}>{key}</div>
                 <SegmentedControl
@@ -91,7 +89,7 @@ export function AdvancedCameraOptions(
                     )
                   }
                 />
-              </Label>*/
+              </Label>
             );
           } else if (typeof value === "string" || typeof value === "number") {
             // We wont render anything for these, there is only one option

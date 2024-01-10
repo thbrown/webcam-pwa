@@ -152,7 +152,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           canvasRef.current.width,
           canvasRef.current.height
         );
-        const frame = canvasRef.current.toDataURL("image/webp");
+        const frame = canvasRef.current.toDataURL("image/png");
 
         setCapturedFrames((prevFrames) => {
           const newFrames = [...prevFrames, frame];
