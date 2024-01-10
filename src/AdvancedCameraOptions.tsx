@@ -62,7 +62,7 @@ export function AdvancedCameraOptions(
         ];
       }
       console.log("rendering capabilities", capabilities);
-      return [<div>JSON.stringify(capabilities, null, 2)</div>];
+      return [<div>{JSON.stringify(capabilities, null, 2)}</div>];
       return Object.entries(capabilities).map((capability, index) => {
         const [key, value] = capability;
 
