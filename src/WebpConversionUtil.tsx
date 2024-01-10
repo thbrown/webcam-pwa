@@ -1,23 +1,9 @@
-import wasm_image_loader from "@saschazar/wasm-image-loader";
 import wasm_webp from "@saschazar/wasm-webp";
 import defaultOptions from "@saschazar/wasm-webp/options";
-import { resolve } from "../webpack.config";
 
-const convertUrlToBuffer = async (dataURL: string): Promise<ArrayBuffer> => {
-  // Convert data URL to Blob
-  const response = await fetch(dataURL);
-  return new Promise((resolve, reject) => {
-    resolve(response.arrayBuffer());
-  });
-};
-
-// Function to convert a base64 encoded JPEG image to WebP
-export async function convertToWebP(imageBase64: string): Promise<string> {
+// Function to convert a base64 encoded images (png, jpeg, etc.) to WebP
+async function innerConvertToWebP(imageBase64: string): Promise<string> {
   let width: number, height: number, channels: number;
-
-  // Extract width and height from the base64 string
-  const imageDataIndex = imageBase64.indexOf("base64,") + 7; // Find the start of base64 encoded image data
-  const imageData = imageBase64.substring(imageDataIndex); // Extract image data after 'base64,'
 
   // Create an Image object to get the dimensions of the image
   return new Promise((resolve, reject) => {
@@ -38,8 +24,7 @@ export async function convertToWebP(imageBase64: string): Promise<string> {
         var pixelData = imageData.data;
         var uint8Array = new Uint8Array(pixelData);
 
-        //console.log("WIDTH", width, "HEIGHT", height, "DATA", uint8Array);
-        const options = defaultOptions; // WebP's options, a complete object is crucially needed!
+        const options = defaultOptions;
         let result;
 
         // Initialize the WebAssembly Module
@@ -66,7 +51,26 @@ export async function convertToWebP(imageBase64: string): Promise<string> {
       }
     };
 
-    // err this could be jpeg? CAn we jsut use the input string directly?
-    img.src = "data:image/png;base64," + imageData; // Set the image source to extract dimensions
+    img.src = imageBase64; // Set the image source to extract dimensions
   });
+}
+
+// Function to convert a base64 encoded images (png, jpeg, etc.) to WebP
+// This function does the conversion in batches to avoid OOM errors
+export async function convertToWebP(
+  imageBase64Array: string[]
+): Promise<string[]> {
+  const batchSize = 50; // Define the batch size
+
+  const batches: string[][] = [];
+  for (let i = 0; i < imageBase64Array.length; i += batchSize) {
+    batches.push(imageBase64Array.slice(i, i + batchSize));
+  }
+
+  const results: string[] = [];
+  for (const batch of batches) {
+    const batchResults = await Promise.all(batch.map(innerConvertToWebP));
+    results.push(...batchResults);
+  }
+  return results;
 }

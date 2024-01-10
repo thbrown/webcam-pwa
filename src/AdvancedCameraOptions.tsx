@@ -108,8 +108,6 @@ export function AdvancedCameraOptions(
             const NUM_STEPS = 4;
             const calcStepSize = (max - min) / NUM_STEPS;
             return (
-              <div>SLIDER</div>
-              /*
               <Label style={{ display: "flex" }}>
                 <div style={{ marginRight: "15px", width: "100%" }}>{key}</div>
                 <Slider
@@ -119,15 +117,14 @@ export function AdvancedCameraOptions(
                   stepSize={Math.round(step)}
                   value={clamp(parseInt(String(settings[key])), min, max)}
                   labelStepSize={calcStepSize}
-                  onChange={(v) =>
-                    handleAdvancedOptionChange(
-                      v,
-                      key as keyof MediaTrackConstraintSet
-                    )
-                  }
+                  //onChange={(v) =>
+                  //  handleAdvancedOptionChange(
+                  //    v,
+                  //    key as keyof MediaTrackConstraintSet
+                  //  )
+                  //}
                 />
               </Label>
-              */
             );
           } else {
             alert("Unsupported camera setting " + typeof value + " " + value);

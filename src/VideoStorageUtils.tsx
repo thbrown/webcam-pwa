@@ -45,11 +45,7 @@ export const compileVideo = async (
           inputFrames.length +
           " images"
       );
-      inputFrames = await Promise.all(
-        inputFrames.map(async (inputFrame): Promise<string> => {
-          return await convertToWebP(inputFrame);
-        })
-      );
+      inputFrames = await convertToWebP(inputFrames);
     }
 
     const videoBlob = tsWhammy.fromImageArray(inputFrames, outputFPS);
