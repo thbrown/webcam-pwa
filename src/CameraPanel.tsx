@@ -6,10 +6,11 @@ import { TimelapseControl } from "./TimelapseControl";
 import { RecordingStatus } from "./App";
 import { compileVideo, saveVideo } from "./VideoStorageUtils";
 import { TimelapseRecordingStats } from "./TimelapseRecordingStats";
-import { StopMotionRecordingStats } from "./TimelapseRecordingStats";
+import { StopMotionRecordingStats } from "./StopMotionRecordingStats";
 import { StopMotionControl } from "./StopMotionControl";
 import { AdvancedCameraOptions } from "./AdvancedCameraOptions";
 import { StopMotionParameters } from "./StopMotionParameters";
+import { convertToWebP } from "./WebpConversionUtil";
 
 export type RecordingMode = "Timelapse" | "StopMotion" | "Astronomical";
 export type OutputSpec = "FPS" | "Duration";
@@ -139,12 +140,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       .finally(() => resizeVideo());
   };
 
-  const isWebP = (base64String: string) => {
-    return base64String.startsWith("data:image/webp;base64,");
-  };
-
   // Draw video frame to canvas
-  const captureFrame = (): void => {
+  const captureFrame = async (): Promise<void> => {
     if (canvasRef.current && videoRef.current) {
       const context = canvasRef.current.getContext("2d");
       if (context) {
@@ -156,12 +153,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           canvasRef.current.height
         );
         const frame = canvasRef.current.toDataURL("image/webp");
-        if (!isWebP(frame)) {
-          alert(
-            "Error: the .webp image format is not supported in this browser. As of 2023 the latest versions of all major browsers support this feature. Please update your browser and try again"
-          );
-          throw new Error("Webp not supported");
-        }
+
         setCapturedFrames((prevFrames) => {
           const newFrames = [...prevFrames, frame];
           console.log("Capturing frame!", newFrames.length); // Log the number of frames captured
@@ -171,22 +163,22 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     }
   };
 
-  const captureStopMotionFrame = (): void => {
+  const captureStopMotionFrame = async (): Promise<void> => {
     props.setRecordingStatus("Recording");
-    captureFrame();
+    await captureFrame();
     setTimeout(() => {
       props.setRecordingStatus("Paused");
     }, 100); // TODO: this might be annoying, remove?
   };
 
   // Start time-lapse recording
-  const startTimelapse = (): void => {
+  const startTimelapse = async (): Promise<void> => {
     if (
       props.recordingStatus === "Stopped" ||
       props.recordingStatus === "Paused"
     ) {
       props.setRecordingStatus("Recording");
-      captureFrame();
+      await captureFrame();
       // Store the interval ID in the ref
       intervalIdRef.current = setInterval(captureFrame, timeLapseInterval);
       console.log("Start recording!!", intervalIdRef.current);
@@ -224,7 +216,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         props.setVideoToShow(videoBlob.blob);
         setCapturedFrames([]);
         setSavingVideo(false);
-      }, timeLapseInterval + 100); // Wait slightly longer than the capture interval
+      }, /*timeLapseInterval +*/ 100); // Wait slightly longer than the capture interval (I don't think this is necessary?)
     }
   };
 
@@ -473,7 +465,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
               <>
                 {props.recordingStatus === "Recording" ||
                 props.recordingStatus === "Paused" ? (
-                  <TimelapseRecordingStats
+                  <StopMotionRecordingStats
                     mode={recordingMode}
                     framesCaptured={capturedFrames.length}
                     outputFPS={outputFPS}

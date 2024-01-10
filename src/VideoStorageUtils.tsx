@@ -4,6 +4,7 @@ import tsWhammy from "ts-whammy/src/libs";
 import localforage from "localforage";
 import FileSaver from "file-saver";
 import React from "react";
+import { convertToWebP } from "./WebpConversionUtil";
 
 export type SavedVideoMetadata = {
   type: RecordingMode;
@@ -26,11 +27,28 @@ export type CompiledVideo = {
   previewImage: string;
 };
 
+const isWebP = (base64String: string) => {
+  return false; // For testing
+  return base64String.startsWith("data:image/webp;base64,");
+};
+
 export const compileVideo = async (
   inputFrames: string[],
   outputFPS: number
 ): Promise<CompiledVideo> => {
   try {
+    // iOS is frustrating, it produces pngs when I specifically asked for webp
+    // Which means we need to do a bunch of extra work to support an additional 10% of users
+    // We'll get a png instead and convert it to webp via wasm
+    await Promise.all(
+      inputFrames.map(async (inputFrame) => {
+        console.log(
+          "Browser does not have full support for webp, converting image..."
+        );
+        return await convertToWebP(inputFrame);
+      })
+    );
+
     const videoBlob = tsWhammy.fromImageArray(inputFrames, outputFPS);
 
     // This is to satisfy type checking, I'm not sure it actually can happen

@@ -18,11 +18,18 @@ module.exports = {
   ],
   devServer: {
     port: 3030, // you can change the port
+    devMiddleware: {
+      writeToDisk: true,
+    },
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
+    fallback: {
+      path: false,
+      fs: false,
+    },
   },
-  plugins: [new BundleAnalyzerPlugin()],
+  //plugins: [new BundleAnalyzerPlugin()],
   // This breaks dev mode
   //plugins: [
   //  new CopyPlugin({
