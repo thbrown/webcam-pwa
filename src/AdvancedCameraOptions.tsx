@@ -112,18 +112,17 @@ export function AdvancedCameraOptions(
                 <div style={{ marginRight: "15px", width: "100%" }}>{key}</div>
 
                 <Slider
-                  //key={index}
                   min={min}
                   max={max}
                   stepSize={Math.round(step)}
-                  //value={clamp(parseInt(String(settings[key])), min, max)}
+                  value={clamp(parseInt(String(settings[key])), min, max)}
                   labelStepSize={calcStepSize}
-                  //onChange={(v) =>
-                  //  handleAdvancedOptionChange(
-                  //    v,
-                  //    key as keyof MediaTrackConstraintSet
-                  //  )
-                  //}
+                  onChange={(v) =>
+                    handleAdvancedOptionChange(
+                      v,
+                      key as keyof MediaTrackConstraintSet
+                    )
+                  }
                 />
               </Label>
             );
