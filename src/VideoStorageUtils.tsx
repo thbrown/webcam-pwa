@@ -40,14 +40,20 @@ export const compileVideo = async (
     // iOS is frustrating, it produces pngs when I specifically asked for webp
     // Which means we need to do a bunch of extra work to support an additional 10% of users
     // We'll get a png instead and convert it to webp via wasm
-    await Promise.all(
-      inputFrames.map(async (inputFrame) => {
-        console.log(
-          "Browser does not have full support for webp, converting image..."
-        );
-        return await convertToWebP(inputFrame);
-      })
-    );
+    if (inputFrames.some((frame) => !isWebP(frame))) {
+      alert(
+        "Browser does not have full support for webp, converting " +
+          inputFrames.length +
+          " images"
+      );
+      await Promise.all(
+        inputFrames.map(async (inputFrame) => {
+          return await convertToWebP(inputFrame);
+        })
+      );
+
+      alert("Conversion complete " + inputFrames[0].substring(0, 55));
+    }
 
     const videoBlob = tsWhammy.fromImageArray(inputFrames, outputFPS);
 

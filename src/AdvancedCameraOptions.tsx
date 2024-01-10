@@ -62,7 +62,7 @@ export function AdvancedCameraOptions(
         ];
       }
       console.log("rendering capabilities", capabilities);
-      return [<div>{JSON.stringify(capabilities, null, 2)}</div>];
+      //return [<div>{JSON.stringify(capabilities, null, 2)}</div>];
       return Object.entries(capabilities).map((capability, index) => {
         const [key, value] = capability;
 
@@ -70,6 +70,8 @@ export function AdvancedCameraOptions(
           if (Array.isArray(value)) {
             // Render radio buttons for arrays
             return (
+              <div>ARRAY</div>
+              /*
               <Label style={{ display: "flex" }}>
                 <div style={{ marginRight: "15px", width: "100%" }}>{key}</div>
                 <SegmentedControl
@@ -89,7 +91,7 @@ export function AdvancedCameraOptions(
                     )
                   }
                 />
-              </Label>
+              </Label>*/
             );
           } else if (typeof value === "string" || typeof value === "number") {
             // We wont render anything for these, there is only one option
@@ -108,6 +110,8 @@ export function AdvancedCameraOptions(
             const NUM_STEPS = 4;
             const calcStepSize = (max - min) / NUM_STEPS;
             return (
+              <div>SLIDER</div>
+              /*
               <Label style={{ display: "flex" }}>
                 <div style={{ marginRight: "15px", width: "100%" }}>{key}</div>
                 <Slider
@@ -125,6 +129,7 @@ export function AdvancedCameraOptions(
                   }
                 />
               </Label>
+              */
             );
           } else {
             alert("Unsupported camera setting " + typeof value + " " + value);
