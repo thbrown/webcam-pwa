@@ -1,16 +1,17 @@
 import { Button, Spinner, Tab, Tabs } from "@blueprintjs/core";
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { Time, Stopwatch, Clean, Camera } from "@blueprintjs/icons";
-import { TimelapseParameters } from "./TimelapseParameters";
-import { TimelapseControl } from "./TimelapseControl";
 import { RecordingStatus } from "./App";
 import { compileVideo, saveVideo } from "./VideoStorageUtils";
 import { TimelapseRecordingStats } from "./TimelapseRecordingStats";
 import { StopMotionRecordingStats } from "./StopMotionRecordingStats";
+import { TimelapseControl } from "./TimelapseControl";
 import { StopMotionControl } from "./StopMotionControl";
+import { AstronomicalControl } from "./AstronomicalControl";
 import { AdvancedCameraOptions } from "./AdvancedCameraOptions";
+import { TimelapseParameters } from "./TimelapseParameters";
 import { StopMotionParameters } from "./StopMotionParameters";
-import { convertToWebP } from "./WebpConversionUtil";
+import { AstronomicalParameters } from "./AstronomicalParameters";
 
 export type RecordingMode = "Timelapse" | "StopMotion" | "Astronomical";
 export type OutputSpec = "FPS" | "Duration";
@@ -57,11 +58,22 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
 
   const [activeTrack, setActiveTrack] = useState<MediaStreamTrack>(undefined);
 
-  // Timelapse State
-  const [outputDuration, setOutputDuration] = useState<number>(1000);
   const [outputSpec, setOutputSpec] = useState<OutputSpec>("FPS");
-  const [timeLapseInterval, setTimeLapseInterval] = useState<number>(1000);
+  const [outputDuration, setOutputDuration] = useState<number>(1000);
   const [outputFPS, setOutputFPS] = useState<number>(30);
+
+  // Timelapse State
+  const [timeLapseInterval, setTimeLapseInterval] = useState<number>(1000);
+
+  // Astronomical State
+  const [captureTimes, setCaptureTimes] = useState<string[]>([]);
+  const [location, setLocation] = useState<{
+    longitude: number;
+    latitude: number;
+  }>({
+    longitude: 39.742043,
+    latitude: -104.991531,
+  });
 
   useEffect(() => {
     const checkCameraPermission = async () => {
@@ -373,7 +385,14 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           />
         );
       default:
-        return <div> CONTROLS NOT IMPLEMENTED </div>;
+        return (
+          <AstronomicalControl
+            recordingStatus={props.recordingStatus}
+            onStart={startTimelapse}
+            onStop={stopAndSave}
+            onPause={pauseTimelapse}
+          />
+        );
     }
   };
 
@@ -503,7 +522,29 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             className="no-highlight minimal-top-margin"
             id="Astronomical"
             title={<div className="spacer">Astronomical</div>}
-            panel={<div>ASTRONOMICAL - NOT IMPLEMENTED</div>}
+            panel={
+              <div>
+                <AstronomicalParameters
+                  location={location}
+                  captureTimes={captureTimes}
+                  setLocation={setLocation}
+                  setCaptureTimes={setCaptureTimes}
+                  outputFPS={outputFPS}
+                  outputDuration={outputDuration}
+                  outputSpec={outputSpec}
+                  setOutputFPS={setOutputFPS}
+                  setOutputDuration={setOutputDuration}
+                  setOutputSpec={setOutputSpec}
+                />
+                <AdvancedCameraOptions
+                  setCameraSettings={setCameraSettings}
+                  cameraPermission={cameraPermission}
+                  cameraSettings={cameraSettings}
+                  activeTrack={activeTrack}
+                  supportedCameraCapabilities={supportedCameraCapabilities}
+                />
+              </div>
+            }
             icon={<Clean />}
             disabled={
               props.recordingStatus === "Recording" ||
