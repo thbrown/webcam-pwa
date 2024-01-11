@@ -7,7 +7,6 @@ import { RecordingStatus } from "./App";
 interface AstronomicalControlProps {
   recordingStatus: RecordingStatus;
   onStop: () => void;
-  onPause: () => void;
   onStart: () => void;
 }
 
@@ -17,16 +16,6 @@ export function AstronomicalControl(
   if (props.recordingStatus === "Recording") {
     return (
       <div className="footer" style={{ display: "flex" }}>
-        <Button
-          className={"big-button simple-label"}
-          icon={<Pause />}
-          large={true}
-          fill={true}
-          onClick={props.onPause}
-          style={{ paddingRight: "2px" }}
-        >
-          Pause
-        </Button>
         <Button
           className={"big-button simple-label"}
           icon={<Stop />}
@@ -56,26 +45,7 @@ export function AstronomicalControl(
   } else if (props.recordingStatus === "Paused") {
     return (
       <div className="footer" style={{ display: "flex" }}>
-        <Button
-          className={"big-button simple-label"}
-          icon={<Stop />}
-          large={true}
-          fill={true}
-          onClick={props.onStop}
-          style={{ paddingRight: "2px" }}
-        >
-          Stop
-        </Button>
-        <Button
-          className={"big-button simple-label"}
-          icon={<Record />}
-          large={true}
-          fill={true}
-          onClick={props.onStart}
-          style={{ paddingLeft: "2px" }}
-        >
-          Resume
-        </Button>
+        INVALID STATE
       </div>
     );
   }

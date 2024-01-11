@@ -12,6 +12,8 @@ import { AdvancedCameraOptions } from "./AdvancedCameraOptions";
 import { TimelapseParameters } from "./TimelapseParameters";
 import { StopMotionParameters } from "./StopMotionParameters";
 import { AstronomicalParameters } from "./AstronomicalParameters";
+import { CaptureTime, getTimes, millisecondsUntilDate } from "./SolarTimeUtil";
+import { AstronomicalRecordingStats } from "./AstronomicalRecordingStats";
 
 export type RecordingMode = "Timelapse" | "StopMotion" | "Astronomical";
 export type OutputSpec = "FPS" | "Duration";
@@ -71,9 +73,10 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     longitude: number;
     latitude: number;
   }>({
-    longitude: 39.742043,
-    latitude: -104.991531,
+    longitude: -104.991531,
+    latitude: 39.742043,
   });
+  const [captureQueue, setCaptureQueue] = useState<CaptureTime[]>([]);
 
   useEffect(() => {
     const checkCameraPermission = async () => {
@@ -184,6 +187,24 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   };
 
   // Start time-lapse recording
+  const scheduleAstronomicalTimelapse = async (): Promise<void> => {
+    props.setRecordingStatus("Recording");
+    const times = getTimes(location.latitude, location.longitude);
+    const filteredTimes = times.filter((v) => captureTimes.includes(v.type));
+    setCaptureQueue(filteredTimes);
+    const nextCapture = millisecondsUntilDate(times[0].time);
+    console.log("Nex capture ", nextCapture, times[0].type);
+    intervalIdRef.current = setTimeout(captureAstronomicalFrame, nextCapture);
+    console.log("Start recording!!", intervalIdRef.current);
+  };
+
+  // Take frame and keep going
+  const captureAstronomicalFrame = async (): Promise<void> => {
+    await captureFrame();
+    await scheduleAstronomicalTimelapse();
+  };
+
+  // Start time-lapse recording
   const startTimelapse = async (): Promise<void> => {
     if (
       props.recordingStatus === "Stopped" ||
@@ -214,18 +235,23 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           "Number of frames before compiling:",
           capturedFrames.length
         );
-        const calculatedFPS =
-          outputSpec === "FPS"
-            ? outputFPS
-            : (capturedFrames.length / outputDuration) * 1000;
-        const videoBlob = await compileVideo(capturedFrames, calculatedFPS);
-        await saveVideo(
-          videoBlob.blob,
-          videoBlob.previewImage,
-          recordingMode,
-          props.reloadSavedVideos
-        );
-        props.setVideoToShow(videoBlob.blob);
+        if (capturedFrames.length > 0) {
+          const calculatedFPS =
+            outputSpec === "FPS"
+              ? outputFPS
+              : (capturedFrames.length / outputDuration) * 1000;
+          const videoBlob = await compileVideo(capturedFrames, calculatedFPS);
+          await saveVideo(
+            videoBlob.blob,
+            videoBlob.previewImage,
+            recordingMode,
+            props.reloadSavedVideos
+          );
+          props.setVideoToShow(videoBlob.blob);
+        } else {
+          alert("No frames were captured!");
+        }
+
         setCapturedFrames([]);
         setSavingVideo(false);
       }, /*timeLapseInterval +*/ 100); // Wait slightly longer than the capture interval (I don't think this is necessary?)
@@ -388,9 +414,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         return (
           <AstronomicalControl
             recordingStatus={props.recordingStatus}
-            onStart={startTimelapse}
+            onStart={scheduleAstronomicalTimelapse}
             onStop={stopAndSave}
-            onPause={pauseTimelapse}
           />
         );
     }
@@ -523,27 +548,40 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             id="Astronomical"
             title={<div className="spacer">Astronomical</div>}
             panel={
-              <div>
-                <AstronomicalParameters
-                  location={location}
-                  captureTimes={captureTimes}
-                  setLocation={setLocation}
-                  setCaptureTimes={setCaptureTimes}
-                  outputFPS={outputFPS}
-                  outputDuration={outputDuration}
-                  outputSpec={outputSpec}
-                  setOutputFPS={setOutputFPS}
-                  setOutputDuration={setOutputDuration}
-                  setOutputSpec={setOutputSpec}
-                />
-                <AdvancedCameraOptions
-                  setCameraSettings={setCameraSettings}
-                  cameraPermission={cameraPermission}
-                  cameraSettings={cameraSettings}
-                  activeTrack={activeTrack}
-                  supportedCameraCapabilities={supportedCameraCapabilities}
-                />
-              </div>
+              <>
+                {props.recordingStatus === "Recording" ? (
+                  <AstronomicalRecordingStats
+                    mode={recordingMode}
+                    framesCaptured={capturedFrames.length}
+                    outputFPS={outputFPS}
+                    outputSpec={outputSpec}
+                    outputDuration={outputDuration}
+                    timeLapseInterval={timeLapseInterval}
+                    captureQueue={captureQueue}
+                  />
+                ) : null}
+                <div>
+                  <AstronomicalParameters
+                    location={location}
+                    captureTimes={captureTimes}
+                    setLocation={setLocation}
+                    setCaptureTimes={setCaptureTimes}
+                    outputFPS={outputFPS}
+                    outputDuration={outputDuration}
+                    outputSpec={outputSpec}
+                    setOutputFPS={setOutputFPS}
+                    setOutputDuration={setOutputDuration}
+                    setOutputSpec={setOutputSpec}
+                  />
+                  <AdvancedCameraOptions
+                    setCameraSettings={setCameraSettings}
+                    cameraPermission={cameraPermission}
+                    cameraSettings={cameraSettings}
+                    activeTrack={activeTrack}
+                    supportedCameraCapabilities={supportedCameraCapabilities}
+                  />
+                </div>
+              </>
             }
             icon={<Clean />}
             disabled={

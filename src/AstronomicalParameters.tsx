@@ -16,6 +16,12 @@ import { FolderOpen, Camera } from "@blueprintjs/icons";
 import "./Main.scss";
 import { OutputSpecProps } from "./OutputSpec";
 import SunCalc from "suncalc";
+import {
+  getTimes,
+  getUniqueTypes,
+  millisecondsUntilDate,
+} from "./SolarTimeUtil";
+import humanizeDuration from "humanize-duration";
 
 interface AstronomicalParametersProps {
   location: {
@@ -39,29 +45,57 @@ export function AstronomicalParameters(
   const initialLong = useMemo(() => props.location.longitude, []);
   const initialLat = useMemo(() => props.location.latitude, []);
 
-  const times = SunCalc.getTimes(
-    new Date(),
-    props.location.latitude,
-    props.location.longitude
-  );
-  console.log(props.location, times);
+  const [time, setTime] = useState<number>(new Date().getTime());
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setTime(new Date().getTime());
+    }, 1000);
+
+    // Clear the interval when the component is unmounted
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  const times = getTimes(props.location.latitude, props.location.longitude);
+  const timeEntries = getUniqueTypes(times); // TODO: we should just enumerate these but might switch to suncalc3
+
+  // TODO: what if dates are invalid???
 
   const timeCheckboxes = [];
-  for (let time of Object.keys(times)) {
+  for (let entry of timeEntries) {
     timeCheckboxes.push(
       <Checkbox
-        key={time}
-        checked={props.captureTimes.includes(time)}
-        label={time}
+        key={entry.time}
+        checked={props.captureTimes.includes(entry.time)}
+        children={
+          <div
+            style={{
+              display: "flex",
+              marginTop: "-18px",
+              justifyContent: "space-between",
+            }}
+          >
+            <div>{entry.type}</div>
+            <div>
+              <i>
+                {humanizeDuration(millisecondsUntilDate(entry.time, time), {
+                  round: true,
+                })}
+              </i>
+            </div>
+          </div>
+        }
         onChange={(v) => {
           // Not efficient but there are so few entries it's fine
-          if (props.captureTimes.includes(time)) {
+          if (props.captureTimes.includes(entry.time)) {
             const updatedCaptureTimes = props.captureTimes.filter(
-              (t) => t !== time
+              (t) => t !== entry.time
             );
             props.setCaptureTimes(updatedCaptureTimes);
           } else {
-            const updatedCaptureTimes = [...props.captureTimes, time];
+            const updatedCaptureTimes = [...props.captureTimes, entry.time];
             props.setCaptureTimes(updatedCaptureTimes);
           }
         }}
@@ -151,7 +185,7 @@ export function AstronomicalParameters(
       </div>
       <Divider></Divider>
       <div style={{ padding: "7px" }}>
-        <div>Capture Times</div>
+        <div style={{ padding: "7px" }}>Capture Times</div>
         <div>{timeCheckboxes}</div>
       </div>
     </div>
