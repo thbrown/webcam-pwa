@@ -67,8 +67,8 @@ export function AstronomicalParameters(
   for (let entry of timeEntries) {
     timeCheckboxes.push(
       <Checkbox
-        key={entry.time}
-        checked={props.captureTimes.includes(entry.time)}
+        key={entry.type}
+        checked={props.captureTimes.includes(entry.type)}
         children={
           <div
             style={{
@@ -88,14 +88,16 @@ export function AstronomicalParameters(
           </div>
         }
         onChange={(v) => {
+          console.log("CLICK", entry.time, props.captureTimes);
+
           // Not efficient but there are so few entries it's fine
-          if (props.captureTimes.includes(entry.time)) {
+          if (props.captureTimes.includes(entry.type)) {
             const updatedCaptureTimes = props.captureTimes.filter(
-              (t) => t !== entry.time
+              (t) => t !== entry.type
             );
             props.setCaptureTimes(updatedCaptureTimes);
           } else {
-            const updatedCaptureTimes = [...props.captureTimes, entry.time];
+            const updatedCaptureTimes = [...props.captureTimes, entry.type];
             props.setCaptureTimes(updatedCaptureTimes);
           }
         }}
