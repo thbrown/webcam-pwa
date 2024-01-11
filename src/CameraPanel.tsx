@@ -124,7 +124,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           console.log("START VIDEO");
           videoRef.current.srcObject = mediaStream;
 
-          const track = mediaStream.getVideoTracks()[0];
+          const tracks = mediaStream.getVideoTracks();
+          const track = tracks[tracks.length - 1];
           setActiveTrack(track);
 
           const capabilities = track.getCapabilities();
