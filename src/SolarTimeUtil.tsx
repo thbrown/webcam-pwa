@@ -37,7 +37,8 @@ export const getTimes = (latitude: number, longitude: number) => {
     })),
   ];
 
-  console.log("COMBO TIMES", combinedTimes);
+  // TO memo this somehow
+  //console.log("COMBO TIMES", combinedTimes);
 
   // Sort the combined times array by time
   combinedTimes.sort((a, b) => a.time.getTime() - b.time.getTime());

@@ -9,7 +9,13 @@ import {
   Tab,
   Tabs,
 } from "@blueprintjs/core";
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   Time,
   Stopwatch,
@@ -77,9 +83,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     useState<boolean>(false);
 
   const [activeTrack, setActiveTrack] = useState<MediaStreamTrack>(undefined);
-  const [availableTracks, setAvailableTracks] = useState<MediaStreamTrack[]>(
-    []
-  );
+  const [activeCamera, setActiveCamera] = useState<string>(undefined);
+  const [availableCameras, setAvailableCameras] =
+    useState<MediaDeviceInfo[]>(undefined);
 
   const [outputSpec, setOutputSpec] = useState<OutputSpec>("FPS");
   const [outputDuration, setOutputDuration] = useState<number>(1000);
@@ -125,53 +131,81 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
   // Access webcam stream
-  const startVideo = (): void => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true })
-      .then((mediaStream) => {
-        if (videoRef.current) {
-          console.log("START VIDEO");
-          videoRef.current.srcObject = mediaStream;
+  const startVideo = async (): Promise<void> => {
+    // Get a particular camera
+    const constraints: MediaStreamConstraints =
+      activeCamera === undefined
+        ? { video: true }
+        : {
+            video: { deviceId: { ideal: activeCamera } }, // TODO: is ideal okay here?
+          };
 
-          const tracks = mediaStream.getVideoTracks();
-          setAvailableTracks(tracks);
-          console.log("AVAILABLE TRACKS", tracks);
-          // TODO: no webcam?
-          const track = tracks[0];
-          setActiveTrack(track);
+    try {
+      console.log("Getting camera with constraints ", constraints);
+      const mediaStream = await navigator.mediaDevices.getUserMedia(
+        constraints
+      );
 
-          // Not supported in FF
-          if (track.getCapabilities) {
-            const capabilities = track.getCapabilities();
-            console.log(
-              "capabilities == ",
-              JSON.parse(JSON.stringify(capabilities))
-            );
-            setSupportedCameraCapabilities(capabilities as CameraCapabilities);
-          } else {
-            console.warn("Capabilities not supported in this browser");
-            setSupportedCameraCapabilities({} as CameraCapabilities);
+      if (videoRef.current) {
+        console.log("START VIDEO");
+        videoRef.current.srcObject = mediaStream;
+
+        const tracks = mediaStream.getVideoTracks();
+        const track = tracks[0];
+        setActiveTrack(track);
+
+        // There is something wrong here causing mismatch between the active camera and the camera actually being used
+        //  console.log("SILLY", mediaStream, mediaStream.getVideoTracks());
+        if (activeCamera !== track.getSettings().deviceId) {
+          console.log("Setting active camera 1", track.getSettings().deviceId);
+          setActiveCamera(track.getSettings().deviceId);
+        }
+
+        // Get a list of all available video inputs (only once)
+        if (availableCameras === undefined) {
+          const allDevices = await navigator.mediaDevices.enumerateDevices();
+          const availableCameras = [];
+
+          for (let i = 0; i !== allDevices.length; ++i) {
+            const deviceInfo = allDevices[i];
+            if (deviceInfo.kind === "videoinput") {
+              console.log("Got camera: ", deviceInfo);
+              availableCameras.push(deviceInfo);
+            }
           }
 
-          const settings = track.getSettings();
-          setCameraSettings(settings as CameraSettings);
-          console.log("settings == ", JSON.parse(JSON.stringify(settings)));
-          setCameraPermission("granted");
-        } else {
-          console.error("No video ref!");
+          setAvailableCameras(availableCameras);
         }
-      })
-      .catch((err) => {
-        console.warn("Could not access webcam ", err);
-        if (err.message === "Permission denied") {
-          setCameraPermission("denied");
-        } else if (err.message === "Permission dismissed") {
-          setCameraPermission("prompt");
+
+        // Capabilities are not supported in FF
+        if (track.getCapabilities) {
+          const capabilities = track.getCapabilities();
+          setSupportedCameraCapabilities(capabilities as CameraCapabilities);
         } else {
-          setCameraPermission(undefined);
+          console.warn("Capabilities not supported in this browser");
+          setSupportedCameraCapabilities({} as CameraCapabilities);
         }
-      })
-      .finally(() => resizeVideo());
+
+        const settings = track.getSettings();
+        setCameraSettings(settings as CameraSettings);
+        setCameraPermission("granted");
+      } else {
+        console.error("No video ref!");
+      }
+
+      // Resize video
+      resizeVideo();
+    } catch (err) {
+      console.warn("Could not access webcam ", err);
+
+      if (err.message === "Permission denied") {
+        setCameraPermission("denied");
+      } else if (err.message === "Permission dismissed") {
+        setCameraPermission("prompt");
+      } else {
+        setCameraPermission(undefined);
+      }
+    }
   };
 
   // Draw video frame to canvas
@@ -443,8 +477,14 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   function getCameraRadioOptions() {
     const options = [];
     let counter = 0;
-    for (let availableTrack of availableTracks) {
-      options.push(<Radio label={availableTrack.label} value={counter} />);
+    for (let availableCamera of availableCameras ?? []) {
+      options.push(
+        <Radio
+          label={availableCamera.label}
+          value={availableCamera.deviceId}
+          key={availableCamera.label}
+        />
+      );
       counter++;
     }
     return options;
@@ -462,11 +502,13 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         <DialogBody>
           {
             <RadioGroup
-              // label="Available track"
-              onChange={(v) => {
-                console.log("SELECT", v);
+              onChange={(v: React.ChangeEvent<HTMLInputElement>) => {
+                console.log("Selected a camera", v.target.value);
+                setActiveCamera(v.target.value);
+                console.log("Setting active camera 2", v.target.value);
+                startVideo();
               }}
-              selectedValue={availableTracks.indexOf(activeTrack)}
+              selectedValue={activeCamera}
             >
               {getCameraRadioOptions()}
             </RadioGroup>
