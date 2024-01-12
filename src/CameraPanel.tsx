@@ -94,6 +94,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     longitude: number;
     latitude: number;
   }>({
+    // Denver default
     longitude: -104.991531,
     latitude: 39.742043,
   });
@@ -102,32 +103,19 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   useEffect(() => {
     const checkCameraPermission = async () => {
       try {
-        navigator.permissions
-          .query({ name: "camera" } as any)
-          .then((permissionObj) => {
-            console.log("Set camera permission", permissionObj.state);
-            setCameraPermission(permissionObj.state);
-          })
-          .catch((error) => {
-            console.log("Got error :", error);
-          })
-          .finally(() => {
-            resizeVideo();
-          });
+        const permissionObj = await navigator.permissions.query({
+          name: "camera",
+        } as any);
+        console.log("Set camera permission", permissionObj.state);
+        setCameraPermission(permissionObj.state);
       } catch (error) {
-        // Permission denied or error occurred
-        // TODO: Does FF end up here? Because it can't check perms for "camera"?
-        setCameraPermission("denied");
+        // Handle errors, set permission to "prompt" in case of failure
+        console.log("Got error :", error);
+        setCameraPermission("prompt");
+      } finally {
+        resizeVideo();
       }
     };
-
-    // https://codepen.io/rijuB/pen/eKwLXB
-    //const supports = navigator.mediaDevices.getSupportedConstraints();
-    //console.log("supports = ", JSON.parse(JSON.stringify(supports)));
-
-    function sleep(ms = 0) {
-      return new Promise((r) => setTimeout(r, ms));
-    }
 
     // Check if camera permission has already been granted
     checkCameraPermission();
@@ -152,12 +140,18 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           const track = tracks[0];
           setActiveTrack(track);
 
-          const capabilities = track.getCapabilities();
-          console.log(
-            "capabilities == ",
-            JSON.parse(JSON.stringify(capabilities))
-          );
-          setSupportedCameraCapabilities(capabilities as CameraCapabilities);
+          // Not supported in FF
+          if (track.getCapabilities) {
+            const capabilities = track.getCapabilities();
+            console.log(
+              "capabilities == ",
+              JSON.parse(JSON.stringify(capabilities))
+            );
+            setSupportedCameraCapabilities(capabilities as CameraCapabilities);
+          } else {
+            console.warn("Capabilities not supported in this browser");
+            setSupportedCameraCapabilities({} as CameraCapabilities);
+          }
 
           const settings = track.getSettings();
           setCameraSettings(settings as CameraSettings);
@@ -218,7 +212,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     const filteredTimes = times.filter((v) => captureTimes.includes(v.type));
     setCaptureQueue(filteredTimes);
     const nextCapture = millisecondsUntilDate(times[0].time);
-    console.log("Nex capture ", nextCapture, times[0].type);
+    console.log("Next capture ", nextCapture, times[0].type);
     intervalIdRef.current = setTimeout(captureAstronomicalFrame, nextCapture);
     console.log("Start recording!!", intervalIdRef.current);
   };

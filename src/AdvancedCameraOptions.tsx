@@ -164,12 +164,18 @@ export function AdvancedCameraOptions(
             {areAdvancedOptionsEnabled ? "Hide" : "Show"} advanced options
           </Button>
         ) : null}
-        {areAdvancedOptionsEnabled
-          ? generateUIForCameraCapabilities(
+        {areAdvancedOptionsEnabled ? (
+          Object.keys(props.supportedCameraCapabilities).length === 0 ? (
+            <div>
+              <i>No advanced options available</i>
+            </div>
+          ) : (
+            generateUIForCameraCapabilities(
               props.supportedCameraCapabilities,
               props.cameraSettings
             )
-          : null}
+          )
+        ) : null}
       </>
     );
   } catch (e) {
