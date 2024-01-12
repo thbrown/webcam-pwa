@@ -183,25 +183,3 @@ export function AdvancedCameraOptions(
     alert(e + " - " + e.stack);
   }
 }
-
-/*
-
-        <Collapse isOpen={areAdvancedOptionsEnabled}>
-          <div
-            style={{
-              height: "25vh",
-              overflow: "auto",
-              background: "#2d72d212", //lightblue
-              paddingTop: "10px",
-              borderRadius: "3px",
-            }}
-          >
-            {areAdvancedOptionsEnabled
-              ? generateUIForCameraCapabilities(
-                  props.supportedCameraCapabilities,
-                  props.cameraSettings
-                )
-              : null}
-          </div>
-        </Collapse>
-        */

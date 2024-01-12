@@ -1,8 +1,9 @@
-import SunCalc from "suncalc";
+//@ts-ignore - https://github.com/Hypnos3/suncalc3/issues/4
+import SunCalc from "suncalc3";
 
 export interface CaptureTime {
   type: string;
-  time: any;
+  time: Date;
 }
 
 /**
@@ -13,24 +14,48 @@ export const getTimes = (latitude: number, longitude: number) => {
   const currentDate = new Date();
 
   // Get the times for today
-  const timesToday = SunCalc.getTimes(currentDate, latitude, longitude);
+  const timesToday = SunCalc.getSunTimes(currentDate, latitude, longitude);
 
   // Get the times for tomorrow
   const tomorrowDate = new Date(currentDate);
   tomorrowDate.setDate(currentDate.getDate() + 1); // Increment the date to get tomorrow's date
-  const timesTomorrow = SunCalc.getTimes(tomorrowDate, latitude, longitude);
+  const timesTomorrow = SunCalc.getSunTimes(tomorrowDate, latitude, longitude);
+
+  type ObjectWithStringProperties = {
+    [key: string]: any;
+  };
 
   // Combine times for both days into an array of objects
   const combinedTimes = [
-    ...Object.entries(timesToday).map(([type, time]) => ({ type, time })),
-    ...Object.entries(timesTomorrow).map(([type, time]) => ({ type, time })),
+    ...Object.entries(timesToday).map(([type, value]) => ({
+      type,
+      time: (value as ObjectWithStringProperties).value as Date,
+    })),
+    ...Object.entries(timesTomorrow).map(([type, value]) => ({
+      type,
+      time: (value as ObjectWithStringProperties).value as Date,
+    })),
   ];
 
+  console.log("COMBO TIMES", combinedTimes);
+
   // Sort the combined times array by time
-  combinedTimes.sort((a, b) => a.time - b.time);
+  combinedTimes.sort((a, b) => a.time.getTime() - b.time.getTime());
 
   // Filter out times that occurred before the current time
   return combinedTimes.filter((item) => item.time > currentDate);
+};
+
+const filterDeprecatedObjects = (obj: { [x: string]: any }) => {
+  const filteredObj = {} as { [x: string]: any };
+
+  for (const key in obj) {
+    if (!key.includes("[") && !key.includes("]")) {
+      filteredObj[key] = obj[key];
+    }
+  }
+
+  return filteredObj;
 };
 
 export const getUniqueTypes = (times: CaptureTime[]): CaptureTime[] => {

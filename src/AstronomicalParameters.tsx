@@ -1,21 +1,8 @@
-import {
-  Button,
-  Checkbox,
-  Classes,
-  Divider,
-  Label,
-  Radio,
-  RadioGroup,
-  Tab,
-  Tabs,
-} from "@blueprintjs/core";
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import { Button, Checkbox, Classes, Divider } from "@blueprintjs/core";
+import React, { useState, useEffect, useMemo } from "react";
 import { OutputSpec } from "./CameraPanel";
-import { RecordingsPanel } from "./RecordingsPanel";
-import { FolderOpen, Camera } from "@blueprintjs/icons";
 import "./Main.scss";
 import { OutputSpecProps } from "./OutputSpec";
-import SunCalc from "suncalc";
 import {
   getTimes,
   getUniqueTypes,
