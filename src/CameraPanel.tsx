@@ -1,6 +1,22 @@
-import { Button, Spinner, Tab, Tabs } from "@blueprintjs/core";
+import {
+  Button,
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  Radio,
+  RadioGroup,
+  Spinner,
+  Tab,
+  Tabs,
+} from "@blueprintjs/core";
 import React, { useRef, useState, useEffect, useMemo } from "react";
-import { Time, Stopwatch, Clean, Camera } from "@blueprintjs/icons";
+import {
+  Time,
+  Stopwatch,
+  Clean,
+  Camera,
+  MobileVideo,
+} from "@blueprintjs/icons";
 import { RecordingStatus } from "./App";
 import { compileVideo, saveVideo } from "./VideoStorageUtils";
 import { TimelapseRecordingStats } from "./TimelapseRecordingStats";
@@ -57,8 +73,13 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [cameraSettings, setCameraSettings] = useState<
     CameraSettings | undefined
   >(undefined);
+  const [isCameraSelectDialogOpen, setIsCameraSelectDialogOpen] =
+    useState<boolean>(false);
 
   const [activeTrack, setActiveTrack] = useState<MediaStreamTrack>(undefined);
+  const [availableTracks, setAvailableTracks] = useState<MediaStreamTrack[]>(
+    []
+  );
 
   const [outputSpec, setOutputSpec] = useState<OutputSpec>("FPS");
   const [outputDuration, setOutputDuration] = useState<number>(1000);
@@ -125,7 +146,10 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           videoRef.current.srcObject = mediaStream;
 
           const tracks = mediaStream.getVideoTracks();
-          const track = tracks[tracks.length - 1];
+          setAvailableTracks(tracks);
+          console.log("AVAILABLE TRACKS", tracks);
+          // TODO: no webcam?
+          const track = tracks[0];
           setActiveTrack(track);
 
           const capabilities = track.getCapabilities();
@@ -422,10 +446,67 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     }
   };
 
+  function getCameraRadioOptions() {
+    const options = [];
+    let counter = 0;
+    for (let availableTrack of availableTracks) {
+      options.push(<Radio label={availableTrack.label} value={counter} />);
+      counter++;
+    }
+    return options;
+  }
+
   return (
     <div className="Main">
-      <div>
+      <Dialog
+        title="Select Camera"
+        isOpen={isCameraSelectDialogOpen}
+        onClose={() => {
+          setIsCameraSelectDialogOpen(false);
+        }}
+      >
+        <DialogBody>
+          {
+            <RadioGroup
+              // label="Available track"
+              onChange={(v) => {
+                console.log("SELECT", v);
+              }}
+              selectedValue={availableTracks.indexOf(activeTrack)}
+            >
+              {getCameraRadioOptions()}
+            </RadioGroup>
+          }
+        </DialogBody>
+        <DialogFooter
+          actions={
+            <Button
+              intent="primary"
+              text="Okay"
+              onClick={() => {
+                setIsCameraSelectDialogOpen(false);
+              }}
+            />
+          }
+        />
+      </Dialog>
+      <div className="parent">
         {cameraOverlay}
+        {cameraPermission === "granted" ? (
+          <Button
+            style={{
+              position: "absolute",
+              top: "10px",
+              right: "10px",
+              zIndex: "1",
+            }}
+            large={true}
+            icon={<MobileVideo />}
+            onClick={() => {
+              setIsCameraSelectDialogOpen(true);
+            }}
+          ></Button>
+        ) : null}
         <video
           ref={videoRef}
           autoPlay
