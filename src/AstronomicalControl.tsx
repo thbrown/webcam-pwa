@@ -30,7 +30,7 @@ export function AstronomicalControl(
     );
   } else if (props.recordingStatus === "Stopped") {
     return (
-      <div style={{ marginTop: "3px" }} className="footer">
+      <div className="footer">
         <Button
           className={"big-button simple-label"}
           icon={<Record />}

@@ -27,7 +27,18 @@ export const App: React.FC = () => {
   }
   try {
     return (
-      <div className="wrapper" style={{ backgroundColor }}>
+      <div className="wrapper">
+        <div
+          style={{
+            position: "fixed",
+            top: "0",
+            left: "0",
+            width: "100%",
+            height: "100vh",
+            backgroundColor,
+            zIndex: "-1",
+          }}
+        ></div>
         <div className="main-margin">
           <Main
             recordingStatus={recordingStatus}

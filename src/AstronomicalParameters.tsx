@@ -62,6 +62,7 @@ export function AstronomicalParameters(
               display: "flex",
               marginTop: "-18px",
               justifyContent: "space-between",
+              textWrap: "nowrap",
             }}
           >
             <div>{entry.type}</div>
