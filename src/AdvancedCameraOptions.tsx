@@ -22,8 +22,12 @@ export function AdvancedCameraOptions(
   props: AdvancedCameraOptionsProps
 ): JSX.Element {
   try {
-    const [areAdvancedOptionsEnabled, setAreAdvancedOptionsEnabled] =
-      useState<boolean>(false);
+    //const [areAdvancedOptionsEnabled, setAreAdvancedOptionsEnabled] =
+    //  useState<boolean>(false);
+    let areAdvancedOptionsEnabled = true;
+    const setAreAdvancedOptionsEnabled = (v: boolean) => {
+      console.log(v);
+    };
 
     const handleToggleAdvancedOptions = () => {
       setAreAdvancedOptionsEnabled(!areAdvancedOptionsEnabled);
@@ -114,8 +118,8 @@ export function AdvancedCameraOptions(
                   min={min}
                   max={max}
                   stepSize={Math.round(step)}
-                  initialValue={(max - min) / 2}
-                  value={(max - min) / 2}
+                  initialValue={min + (max - min) / 2}
+                  value={min + (max - min) / 2}
                   labelStepSize={calcStepSize}
                   onChange={(v) =>
                     handleAdvancedOptionChange(
@@ -161,7 +165,7 @@ export function AdvancedCameraOptions(
             {areAdvancedOptionsEnabled ? "Hide" : "Show"} Advanced Options
           </Button>
         ) : null}
-        {areAdvancedOptionsEnabled ? (
+        {areAdvancedOptionsEnabled && props.supportedCameraCapabilities ? (
           Object.keys(props.supportedCameraCapabilities).length === 0 ? (
             <div>
               <i>No advanced options available</i>
@@ -177,6 +181,6 @@ export function AdvancedCameraOptions(
     );
   } catch (e) {
     console.log(e);
-    alert(e + " - " + e.stack);
+    //alert(e + " - " + e.stack);
   }
 }
