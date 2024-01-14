@@ -62,7 +62,6 @@ export function AdvancedCameraOptions(
         ];
       }
       console.log("rendering capabilities", capabilities);
-      //return [<div>{JSON.stringify(capabilities, null, 2)}</div>];
       return Object.entries(capabilities).map((capability, index) => {
         const [key, value] = capability;
 
@@ -161,7 +160,7 @@ export function AdvancedCameraOptions(
             style={{ marginBottom: "5px" }}
             minimal={true}
           >
-            {areAdvancedOptionsEnabled ? "Hide" : "Show"} advanced options
+            {areAdvancedOptionsEnabled ? "Hide" : "Show"} Advanced Options
           </Button>
         ) : null}
         {areAdvancedOptionsEnabled ? (

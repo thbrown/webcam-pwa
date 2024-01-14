@@ -9,6 +9,7 @@ import {
   millisecondsUntilDate,
 } from "./SolarTimeUtil";
 import humanizeDuration from "humanize-duration";
+import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
 
 interface AstronomicalParametersProps {
   location: {
@@ -32,7 +33,13 @@ export function AstronomicalParameters(
   const initialLong = useMemo(() => props.location.longitude, []);
   const initialLat = useMemo(() => props.location.latitude, []);
 
+  const [areSolarPositionsEnabled, setAreSolarPositionsEnabled] =
+    useState<boolean>(false);
   const [time, setTime] = useState<number>(new Date().getTime());
+
+  const handleToggleSolarPositions = () => {
+    setAreSolarPositionsEnabled(!areSolarPositionsEnabled);
+  };
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -76,8 +83,6 @@ export function AstronomicalParameters(
           </div>
         }
         onChange={(v) => {
-          console.log("CLICK", entry.time, props.captureTimes);
-
           // Not efficient but there are so few entries it's fine
           if (props.captureTimes.includes(entry.type)) {
             const updatedCaptureTimes = props.captureTimes.filter(
@@ -174,10 +179,46 @@ export function AstronomicalParameters(
         </Button>
       </div>
       <Divider></Divider>
-      <div style={{ padding: "7px" }}>
-        <div style={{ padding: "7px" }}>Capture Times</div>
-        <div>{timeCheckboxes}</div>
-      </div>
+
+      <Button
+        icon={areSolarPositionsEnabled ? <ChevronDown /> : <ChevronRight />}
+        alignText={"left"}
+        onClick={handleToggleSolarPositions}
+        fill={true}
+        outlined={false}
+        style={{ marginBottom: "5px" }}
+        minimal={true}
+      >
+        {areSolarPositionsEnabled ? "Hide" : "Show"} Solar Positions
+      </Button>
+      {areSolarPositionsEnabled ? (
+        <div style={{ padding: "7px" }}>
+          <div>{timeCheckboxes}</div>
+          <div style={{ display: "flex", justifyContent: "space-evenly" }}>
+            <Button
+              onClick={() => {
+                console.log("All");
+              }}
+              outlined={true}
+              style={{ marginBottom: "5px" }}
+              minimal={true}
+            >
+              Select All
+            </Button>{" "}
+            <Button
+              onClick={() => {
+                console.log("None");
+              }}
+              outlined={true}
+              style={{ marginBottom: "5px" }}
+              minimal={true}
+            >
+              Select None
+            </Button>
+          </div>
+        </div>
+      ) : null}
+      <Divider></Divider>
     </div>
   );
 }
