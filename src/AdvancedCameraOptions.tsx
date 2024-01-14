@@ -150,7 +150,7 @@ export function AdvancedCameraOptions(
 
     return (
       <>
-        {props.cameraPermission === "granted" ? (
+        {props && props.cameraPermission === "granted" ? (
           <Button
             icon={
               areAdvancedOptionsEnabled ? <ChevronDown /> : <ChevronRight />
