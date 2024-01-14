@@ -114,8 +114,8 @@ export function AdvancedCameraOptions(
                   min={min}
                   max={max}
                   stepSize={Math.round(step)}
-                  initialValue={sliderValue}
-                  value={sliderValue}
+                  initialValue={(max - min) / 2}
+                  value={(max - min) / 2}
                   labelStepSize={calcStepSize}
                   onChange={(v) =>
                     handleAdvancedOptionChange(
