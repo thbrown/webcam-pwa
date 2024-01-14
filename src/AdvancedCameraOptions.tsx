@@ -8,29 +8,21 @@ import {
   Spinner,
 } from "@blueprintjs/core";
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
-import { CameraCapabilities, CameraSettings } from "./CameraPanel";
 
 interface AdvancedCameraOptionsProps {
-  setCameraSettings: (value: React.SetStateAction<CameraSettings>) => void;
+  setCameraSettings: (value: React.SetStateAction<MediaTrackSettings>) => void;
   cameraPermission: PermissionState;
-  cameraSettings: CameraSettings;
+  cameraSettings: MediaTrackSettings;
   activeTrack: MediaStreamTrack;
-  supportedCameraCapabilities: CameraCapabilities;
+  supportedCameraCapabilities: MediaTrackCapabilities;
 }
 
 export function AdvancedCameraOptions(
   props: AdvancedCameraOptionsProps
 ): JSX.Element {
   try {
-    if (props === undefined) {
-      return null;
-    }
-    //const [areAdvancedOptionsEnabled, setAreAdvancedOptionsEnabled] =
-    //  useState<boolean>(false);
-    let areAdvancedOptionsEnabled = true;
-    const setAreAdvancedOptionsEnabled = (v: boolean) => {
-      console.log(v);
-    };
+    const [areAdvancedOptionsEnabled, setAreAdvancedOptionsEnabled] =
+      useState<boolean>(false);
 
     const handleToggleAdvancedOptions = () => {
       setAreAdvancedOptionsEnabled(!areAdvancedOptionsEnabled);
@@ -53,13 +45,13 @@ export function AdvancedCameraOptions(
       props.activeTrack.applyConstraints(constraints);
       props.setCameraSettings({
         ...props.cameraSettings,
-        ...(patch as Partial<CameraSettings>),
+        ...(patch as Partial<MediaTrackSettings>),
       });
     };
 
     const generateUIForCameraCapabilities = (
-      capabilities: CameraCapabilities | undefined,
-      settings: CameraSettings | undefined
+      capabilities: MediaTrackCapabilities | undefined,
+      settings: MediaTrackSettings | undefined
     ): JSX.Element[] => {
       if (capabilities === undefined) {
         return [
@@ -87,7 +79,7 @@ export function AdvancedCameraOptions(
                     label: item.toString(),
                     value: item.toString(),
                   }))}
-                  value={String(settings[key])}
+                  value={String(settings[key as keyof MediaTrackSettings])}
                   onValueChange={(v) =>
                     handleAdvancedOptionChange(
                       v,
@@ -100,8 +92,8 @@ export function AdvancedCameraOptions(
           } else if (typeof value === "string" || typeof value === "number") {
             // We wont render anything for these, there is only one option
           } else if (
-            typeof value === "object" &&
             value !== null &&
+            typeof value === "object" &&
             typeof value.min === "number" &&
             typeof value.max === "number"
           ) {
@@ -113,7 +105,6 @@ export function AdvancedCameraOptions(
             } = value as { min: number; max: number; step?: number };
             const NUM_STEPS = 4;
             const calcStepSize = (max - min) / NUM_STEPS;
-            const sliderValue = settings[key] as number;
             return (
               <Label style={{ display: "flex" }}>
                 <div style={{ marginRight: "15px", width: "100%" }}>{key}</div>
@@ -121,8 +112,18 @@ export function AdvancedCameraOptions(
                   min={min}
                   max={max}
                   stepSize={Math.round(step)}
-                  initialValue={min + (max - min) / 2}
-                  value={min + (max - min) / 2}
+                  //initialValue={
+                  //  clamp(
+                  //  settings[key as keyof MediaTrackSettings] as number,
+                  //  min,
+                  //  max
+                  //)
+                  //}
+                  value={clamp(
+                    settings[key as keyof MediaTrackSettings] as number,
+                    min,
+                    max
+                  )}
                   labelStepSize={calcStepSize}
                   onChange={(v) =>
                     handleAdvancedOptionChange(
@@ -133,8 +134,14 @@ export function AdvancedCameraOptions(
                 />
               </Label>
             );
+          } else if (typeof value === "object") {
+            return (
+              <div>
+                Unsupported camera option object: {JSON.stringify(value)}
+              </div>
+            );
           } else {
-            alert("Unsupported camera setting " + typeof value + " " + value);
+            return <div>Unsupported camera option: {value}</div>;
           }
         };
 
@@ -168,7 +175,7 @@ export function AdvancedCameraOptions(
             {areAdvancedOptionsEnabled ? "Hide" : "Show"} Advanced Options
           </Button>
         ) : null}
-        {areAdvancedOptionsEnabled && props.supportedCameraCapabilities ? (
+        {areAdvancedOptionsEnabled ? (
           Object.keys(props.supportedCameraCapabilities).length === 0 ? (
             <div>
               <i>No advanced options available</i>
@@ -183,7 +190,7 @@ export function AdvancedCameraOptions(
       </>
     );
   } catch (e) {
-    //console.log(e);
+    console.log(e);
     alert(e + " - " + e.stack);
   }
 }

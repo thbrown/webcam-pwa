@@ -8495,31 +8495,26 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/chevron-down.js");
 /* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/chevron-right.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
-function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : String(i); }
-function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 
 
 
 function AdvancedCameraOptions(props) {
   try {
-    if (props === undefined) {
-      return null;
-    }
-    //const [areAdvancedOptionsEnabled, setAreAdvancedOptionsEnabled] =
-    //  useState<boolean>(false);
-    var areAdvancedOptionsEnabled = true;
-    var setAreAdvancedOptionsEnabled = function setAreAdvancedOptionsEnabled(v) {
-      console.log(v);
-    };
+    var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+      _useState2 = _slicedToArray(_useState, 2),
+      areAdvancedOptionsEnabled = _useState2[0],
+      setAreAdvancedOptionsEnabled = _useState2[1];
     var handleToggleAdvancedOptions = function handleToggleAdvancedOptions() {
       setAreAdvancedOptionsEnabled(!areAdvancedOptionsEnabled);
     };
@@ -8582,7 +8577,7 @@ function AdvancedCameraOptions(props) {
             }));
           } else if (typeof value === "string" || typeof value === "number") {
             // We wont render anything for these, there is only one option
-          } else if (_typeof(value) === "object" && value !== null && typeof value.min === "number" && typeof value.max === "number") {
+          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number") {
             // Render slider for object with min, max, step properties
             var _ref = value,
               min = _ref.min,
@@ -8591,7 +8586,6 @@ function AdvancedCameraOptions(props) {
               step = _ref$step === void 0 ? 1 : _ref$step;
             var NUM_STEPS = 4;
             var calcStepSize = (max - min) / NUM_STEPS;
-            var sliderValue = settings[key];
             return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_2__.Label, {
               style: {
                 display: "flex"
@@ -8604,16 +8598,25 @@ function AdvancedCameraOptions(props) {
             }, key), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__.Slider, {
               min: min,
               max: max,
-              stepSize: Math.round(step),
-              initialValue: min + (max - min) / 2,
-              value: min + (max - min) / 2,
+              stepSize: Math.round(step)
+              //initialValue={
+              //  clamp(
+              //  settings[key as keyof MediaTrackSettings] as number,
+              //  min,
+              //  max
+              //)
+              //}
+              ,
+              value: clamp(settings[key], min, max),
               labelStepSize: calcStepSize,
               onChange: function onChange(v) {
                 return handleAdvancedOptionChange(v, key);
               }
             }));
+          } else if (_typeof(value) === "object") {
+            return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, "Unsupported camera option object: ", JSON.stringify(value));
           } else {
-            alert("Unsupported camera setting " + _typeof(value) + " " + value);
+            return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, "Unsupported camera option: ", value);
           }
         };
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
@@ -8634,9 +8637,9 @@ function AdvancedCameraOptions(props) {
         marginBottom: "5px"
       },
       minimal: true
-    }, areAdvancedOptionsEnabled ? "Hide" : "Show", " Advanced Options") : null, areAdvancedOptionsEnabled && props.supportedCameraCapabilities ? Object.keys(props.supportedCameraCapabilities).length === 0 ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("i", null, "No advanced options available")) : generateUIForCameraCapabilities(props.supportedCameraCapabilities, props.cameraSettings) : null);
+    }, areAdvancedOptionsEnabled ? "Hide" : "Show", " Advanced Options") : null, areAdvancedOptionsEnabled ? Object.keys(props.supportedCameraCapabilities).length === 0 ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("i", null, "No advanced options available")) : generateUIForCameraCapabilities(props.supportedCameraCapabilities, props.cameraSettings) : null);
   } catch (e) {
-    //console.log(e);
+    console.log(e);
     alert(e + " - " + e.stack);
   }
 }
@@ -8783,6 +8786,23 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
+
+/*
+export type CameraSettings = {
+  [key: string]: string | number;
+};
+
+export type CameraCapabilities = {
+  [key: string]:
+    | {
+        max: number;
+        min: number;
+        step?: number;
+      }
+    | string[]
+    | string;
+};
+*/
 
 function CameraPanel(props) {
   // Common state
@@ -8945,7 +8965,6 @@ function CameraPanel(props) {
             setActiveTrack(track);
 
             // There is something wrong here causing mismatch between the active camera and the camera actually being used
-            //  console.log("SILLY", mediaStream, mediaStream.getVideoTracks());
             if (activeCamera !== track.getSettings().deviceId) {
               console.log("Setting active camera 1", track.getSettings().deviceId);
               setActiveCamera(track.getSettings().deviceId);

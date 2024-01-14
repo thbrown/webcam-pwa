@@ -48,6 +48,7 @@ interface CameraPanelProps {
   setVideoToShow: (video: Blob) => void;
 }
 
+/*
 export type CameraSettings = {
   [key: string]: string | number;
 };
@@ -62,6 +63,7 @@ export type CameraCapabilities = {
     | string[]
     | string;
 };
+*/
 
 export function CameraPanel(props: CameraPanelProps): JSX.Element {
   // Common state
@@ -76,9 +78,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   >(undefined);
   const [savingVideo, setSavingVideo] = useState<boolean>(false);
   const [supportedCameraCapabilities, setSupportedCameraCapabilities] =
-    useState<CameraCapabilities | undefined>(undefined);
+    useState<MediaTrackCapabilities | undefined>(undefined);
   const [cameraSettings, setCameraSettings] = useState<
-    CameraSettings | undefined
+    MediaTrackSettings | undefined
   >(undefined);
   const [isCameraSelectDialogOpen, setIsCameraSelectDialogOpen] =
     useState<boolean>(false);
@@ -156,7 +158,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         setActiveTrack(track);
 
         // There is something wrong here causing mismatch between the active camera and the camera actually being used
-        //  console.log("SILLY", mediaStream, mediaStream.getVideoTracks());
         if (activeCamera !== track.getSettings().deviceId) {
           console.log("Setting active camera 1", track.getSettings().deviceId);
           setActiveCamera(track.getSettings().deviceId);
@@ -181,15 +182,15 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         // Capabilities are not supported in FF
         if (track.getCapabilities) {
           const capabilities = track.getCapabilities();
-          setSupportedCameraCapabilities(capabilities as CameraCapabilities);
+          setSupportedCameraCapabilities(capabilities);
         } else {
           console.warn("Capabilities not supported in this browser");
-          setSupportedCameraCapabilities({} as CameraCapabilities);
+          setSupportedCameraCapabilities({} as MediaTrackCapabilities);
         }
 
         // TODO: clamp all these to the min and max values
         const settings = JSON.parse(JSON.stringify(track.getSettings()));
-        setCameraSettings(settings as CameraSettings);
+        setCameraSettings(settings);
         setCameraPermission("granted");
       } else {
         console.error("No video ref!");
