@@ -22,6 +22,9 @@ export function AdvancedCameraOptions(
   props: AdvancedCameraOptionsProps
 ): JSX.Element {
   try {
+    if (props === undefined) {
+      return null;
+    }
     //const [areAdvancedOptionsEnabled, setAreAdvancedOptionsEnabled] =
     //  useState<boolean>(false);
     let areAdvancedOptionsEnabled = true;
@@ -150,7 +153,7 @@ export function AdvancedCameraOptions(
 
     return (
       <>
-        {props && props.cameraPermission === "granted" ? (
+        {props.cameraPermission === "granted" ? (
           <Button
             icon={
               areAdvancedOptionsEnabled ? <ChevronDown /> : <ChevronRight />
