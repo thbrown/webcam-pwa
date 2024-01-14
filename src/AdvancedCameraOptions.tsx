@@ -180,7 +180,7 @@ export function AdvancedCameraOptions(
       </>
     );
   } catch (e) {
-    console.log(e);
-    //alert(e + " - " + e.stack);
+    //console.log(e);
+    alert(e + " - " + e.stack);
   }
 }
