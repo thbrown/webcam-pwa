@@ -11,7 +11,7 @@ import {
 import humanizeDuration from "humanize-duration";
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
 
-interface AstronomicalParametersProps {
+interface SolarParametersProps {
   location: {
     longitude: number;
     latitude: number;
@@ -27,9 +27,7 @@ interface AstronomicalParametersProps {
   setOutputSpec: (spec: OutputSpec) => void;
 }
 
-export function AstronomicalParameters(
-  props: AstronomicalParametersProps
-): JSX.Element {
+export function SolarParameters(props: SolarParametersProps): JSX.Element {
   const initialLong = useMemo(() => props.location.longitude, []);
   const initialLat = useMemo(() => props.location.latitude, []);
 
@@ -75,8 +73,10 @@ export function AstronomicalParameters(
             <div>{entry.type}</div>
             <div>
               <i>
+                in{" "}
                 {humanizeDuration(millisecondsUntilDate(entry.time, time), {
                   round: true,
+                  largest: 2,
                 })}
               </i>
             </div>
@@ -197,6 +197,7 @@ export function AstronomicalParameters(
           <div style={{ display: "flex", justifyContent: "space-evenly" }}>
             <Button
               onClick={() => {
+                props.setCaptureTimes(timeEntries.map((v) => v.type));
                 console.log("All");
               }}
               outlined={true}
@@ -208,6 +209,7 @@ export function AstronomicalParameters(
             <Button
               onClick={() => {
                 console.log("None");
+                props.setCaptureTimes([]);
               }}
               outlined={true}
               style={{ marginBottom: "5px" }}

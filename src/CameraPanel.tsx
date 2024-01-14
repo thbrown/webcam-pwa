@@ -22,6 +22,7 @@ import {
   Clean,
   Camera,
   MobileVideo,
+  Flash,
 } from "@blueprintjs/icons";
 import { RecordingStatus } from "./App";
 import { compileVideo, saveVideo } from "./VideoStorageUtils";
@@ -29,15 +30,15 @@ import { TimelapseRecordingStats } from "./TimelapseRecordingStats";
 import { StopMotionRecordingStats } from "./StopMotionRecordingStats";
 import { TimelapseControl } from "./TimelapseControl";
 import { StopMotionControl } from "./StopMotionControl";
-import { AstronomicalControl } from "./AstronomicalControl";
+import { SolarControl } from "./SolarControl";
 import { AdvancedCameraOptions } from "./AdvancedCameraOptions";
 import { TimelapseParameters } from "./TimelapseParameters";
 import { StopMotionParameters } from "./StopMotionParameters";
-import { AstronomicalParameters } from "./AstronomicalParameters";
+import { SolarParameters } from "./SolarParameters";
 import { CaptureTime, getTimes, millisecondsUntilDate } from "./SolarTimeUtil";
-import { AstronomicalRecordingStats } from "./AstronomicalRecordingStats";
+import { SolarRecordingStats } from "./SolarRecordingStats";
 
-export type RecordingMode = "Timelapse" | "StopMotion" | "Astronomical";
+export type RecordingMode = "Timelapse" | "StopMotion" | "Solar";
 export type OutputSpec = "FPS" | "Duration";
 
 interface CameraPanelProps {
@@ -94,7 +95,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   // Timelapse State
   const [timeLapseInterval, setTimeLapseInterval] = useState<number>(1000);
 
-  // Astronomical State
+  // Solar State
   const [captureTimes, setCaptureTimes] = useState<string[]>([]);
   const [location, setLocation] = useState<{
     longitude: number;
@@ -240,21 +241,27 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   };
 
   // Start time-lapse recording
-  const scheduleAstronomicalTimelapse = async (): Promise<void> => {
+  const scheduleSolarTimelapse = async (): Promise<void> => {
+    if (captureTimes.length === 0) {
+      alert(
+        "You must select at least one solar position for which to capture frames, otherwise no frames will be captured!"
+      );
+      return;
+    }
     props.setRecordingStatus("Recording");
     const times = getTimes(location.latitude, location.longitude);
     const filteredTimes = times.filter((v) => captureTimes.includes(v.type));
     setCaptureQueue(filteredTimes);
     const nextCapture = millisecondsUntilDate(times[0].time);
     console.log("Next capture ", nextCapture, times[0].type);
-    intervalIdRef.current = setTimeout(captureAstronomicalFrame, nextCapture);
+    intervalIdRef.current = setTimeout(captureSolarFrame, nextCapture);
     console.log("Start recording!!", intervalIdRef.current);
   };
 
   // Take frame and keep going
-  const captureAstronomicalFrame = async (): Promise<void> => {
+  const captureSolarFrame = async (): Promise<void> => {
     await captureFrame();
-    await scheduleAstronomicalTimelapse();
+    await scheduleSolarTimelapse();
   };
 
   // Start time-lapse recording
@@ -465,9 +472,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         );
       default:
         return (
-          <AstronomicalControl
+          <SolarControl
             recordingStatus={props.recordingStatus}
-            onStart={scheduleAstronomicalTimelapse}
+            onStart={scheduleSolarTimelapse}
             onStop={stopAndSave}
           />
         );
@@ -663,12 +670,12 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           />
           <Tab
             className="no-highlight minimal-top-margin"
-            id="Astronomical"
-            title={<div className="spacer">Astronomical</div>}
+            id="Solar"
+            title={<div className="spacer">Solar</div>}
             panel={
               <>
                 {props.recordingStatus === "Recording" ? (
-                  <AstronomicalRecordingStats
+                  <SolarRecordingStats
                     mode={recordingMode}
                     framesCaptured={capturedFrames.length}
                     outputFPS={outputFPS}
@@ -679,7 +686,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                   />
                 ) : null}
                 <div>
-                  <AstronomicalParameters
+                  <SolarParameters
                     location={location}
                     captureTimes={captureTimes}
                     setLocation={setLocation}
@@ -701,12 +708,11 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                 </div>
               </>
             }
-            icon={<Clean />}
+            icon={<Flash />}
             disabled={
               props.recordingStatus === "Recording" ||
               props.recordingStatus === "Paused"
             }
-            // https://gml.noaa.gov/grad/solcalc/table.php?lat=39.74&lon=-104.99&year=2024
           />
         </Tabs>
       )}

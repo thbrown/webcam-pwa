@@ -82,7 +82,7 @@ export function SavedVideoPanel(
         return <Time />;
       case "StopMotion":
         return <Stopwatch />;
-      case "Astronomical":
+      case "Solar":
         return <Clean />;
       default:
         // Never

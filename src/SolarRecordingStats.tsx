@@ -7,7 +7,7 @@ import { OutputSpec, RecordingMode } from "./CameraPanel";
 import humanizeDuration from "humanize-duration";
 import { CaptureTime, millisecondsUntilDate } from "./SolarTimeUtil";
 
-interface AstronomicalRecordingStatsProps {
+interface SolarRecordingStatsProps {
   mode: RecordingMode;
   framesCaptured: number;
   outputFPS: number;
@@ -17,8 +17,8 @@ interface AstronomicalRecordingStatsProps {
   captureQueue: CaptureTime[];
 }
 
-export function AstronomicalRecordingStats(
-  props: AstronomicalRecordingStatsProps
+export function SolarRecordingStats(
+  props: SolarRecordingStatsProps
 ): JSX.Element {
   const [time, setTime] = useState<number>(new Date().getTime());
 

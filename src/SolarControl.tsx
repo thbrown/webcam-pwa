@@ -4,15 +4,13 @@ import React, { useRef, useState, useEffect } from "react";
 import { Record, Stop, Pause } from "@blueprintjs/icons";
 import { RecordingStatus } from "./App";
 
-interface AstronomicalControlProps {
+interface SolarControlProps {
   recordingStatus: RecordingStatus;
   onStop: () => void;
   onStart: () => void;
 }
 
-export function AstronomicalControl(
-  props: AstronomicalControlProps
-): JSX.Element {
+export function SolarControl(props: SolarControlProps): JSX.Element {
   if (props.recordingStatus === "Recording") {
     return (
       <div className="footer" style={{ display: "flex" }}>
