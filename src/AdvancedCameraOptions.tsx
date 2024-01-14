@@ -106,6 +106,7 @@ export function AdvancedCameraOptions(
             } = value as { min: number; max: number; step?: number };
             const NUM_STEPS = 4;
             const calcStepSize = (max - min) / NUM_STEPS;
+            const sliderValue = settings[key] as number;
             return (
               <Label style={{ display: "flex" }}>
                 <div style={{ marginRight: "15px", width: "100%" }}>{key}</div>
@@ -113,8 +114,8 @@ export function AdvancedCameraOptions(
                   min={min}
                   max={max}
                   stepSize={Math.round(step)}
-                  initialValue={settings[key] as number}
-                  value={settings[key] as number}
+                  initialValue={sliderValue}
+                  value={sliderValue}
                   labelStepSize={calcStepSize}
                   onChange={(v) =>
                     handleAdvancedOptionChange(
