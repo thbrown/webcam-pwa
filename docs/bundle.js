@@ -8531,6 +8531,20 @@ function AdvancedCameraOptions(props) {
       props.activeTrack.applyConstraints(constraints);
       props.setCameraSettings(_objectSpread(_objectSpread({}, props.cameraSettings), patch));
     };
+    var capabilitiesSort = function capabilitiesSort(_ref, _ref2) {
+      var _ref3 = _slicedToArray(_ref, 1),
+        keyA = _ref3[0];
+      var _ref4 = _slicedToArray(_ref2, 1),
+        keyB = _ref4[0];
+      var lowPriorityKeys = ["height", "width", "aspectRatio"];
+      var indexA = lowPriorityKeys.indexOf(keyA);
+      var indexB = lowPriorityKeys.indexOf(keyB);
+
+      // Move keys found in the low priority list to the bottom
+      if (indexA === -1) return -1;
+      if (indexB === -1) return 1;
+      return indexA - indexB;
+    };
     var generateUIForCameraCapabilities = function generateUIForCameraCapabilities(capabilities, settings) {
       if (capabilities === undefined) {
         return [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
@@ -8543,12 +8557,12 @@ function AdvancedCameraOptions(props) {
         }))];
       }
       console.log("rendering capabilities", capabilities);
-      return Object.entries(capabilities).map(function (capability, index) {
+      return Object.entries(capabilities).sort(capabilitiesSort).map(function (capability, index) {
         var _capability = _slicedToArray(capability, 2),
           key = _capability[0],
           value = _capability[1];
         var renderSettingUI = function renderSettingUI() {
-          if (Array.isArray(value)) {
+          if (Array.isArray(value) && value.length > 1) {
             // Render radio buttons for arrays
             return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_2__.Label, {
               style: {
@@ -8575,15 +8589,15 @@ function AdvancedCameraOptions(props) {
                 return handleAdvancedOptionChange(v, key);
               }
             }));
-          } else if (typeof value === "string" || typeof value === "number") {
+          } else if (typeof value === "string" || typeof value === "number" || Array.isArray(value) && value.length <= 1) {
             // We wont render anything for these, there is only one option
           } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number") {
             // Render slider for object with min, max, step properties
-            var _ref = value,
-              min = _ref.min,
-              max = _ref.max,
-              _ref$step = _ref.step,
-              step = _ref$step === void 0 ? 1 : _ref$step;
+            var _ref5 = value,
+              min = _ref5.min,
+              max = _ref5.max,
+              _ref5$step = _ref5.step,
+              step = _ref5$step === void 0 ? 1 : _ref5$step;
             var NUM_STEPS = 4;
             var calcStepSize = (max - min) / NUM_STEPS;
             return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_2__.Label, {
@@ -8614,7 +8628,16 @@ function AdvancedCameraOptions(props) {
               }
             }));
           } else if (_typeof(value) === "object") {
-            return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, "Unsupported camera option object: ", JSON.stringify(value));
+            return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_2__.Label, {
+              style: {
+                display: "flex"
+              }
+            }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+              style: {
+                marginRight: "15px",
+                width: "100%"
+              }
+            }, key), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, "Unsupported camera option object: ", JSON.stringify(value)));
           } else {
             return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, "Unsupported camera option: ", value);
           }
@@ -8637,7 +8660,15 @@ function AdvancedCameraOptions(props) {
         marginBottom: "5px"
       },
       minimal: true
-    }, areAdvancedOptionsEnabled ? "Hide" : "Show", " Advanced Options") : null, areAdvancedOptionsEnabled ? Object.keys(props.supportedCameraCapabilities).length === 0 ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("i", null, "No advanced options available")) : generateUIForCameraCapabilities(props.supportedCameraCapabilities, props.cameraSettings) : null);
+    }, areAdvancedOptionsEnabled ? "Hide" : "Show", " Advanced Options") : null, areAdvancedOptionsEnabled ? Object.keys(props.supportedCameraCapabilities).length === 0 ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+      style: {
+        padding: "10px"
+      }
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("i", null, "No advanced options available")) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+      style: {
+        paddingTop: "10px"
+      }
+    }, generateUIForCameraCapabilities(props.supportedCameraCapabilities, props.cameraSettings)) : null);
   } catch (e) {
     console.log(e);
     alert(e + " - " + e.stack);
