@@ -187,7 +187,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           setSupportedCameraCapabilities({} as CameraCapabilities);
         }
 
-        const settings = track.getSettings();
+        const settings = JSON.parse(JSON.stringify(track.getSettings()));
         setCameraSettings(settings as CameraSettings);
         setCameraPermission("granted");
       } else {

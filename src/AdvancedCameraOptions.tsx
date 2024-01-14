@@ -118,6 +118,7 @@ export function AdvancedCameraOptions(
                     min,
                     max
                   )}
+                  value={clamp(parseInt(String(settings[key])), min, max)}
                   labelStepSize={calcStepSize}
                   onChange={(v) =>
                     handleAdvancedOptionChange(
