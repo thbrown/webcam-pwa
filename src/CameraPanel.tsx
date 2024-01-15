@@ -48,6 +48,8 @@ interface CameraPanelProps {
   setVideoToShow: (video: Blob) => void;
 }
 
+export type CameraStatus = "idle" | "initializing" | "initialized";
+
 /*
 export type CameraSettings = {
   [key: string]: string | number;
@@ -76,6 +78,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [cameraPermission, setCameraPermission] = useState<
     PermissionState | undefined
   >(undefined);
+  const [cameraStatus, setCameraStatus] = useState<CameraStatus>("idle");
   const [savingVideo, setSavingVideo] = useState<boolean>(false);
   const [supportedCameraCapabilities, setSupportedCameraCapabilities] =
     useState<MediaTrackCapabilities | undefined>(undefined);
@@ -112,11 +115,24 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [captureQueue, setCaptureQueue] = useState<CaptureTime[]>([]);
 
   useEffect(() => {
+    if (cameraStatus === "initializing") {
+      startVideo();
+    }
+  }, [cameraStatus]);
+
+  // Some browsers support permission checks, if this browser does check the status on mount
+  useEffect(() => {
     const checkCameraPermission = async () => {
       try {
         const permissionObj = await navigator.permissions.query({
           name: "camera",
         } as any);
+        setCameraPermission(permissionObj.state);
+        if (permissionObj.state === "granted") {
+          // Init process will set camera permission status to granted if successful
+          setIsInitializing();
+          return;
+        }
         console.log("Set camera permission", permissionObj.state);
         setCameraPermission(permissionObj.state);
       } catch (error) {
@@ -152,7 +168,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       );
 
       if (videoRef.current) {
-        console.log("START VIDEO");
+        console.log("START VIDEO", videoRef.current);
         videoRef.current.srcObject = mediaStream;
 
         const tracks = mediaStream.getVideoTracks();
@@ -190,25 +206,26 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           setSupportedCameraCapabilities({} as MediaTrackCapabilities);
         }
 
+        // TODO: Idk if this copy is necessary
+        console.log("SETTING SETTINGS FROM track.settings()");
         const settings = JSON.parse(JSON.stringify(track.getSettings()));
         setCameraSettings(settings);
-        setCameraPermission("granted");
+        setCameraStatus("initialized");
       } else {
         console.error("No video ref!");
       }
 
-      // Resize video
       resizeVideo();
     } catch (err) {
       console.warn("Could not access webcam ", err);
-
       if (err.message === "Permission denied") {
         setCameraPermission("denied");
       } else if (err.message === "Permission dismissed") {
         setCameraPermission("prompt");
       } else {
-        setCameraPermission(undefined);
+        setCameraPermission("prompt");
       }
+      setCameraStatus("idle");
     }
   };
 
@@ -323,7 +340,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
 
   // Pause time-lapse recording
   const pauseTimelapse = (): void => {
-    // TODO: how should we handle pause restarts? Take a frame immediately? Store the paused time time?
+    // TODO: Should we handle pause restarts differently? Take a frame immediately? Store the paused time time?
     if (props.recordingStatus !== "Recording") {
       return;
     }
@@ -335,58 +352,76 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   };
 
   const resizeVideo = () => {
-    if (videoRef.current) {
-      console.log(
-        "VIDEO RESIZE - video",
-        videoRef.current.offsetWidth,
-        videoRef.current.width
-      );
+    console.log("VIDEO RESIZE ");
 
-      videoRef.current.style.height = `${
-        videoRef.current.offsetWidth / 2.031
-      }px`;
+    let vidHeight = 0;
+    if (videoRef.current) {
+      vidHeight = videoRef.current.offsetWidth / 2.031;
+    }
+
+    let overlayHeight = 0;
+    if (videoPlaceholderRef.current) {
+      overlayHeight = videoPlaceholderRef.current.offsetWidth / 2.031;
+    }
+
+    if (videoRef.current) {
+      videoRef.current.style.height = `${Math.max(vidHeight, overlayHeight)}px`;
     }
 
     if (videoPlaceholderRef.current) {
-      console.log(
-        "VIDEO RESIZE - div",
-        videoPlaceholderRef.current.offsetWidth
-      );
-
-      videoPlaceholderRef.current.style.height = `${
-        videoPlaceholderRef.current.offsetWidth / 2.031
-      }px`;
+      videoPlaceholderRef.current.style.height = `${Math.max(
+        vidHeight,
+        overlayHeight
+      )}px`;
     }
+
+    console.log(
+      "VIDEO RESIZE - div",
+      `${Math.max(vidHeight, overlayHeight)}px`
+    );
   };
 
-  const setLoadingAndStartVideo = () => {
-    setCameraPermission(undefined);
-    startVideo();
+  const setIsInitializing = () => {
+    console.log("initializing");
+    console.trace();
+    setCameraStatus("initializing");
   };
 
+  // Stop taking frames on unmount
   useEffect(() => {
     return () => {
-      clearInterval(intervalIdRef.current); // Clear interval on unmount
+      clearInterval(intervalIdRef.current);
     };
   }, []);
 
+  // Video element resize on window size change
   useEffect(() => {
-    // Initial resize
     resizeVideo();
-
-    const handleResize = () => {
-      resizeVideo();
-    };
-
-    window.addEventListener("resize", handleResize);
-
+    window.addEventListener("resize", resizeVideo);
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", resizeVideo);
     };
   }, []);
 
   const cameraOverlay = useMemo(() => {
-    console.log("Computing overlay for", cameraPermission);
+    console.log("Computing overlay for", cameraStatus, cameraPermission);
+    if (cameraStatus === "initialized") {
+      return null;
+    } else if (cameraStatus === "initializing") {
+      // Show spinner
+      return (
+        <div
+          ref={videoPlaceholderRef}
+          style={{
+            backgroundColor: "LightGray",
+          }}
+          className="video-placeholder"
+        >
+          <Spinner size={64} />
+        </div>
+      );
+    }
+
     switch (cameraPermission) {
       case "prompt":
         return (
@@ -405,15 +440,12 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
               >
                 This app requires access to your camera to function.
               </div>
-              <Button onClick={setLoadingAndStartVideo} icon={<Camera />}>
+              <Button onClick={setIsInitializing} icon={<Camera />}>
                 Grant Camera Permission
               </Button>
             </div>
           </div>
         );
-      case "granted":
-        startVideo();
-        return undefined;
       case "denied":
         return (
           <div
@@ -433,8 +465,11 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             />
           </div>
         );
+      case "granted":
+        // Show spinner -  this shouldn't happen, granted should always mean initialized
+        alert("Error on page. Try refreshing. Camera permission ");
       case undefined:
-        // Show spinner
+        // Spinner
         return (
           <div
             ref={videoPlaceholderRef}
@@ -447,7 +482,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           </div>
         );
     }
-  }, [cameraPermission]);
+  }, [cameraPermission, cameraStatus]);
 
   function handelRecordModeChange(targetPanel: RecordingMode): void {
     setRecordingMode(targetPanel);
@@ -515,8 +550,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
               onChange={(v: React.ChangeEvent<HTMLInputElement>) => {
                 console.log("Selected a camera", v.target.value);
                 setActiveCamera(v.target.value);
-                console.log("Setting active camera 2", v.target.value);
-                startVideo();
+                setIsInitializing();
               }}
               selectedValue={activeCamera}
             >
@@ -538,7 +572,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       </Dialog>
       <div className="parent">
         {cameraOverlay}
-        {cameraPermission === "granted" ? (
+        {cameraStatus === "initialized" ? (
           <Button
             style={{
               position: "absolute",
@@ -559,7 +593,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           muted
           playsInline
           style={{
-            display: cameraPermission === "granted" ? "inline" : "none",
+            display: cameraStatus === "initialized" ? "inline" : "none",
             width: "100%",
             padding: "3px",
             backgroundColor: "black",
@@ -615,7 +649,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                   />
                   <AdvancedCameraOptions
                     setCameraSettings={setCameraSettings}
-                    cameraPermission={cameraPermission}
+                    cameraStatus={cameraStatus}
                     cameraSettings={cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
@@ -659,7 +693,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                   />
                   <AdvancedCameraOptions
                     setCameraSettings={setCameraSettings}
-                    cameraPermission={cameraPermission}
+                    cameraStatus={cameraStatus}
                     cameraSettings={cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
@@ -707,7 +741,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                   />
                   <AdvancedCameraOptions
                     setCameraSettings={setCameraSettings}
-                    cameraPermission={cameraPermission}
+                    cameraStatus={cameraStatus}
                     cameraSettings={cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
@@ -725,7 +759,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           />
         </Tabs>
       )}
-      {cameraPermission === "granted" && !savingVideo ? getControls() : null}
+      {cameraStatus === "initialized" && !savingVideo ? getControls() : null}
     </div>
   );
 }

@@ -9,10 +9,11 @@ import {
 } from "@blueprintjs/core";
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
 import { debounce } from "lodash";
+import { CameraStatus } from "./CameraPanel";
 
 interface AdvancedCameraOptionsProps {
   setCameraSettings: (value: React.SetStateAction<MediaTrackSettings>) => void;
-  cameraPermission: PermissionState;
+  cameraStatus: CameraStatus;
   cameraSettings: MediaTrackSettings;
   activeTrack: MediaStreamTrack;
   supportedCameraCapabilities: MediaTrackCapabilities;
@@ -215,7 +216,7 @@ export const AdvancedCameraOptions = React.memo(
 
       return (
         <>
-          {props.cameraPermission === "granted" ? (
+          {props.cameraStatus === "initialized" ? (
             <Button
               icon={
                 areAdvancedOptionsEnabled ? <ChevronDown /> : <ChevronRight />

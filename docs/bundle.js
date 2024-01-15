@@ -8667,7 +8667,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
         }, renderSettingUI());
       });
     };
-    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null, props.cameraPermission === "granted" ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_6__.Button, {
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null, props.cameraStatus === "initialized" ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_6__.Button, {
       icon: areAdvancedOptionsEnabled ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_7__.ChevronDown, null) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_8__.ChevronRight, null),
       alignText: "left",
       onClick: handleToggleAdvancedOptions,
@@ -8799,8 +8799,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   CameraPanel: () => (/* binding */ CameraPanel)
 /* harmony export */ });
-/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/button/buttons.js");
-/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/spinner/spinner.js");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/spinner/spinner.js");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/button/buttons.js");
 /* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/forms/controls.js");
 /* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/dialog/dialog.js");
 /* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/dialog/dialogBody.js");
@@ -8810,7 +8810,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/tabs/tab.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/camera.js");
+/* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/camera.js");
 /* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/mobile-video.js");
 /* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/time.js");
 /* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/stopwatch.js");
@@ -8891,74 +8891,85 @@ function CameraPanel(props) {
     _useState6 = _slicedToArray(_useState5, 2),
     cameraPermission = _useState6[0],
     setCameraPermission = _useState6[1];
-  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("idle"),
     _useState8 = _slicedToArray(_useState7, 2),
-    savingVideo = _useState8[0],
-    setSavingVideo = _useState8[1];
-  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(undefined),
+    cameraStatus = _useState8[0],
+    setCameraStatus = _useState8[1];
+  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState10 = _slicedToArray(_useState9, 2),
-    supportedCameraCapabilities = _useState10[0],
-    setSupportedCameraCapabilities = _useState10[1];
+    savingVideo = _useState10[0],
+    setSavingVideo = _useState10[1];
   var _useState11 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(undefined),
     _useState12 = _slicedToArray(_useState11, 2),
-    cameraSettings = _useState12[0],
-    setCameraSettings = _useState12[1];
-  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
+    supportedCameraCapabilities = _useState12[0],
+    setSupportedCameraCapabilities = _useState12[1];
+  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(undefined),
     _useState14 = _slicedToArray(_useState13, 2),
-    testSliderValue = _useState14[0],
-    setTestSliderValue = _useState14[1];
-  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    cameraSettings = _useState14[0],
+    setCameraSettings = _useState14[1];
+  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
     _useState16 = _slicedToArray(_useState15, 2),
-    isCameraSelectDialogOpen = _useState16[0],
-    setIsCameraSelectDialogOpen = _useState16[1];
-  var _useState17 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(undefined),
+    testSliderValue = _useState16[0],
+    setTestSliderValue = _useState16[1];
+  var _useState17 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState18 = _slicedToArray(_useState17, 2),
-    activeTrack = _useState18[0],
-    setActiveTrack = _useState18[1];
+    isCameraSelectDialogOpen = _useState18[0],
+    setIsCameraSelectDialogOpen = _useState18[1];
   var _useState19 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(undefined),
     _useState20 = _slicedToArray(_useState19, 2),
-    activeCamera = _useState20[0],
-    setActiveCamera = _useState20[1];
+    activeTrack = _useState20[0],
+    setActiveTrack = _useState20[1];
   var _useState21 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(undefined),
     _useState22 = _slicedToArray(_useState21, 2),
-    availableCameras = _useState22[0],
-    setAvailableCameras = _useState22[1];
-  var _useState23 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("FPS"),
+    activeCamera = _useState22[0],
+    setActiveCamera = _useState22[1];
+  var _useState23 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(undefined),
     _useState24 = _slicedToArray(_useState23, 2),
-    outputSpec = _useState24[0],
-    setOutputSpec = _useState24[1];
-  var _useState25 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1000),
+    availableCameras = _useState24[0],
+    setAvailableCameras = _useState24[1];
+  var _useState25 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("FPS"),
     _useState26 = _slicedToArray(_useState25, 2),
-    outputDuration = _useState26[0],
-    setOutputDuration = _useState26[1];
-  var _useState27 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(30),
+    outputSpec = _useState26[0],
+    setOutputSpec = _useState26[1];
+  var _useState27 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1000),
     _useState28 = _slicedToArray(_useState27, 2),
-    outputFPS = _useState28[0],
-    setOutputFPS = _useState28[1];
+    outputDuration = _useState28[0],
+    setOutputDuration = _useState28[1];
+  var _useState29 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(30),
+    _useState30 = _slicedToArray(_useState29, 2),
+    outputFPS = _useState30[0],
+    setOutputFPS = _useState30[1];
 
   // Timelapse State
-  var _useState29 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1000),
-    _useState30 = _slicedToArray(_useState29, 2),
-    timeLapseInterval = _useState30[0],
-    setTimeLapseInterval = _useState30[1];
+  var _useState31 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1000),
+    _useState32 = _slicedToArray(_useState31, 2),
+    timeLapseInterval = _useState32[0],
+    setTimeLapseInterval = _useState32[1];
 
   // Solar State
-  var _useState31 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
-    _useState32 = _slicedToArray(_useState31, 2),
-    captureTimes = _useState32[0],
-    setCaptureTimes = _useState32[1];
-  var _useState33 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
+  var _useState33 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState34 = _slicedToArray(_useState33, 2),
+    captureTimes = _useState34[0],
+    setCaptureTimes = _useState34[1];
+  var _useState35 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
       // Denver default
       longitude: -104.991531,
       latitude: 39.742043
     }),
-    _useState34 = _slicedToArray(_useState33, 2),
-    location = _useState34[0],
-    setLocation = _useState34[1];
-  var _useState35 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
     _useState36 = _slicedToArray(_useState35, 2),
-    captureQueue = _useState36[0],
-    setCaptureQueue = _useState36[1];
+    location = _useState36[0],
+    setLocation = _useState36[1];
+  var _useState37 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState38 = _slicedToArray(_useState37, 2),
+    captureQueue = _useState38[0],
+    setCaptureQueue = _useState38[1];
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    if (cameraStatus === "initializing") {
+      startVideo();
+    }
+  }, [cameraStatus]);
+
+  // Some browsers support permission checks, if this browser does check the status on mount
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     var checkCameraPermission = /*#__PURE__*/function () {
       var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -8973,25 +8984,34 @@ function CameraPanel(props) {
               });
             case 3:
               permissionObj = _context.sent;
+              setCameraPermission(permissionObj.state);
+              if (!(permissionObj.state === "granted")) {
+                _context.next = 8;
+                break;
+              }
+              // Init process will set camera permission status to granted if successful
+              setIsInitializing();
+              return _context.abrupt("return");
+            case 8:
               console.log("Set camera permission", permissionObj.state);
               setCameraPermission(permissionObj.state);
-              _context.next = 12;
+              _context.next = 16;
               break;
-            case 8:
-              _context.prev = 8;
+            case 12:
+              _context.prev = 12;
               _context.t0 = _context["catch"](0);
               // Handle errors, set permission to "prompt" in case of failure
               console.log("Got error :", _context.t0);
               setCameraPermission("prompt");
-            case 12:
-              _context.prev = 12;
+            case 16:
+              _context.prev = 16;
               resizeVideo();
-              return _context.finish(12);
-            case 15:
+              return _context.finish(16);
+            case 19:
             case "end":
               return _context.stop();
           }
-        }, _callee, null, [[0, 8, 12, 15]]);
+        }, _callee, null, [[0, 12, 16, 19]]);
       }));
       return function checkCameraPermission() {
         return _ref.apply(this, arguments);
@@ -9029,10 +9049,10 @@ function CameraPanel(props) {
           case 5:
             mediaStream = _context2.sent;
             if (!videoRef.current) {
-              _context2.next = 26;
+              _context2.next = 27;
               break;
             }
-            console.log("START VIDEO");
+            console.log("START VIDEO", videoRef.current);
             videoRef.current.srcObject = mediaStream;
             tracks = mediaStream.getVideoTracks();
             track = tracks[0];
@@ -9071,20 +9091,22 @@ function CameraPanel(props) {
               console.warn("Capabilities not supported in this browser");
               setSupportedCameraCapabilities({});
             }
+
+            // TODO: Idk if this copy is necessary
+            console.log("SETTING SETTINGS FROM track.settings()");
             settings = JSON.parse(JSON.stringify(track.getSettings()));
             setCameraSettings(settings);
-            setCameraPermission("granted");
-            _context2.next = 27;
+            setCameraStatus("initialized");
+            _context2.next = 28;
             break;
-          case 26:
-            console.error("No video ref!");
           case 27:
-            // Resize video
+            console.error("No video ref!");
+          case 28:
             resizeVideo();
-            _context2.next = 34;
+            _context2.next = 36;
             break;
-          case 30:
-            _context2.prev = 30;
+          case 31:
+            _context2.prev = 31;
             _context2.t0 = _context2["catch"](1);
             console.warn("Could not access webcam ", _context2.t0);
             if (_context2.t0.message === "Permission denied") {
@@ -9092,13 +9114,14 @@ function CameraPanel(props) {
             } else if (_context2.t0.message === "Permission dismissed") {
               setCameraPermission("prompt");
             } else {
-              setCameraPermission(undefined);
+              setCameraPermission("prompt");
             }
-          case 34:
+            setCameraStatus("idle");
+          case 36:
           case "end":
             return _context2.stop();
         }
-      }, _callee2, null, [[1, 30]]);
+      }, _callee2, null, [[1, 31]]);
     }));
     return function startVideo() {
       return _ref2.apply(this, arguments);
@@ -9291,7 +9314,7 @@ function CameraPanel(props) {
 
   // Pause time-lapse recording
   var pauseTimelapse = function pauseTimelapse() {
-    // TODO: how should we handle pause restarts? Take a frame immediately? Store the paused time time?
+    // TODO: Should we handle pause restarts differently? Take a frame immediately? Store the paused time time?
     if (props.recordingStatus !== "Recording") {
       return;
     }
@@ -9302,37 +9325,60 @@ function CameraPanel(props) {
     props.setRecordingStatus("Paused");
   };
   var resizeVideo = function resizeVideo() {
+    console.log("VIDEO RESIZE ");
+    var vidHeight = 0;
     if (videoRef.current) {
-      console.log("VIDEO RESIZE - video", videoRef.current.offsetWidth, videoRef.current.width);
-      videoRef.current.style.height = "".concat(videoRef.current.offsetWidth / 2.031, "px");
+      vidHeight = videoRef.current.offsetWidth / 2.031;
+    }
+    var overlayHeight = 0;
+    if (videoPlaceholderRef.current) {
+      overlayHeight = videoPlaceholderRef.current.offsetWidth / 2.031;
+    }
+    if (videoRef.current) {
+      videoRef.current.style.height = "".concat(Math.max(vidHeight, overlayHeight), "px");
     }
     if (videoPlaceholderRef.current) {
-      console.log("VIDEO RESIZE - div", videoPlaceholderRef.current.offsetWidth);
-      videoPlaceholderRef.current.style.height = "".concat(videoPlaceholderRef.current.offsetWidth / 2.031, "px");
+      videoPlaceholderRef.current.style.height = "".concat(Math.max(vidHeight, overlayHeight), "px");
     }
+    console.log("VIDEO RESIZE - div", "".concat(Math.max(vidHeight, overlayHeight), "px"));
   };
-  var setLoadingAndStartVideo = function setLoadingAndStartVideo() {
-    setCameraPermission(undefined);
-    startVideo();
+  var setIsInitializing = function setIsInitializing() {
+    console.log("initializing");
+    console.trace();
+    setCameraStatus("initializing");
   };
+
+  // Stop taking frames on unmount
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     return function () {
-      clearInterval(intervalIdRef.current); // Clear interval on unmount
+      clearInterval(intervalIdRef.current);
     };
   }, []);
+
+  // Video element resize on window size change
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    // Initial resize
     resizeVideo();
-    var handleResize = function handleResize() {
-      resizeVideo();
-    };
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", resizeVideo);
     return function () {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", resizeVideo);
     };
   }, []);
   var cameraOverlay = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(function () {
-    console.log("Computing overlay for", cameraPermission);
+    console.log("Computing overlay for", cameraStatus, cameraPermission);
+    if (cameraStatus === "initialized") {
+      return null;
+    } else if (cameraStatus === "initializing") {
+      // Show spinner
+      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+        ref: videoPlaceholderRef,
+        style: {
+          backgroundColor: "LightGray"
+        },
+        className: "video-placeholder"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_13__.Spinner, {
+        size: 64
+      }));
+    }
     switch (cameraPermission) {
       case "prompt":
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
@@ -9347,13 +9393,10 @@ function CameraPanel(props) {
           style: {
             marginBottom: "5px"
           }
-        }, "This app requires access to your camera to function."), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_13__.Button, {
-          onClick: setLoadingAndStartVideo,
-          icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_14__.Camera, null)
+        }, "This app requires access to your camera to function."), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_14__.Button, {
+          onClick: setIsInitializing,
+          icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_15__.Camera, null)
         }, "Grant Camera Permission")));
-      case "granted":
-        startVideo();
-        return undefined;
       case "denied":
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
           ref: videoPlaceholderRef,
@@ -9371,19 +9414,22 @@ function CameraPanel(props) {
           },
           src: "cameraPerms.gif"
         }));
+      case "granted":
+        // Show spinner -  this shouldn't happen, granted should always mean initialized
+        alert("Error on page. Try refreshing. Camera permission ");
       case undefined:
-        // Show spinner
+        // Spinner
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
           ref: videoPlaceholderRef,
           style: {
             backgroundColor: "LightGray"
           },
           className: "video-placeholder"
-        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_15__.Spinner, {
+        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_13__.Spinner, {
           size: 64
         }));
     }
-  }, [cameraPermission]);
+  }, [cameraPermission, cameraStatus]);
   function handelRecordModeChange(targetPanel) {
     setRecordingMode(targetPanel);
   }
@@ -9445,12 +9491,11 @@ function CameraPanel(props) {
     onChange: function onChange(v) {
       console.log("Selected a camera", v.target.value);
       setActiveCamera(v.target.value);
-      console.log("Setting active camera 2", v.target.value);
-      startVideo();
+      setIsInitializing();
     },
     selectedValue: activeCamera
   }, getCameraRadioOptions())), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_20__.DialogFooter, {
-    actions: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_13__.Button, {
+    actions: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_14__.Button, {
       intent: "primary",
       text: "Okay",
       onClick: function onClick() {
@@ -9459,7 +9504,7 @@ function CameraPanel(props) {
     })
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     className: "parent"
-  }, cameraOverlay, cameraPermission === "granted" ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_13__.Button, {
+  }, cameraOverlay, cameraStatus === "initialized" ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_14__.Button, {
     style: {
       position: "absolute",
       top: "10px",
@@ -9477,7 +9522,7 @@ function CameraPanel(props) {
     muted: true,
     playsInline: true,
     style: {
-      display: cameraPermission === "granted" ? "inline" : "none",
+      display: cameraStatus === "initialized" ? "inline" : "none",
       width: "100%",
       padding: "3px",
       backgroundColor: "black"
@@ -9494,7 +9539,7 @@ function CameraPanel(props) {
       padding: "20px",
       textAlign: "center"
     }
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("b", null, "Saving Video...")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_15__.Spinner, {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("b", null, "Saving Video...")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_13__.Spinner, {
     size: 64
   })) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_22__.Tabs, {
     fill: true,
@@ -9525,7 +9570,7 @@ function CameraPanel(props) {
       setOutputSpec: setOutputSpec
     }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_AdvancedCameraOptions__WEBPACK_IMPORTED_MODULE_7__.AdvancedCameraOptions, {
       setCameraSettings: setCameraSettings,
-      cameraPermission: cameraPermission,
+      cameraStatus: cameraStatus,
       cameraSettings: cameraSettings,
       activeTrack: activeTrack,
       supportedCameraCapabilities: supportedCameraCapabilities,
@@ -9556,7 +9601,7 @@ function CameraPanel(props) {
       setOutputSpec: setOutputSpec
     }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_AdvancedCameraOptions__WEBPACK_IMPORTED_MODULE_7__.AdvancedCameraOptions, {
       setCameraSettings: setCameraSettings,
-      cameraPermission: cameraPermission,
+      cameraStatus: cameraStatus,
       cameraSettings: cameraSettings,
       activeTrack: activeTrack,
       supportedCameraCapabilities: supportedCameraCapabilities,
@@ -9592,7 +9637,7 @@ function CameraPanel(props) {
       setOutputSpec: setOutputSpec
     }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_AdvancedCameraOptions__WEBPACK_IMPORTED_MODULE_7__.AdvancedCameraOptions, {
       setCameraSettings: setCameraSettings,
-      cameraPermission: cameraPermission,
+      cameraStatus: cameraStatus,
       cameraSettings: cameraSettings,
       activeTrack: activeTrack,
       supportedCameraCapabilities: supportedCameraCapabilities,
@@ -9601,7 +9646,7 @@ function CameraPanel(props) {
     }))),
     icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_26__.Flash, null),
     disabled: props.recordingStatus === "Recording" || props.recordingStatus === "Paused"
-  })), cameraPermission === "granted" && !savingVideo ? getControls() : null);
+  })), cameraStatus === "initialized" && !savingVideo ? getControls() : null);
 }
 
 /***/ }),
