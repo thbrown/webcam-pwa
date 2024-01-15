@@ -27,9 +27,6 @@ module.exports = {
     devMiddleware: {
       writeToDisk: true,
     },
-    client: {
-      progress: true,
-    },
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js"],

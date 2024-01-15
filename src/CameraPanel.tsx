@@ -188,7 +188,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           setSupportedCameraCapabilities({} as MediaTrackCapabilities);
         }
 
-        // TODO: clamp all these to the min and max values
         const settings = JSON.parse(JSON.stringify(track.getSettings()));
         setCameraSettings(settings);
         setCameraPermission("granted");
