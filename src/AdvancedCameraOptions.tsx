@@ -16,6 +16,8 @@ interface AdvancedCameraOptionsProps {
   cameraSettings: MediaTrackSettings;
   activeTrack: MediaStreamTrack;
   supportedCameraCapabilities: MediaTrackCapabilities;
+  setTestSliderValue: (value: number) => void;
+  testSliderValue: number;
 }
 
 export const AdvancedCameraOptions = React.memo(
@@ -23,7 +25,6 @@ export const AdvancedCameraOptions = React.memo(
     try {
       const [areAdvancedOptionsEnabled, setAreAdvancedOptionsEnabled] =
         useState<boolean>(false);
-      const [testSliderValue, setTestSliderValue] = useState<number>(1);
 
       const handleToggleAdvancedOptions = () => {
         setAreAdvancedOptionsEnabled((prev) => !prev);
@@ -251,8 +252,8 @@ export const AdvancedCameraOptions = React.memo(
                       max={10}
                       min={-2}
                       stepSize={2}
-                      onChange={(v) => setTestSliderValue(v)}
-                      value={testSliderValue}
+                      onChange={(v) => props.setTestSliderValue(v)}
+                      value={props.testSliderValue}
                     />
                   </Label>
                 </div>

@@ -82,6 +82,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [cameraSettings, setCameraSettings] = useState<
     MediaTrackSettings | undefined
   >(undefined);
+  const [testSliderValue, setTestSliderValue] = useState<number>(1);
+
   const [isCameraSelectDialogOpen, setIsCameraSelectDialogOpen] =
     useState<boolean>(false);
 
@@ -617,6 +619,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     cameraSettings={cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
+                    testSliderValue={testSliderValue}
+                    setTestSliderValue={setTestSliderValue}
                   />
                 </div>
               )
@@ -659,6 +663,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     cameraSettings={cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
+                    testSliderValue={testSliderValue}
+                    setTestSliderValue={setTestSliderValue}
                   />
                 </div>
               </>
@@ -705,6 +711,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     cameraSettings={cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
+                    testSliderValue={testSliderValue}
+                    setTestSliderValue={setTestSliderValue}
                   />
                 </div>
               </>

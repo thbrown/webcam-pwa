@@ -8518,10 +8518,6 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
       _useState2 = _slicedToArray(_useState, 2),
       areAdvancedOptionsEnabled = _useState2[0],
       setAreAdvancedOptionsEnabled = _useState2[1];
-    var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
-      _useState4 = _slicedToArray(_useState3, 2),
-      testSliderValue = _useState4[0],
-      setTestSliderValue = _useState4[1];
     var handleToggleAdvancedOptions = function handleToggleAdvancedOptions() {
       setAreAdvancedOptionsEnabled(function (prev) {
         return !prev;
@@ -8707,9 +8703,9 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
       min: -2,
       stepSize: 2,
       onChange: function onChange(v) {
-        return setTestSliderValue(v);
+        return props.setTestSliderValue(v);
       },
-      value: testSliderValue
+      value: props.testSliderValue
     }))), generateUIForCameraCapabilities(props.supportedCameraCapabilities, props.cameraSettings)) : null);
   } catch (e) {
     console.warn("PRINT", e);
@@ -8906,58 +8902,62 @@ function CameraPanel(props) {
     _useState12 = _slicedToArray(_useState11, 2),
     cameraSettings = _useState12[0],
     setCameraSettings = _useState12[1];
-  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
     _useState14 = _slicedToArray(_useState13, 2),
-    isCameraSelectDialogOpen = _useState14[0],
-    setIsCameraSelectDialogOpen = _useState14[1];
-  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(undefined),
+    testSliderValue = _useState14[0],
+    setTestSliderValue = _useState14[1];
+  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState16 = _slicedToArray(_useState15, 2),
-    activeTrack = _useState16[0],
-    setActiveTrack = _useState16[1];
+    isCameraSelectDialogOpen = _useState16[0],
+    setIsCameraSelectDialogOpen = _useState16[1];
   var _useState17 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(undefined),
     _useState18 = _slicedToArray(_useState17, 2),
-    activeCamera = _useState18[0],
-    setActiveCamera = _useState18[1];
+    activeTrack = _useState18[0],
+    setActiveTrack = _useState18[1];
   var _useState19 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(undefined),
     _useState20 = _slicedToArray(_useState19, 2),
-    availableCameras = _useState20[0],
-    setAvailableCameras = _useState20[1];
-  var _useState21 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("FPS"),
+    activeCamera = _useState20[0],
+    setActiveCamera = _useState20[1];
+  var _useState21 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(undefined),
     _useState22 = _slicedToArray(_useState21, 2),
-    outputSpec = _useState22[0],
-    setOutputSpec = _useState22[1];
-  var _useState23 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1000),
+    availableCameras = _useState22[0],
+    setAvailableCameras = _useState22[1];
+  var _useState23 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("FPS"),
     _useState24 = _slicedToArray(_useState23, 2),
-    outputDuration = _useState24[0],
-    setOutputDuration = _useState24[1];
-  var _useState25 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(30),
+    outputSpec = _useState24[0],
+    setOutputSpec = _useState24[1];
+  var _useState25 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1000),
     _useState26 = _slicedToArray(_useState25, 2),
-    outputFPS = _useState26[0],
-    setOutputFPS = _useState26[1];
+    outputDuration = _useState26[0],
+    setOutputDuration = _useState26[1];
+  var _useState27 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(30),
+    _useState28 = _slicedToArray(_useState27, 2),
+    outputFPS = _useState28[0],
+    setOutputFPS = _useState28[1];
 
   // Timelapse State
-  var _useState27 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1000),
-    _useState28 = _slicedToArray(_useState27, 2),
-    timeLapseInterval = _useState28[0],
-    setTimeLapseInterval = _useState28[1];
+  var _useState29 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1000),
+    _useState30 = _slicedToArray(_useState29, 2),
+    timeLapseInterval = _useState30[0],
+    setTimeLapseInterval = _useState30[1];
 
   // Solar State
-  var _useState29 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
-    _useState30 = _slicedToArray(_useState29, 2),
-    captureTimes = _useState30[0],
-    setCaptureTimes = _useState30[1];
-  var _useState31 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
+  var _useState31 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState32 = _slicedToArray(_useState31, 2),
+    captureTimes = _useState32[0],
+    setCaptureTimes = _useState32[1];
+  var _useState33 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
       // Denver default
       longitude: -104.991531,
       latitude: 39.742043
     }),
-    _useState32 = _slicedToArray(_useState31, 2),
-    location = _useState32[0],
-    setLocation = _useState32[1];
-  var _useState33 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
     _useState34 = _slicedToArray(_useState33, 2),
-    captureQueue = _useState34[0],
-    setCaptureQueue = _useState34[1];
+    location = _useState34[0],
+    setLocation = _useState34[1];
+  var _useState35 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState36 = _slicedToArray(_useState35, 2),
+    captureQueue = _useState36[0],
+    setCaptureQueue = _useState36[1];
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     var checkCameraPermission = /*#__PURE__*/function () {
       var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -9527,7 +9527,9 @@ function CameraPanel(props) {
       cameraPermission: cameraPermission,
       cameraSettings: cameraSettings,
       activeTrack: activeTrack,
-      supportedCameraCapabilities: supportedCameraCapabilities
+      supportedCameraCapabilities: supportedCameraCapabilities,
+      testSliderValue: testSliderValue,
+      setTestSliderValue: setTestSliderValue
     })),
     icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_24__.Time, null),
     disabled: props.recordingStatus === "Recording" || props.recordingStatus === "Paused"
@@ -9556,7 +9558,9 @@ function CameraPanel(props) {
       cameraPermission: cameraPermission,
       cameraSettings: cameraSettings,
       activeTrack: activeTrack,
-      supportedCameraCapabilities: supportedCameraCapabilities
+      supportedCameraCapabilities: supportedCameraCapabilities,
+      testSliderValue: testSliderValue,
+      setTestSliderValue: setTestSliderValue
     }))),
     icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_25__.Stopwatch, null),
     disabled: props.recordingStatus === "Recording" || props.recordingStatus === "Paused"
@@ -9590,7 +9594,9 @@ function CameraPanel(props) {
       cameraPermission: cameraPermission,
       cameraSettings: cameraSettings,
       activeTrack: activeTrack,
-      supportedCameraCapabilities: supportedCameraCapabilities
+      supportedCameraCapabilities: supportedCameraCapabilities,
+      testSliderValue: testSliderValue,
+      setTestSliderValue: setTestSliderValue
     }))),
     icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_26__.Flash, null),
     disabled: props.recordingStatus === "Recording" || props.recordingStatus === "Paused"
