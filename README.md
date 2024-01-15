@@ -6,11 +6,12 @@ Live at: https://thbrown.github.io/webcam-pwa/
 
 ### Develop
 
-`npm run serve`
+`npm run serve` (to /dev)
 
-### Prod Build
+### Build
 
-`npm run build`
+`npm run build` (to /docs)
+`npm run build-dev` (to /docs)
 
 ### Build Notes: Static assets
 

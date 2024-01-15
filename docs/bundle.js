@@ -8490,10 +8490,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/spinner/spinner.js");
 /* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/html/html.js");
 /* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/segmented-control/segmentedControl.js");
-/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/button/buttons.js");
-/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/slider/slider.js");
-/* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/chevron-down.js");
-/* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/chevron-right.js");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/slider/slider.js");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/button/buttons.js");
+/* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/chevron-down.js");
+/* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/chevron-right.js");
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_1__);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -8616,11 +8616,10 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
                 marginRight: "15px",
                 width: "100%"
               }
-            }, key), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
-              type: "range",
+            }, key), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
               min: min,
-              max: max
-              //stepSize={Math.round(step)}
+              max: max,
+              stepSize: Math.round(step)
               //initialValue={
               //  clamp(
               //  settings[key as keyof MediaTrackSettings] as number,
@@ -8629,19 +8628,21 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
               //)
               //}
               ,
-              value: clamp(settings[key], min, max)
-              //labelStepSize={calcStepSize}
+              value: clamp(settings[key], min, max),
+              labelStepSize: calcStepSize
               //onChange={(v) =>
               //  handleAdvancedOptionChange(
               //    v,
               //    key as keyof MediaTrackConstraintSet
               //  )
               //}
-              ,
-              onChange: function onChange(v) {
-                var a = v.target.value;
-                handleAdvancedOptionChange(a, key);
-              }
+              //onChange={(v) => {
+              //  const a = v.target.value;
+              //  handleAdvancedOptionChange(
+              //    a,
+              //    key as keyof MediaTrackConstraintSet
+              //  );
+              //}}
             }));
           } else if (_typeof(value) === "object") {
             return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
@@ -8666,8 +8667,8 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
         }, renderSettingUI());
       });
     };
-    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null, props.cameraPermission === "granted" ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Button, {
-      icon: areAdvancedOptionsEnabled ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_6__.ChevronDown, null) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_7__.ChevronRight, null),
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null, props.cameraPermission === "granted" ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_6__.Button, {
+      icon: areAdvancedOptionsEnabled ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_7__.ChevronDown, null) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_8__.ChevronRight, null),
       alignText: "left",
       onClick: handleToggleAdvancedOptions,
       fill: true,
@@ -8698,7 +8699,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
         marginRight: "15px",
         width: "100%"
       }
-    }, "TEST SLIDER"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_8__.Slider, {
+    }, "TEST SLIDER"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
       max: 10,
       min: -2,
       stepSize: 2,

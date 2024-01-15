@@ -151,11 +151,10 @@ export const AdvancedCameraOptions = React.memo(
                     <div style={{ marginRight: "15px", width: "100%" }}>
                       {key}
                     </div>
-                    <input
-                      type="range"
+                    <Slider
                       min={min}
                       max={max}
-                      //stepSize={Math.round(step)}
+                      stepSize={Math.round(step)}
                       //initialValue={
                       //  clamp(
                       //  settings[key as keyof MediaTrackSettings] as number,
@@ -168,20 +167,20 @@ export const AdvancedCameraOptions = React.memo(
                         min,
                         max
                       )}
-                      //labelStepSize={calcStepSize}
+                      labelStepSize={calcStepSize}
                       //onChange={(v) =>
                       //  handleAdvancedOptionChange(
                       //    v,
                       //    key as keyof MediaTrackConstraintSet
                       //  )
                       //}
-                      onChange={(v) => {
-                        const a = v.target.value;
-                        handleAdvancedOptionChange(
-                          a,
-                          key as keyof MediaTrackConstraintSet
-                        );
-                      }}
+                      //onChange={(v) => {
+                      //  const a = v.target.value;
+                      //  handleAdvancedOptionChange(
+                      //    a,
+                      //    key as keyof MediaTrackConstraintSet
+                      //  );
+                      //}}
                     />
                   </Label>
                 );
