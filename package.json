@@ -23,6 +23,7 @@
     "@blueprintjs/core": "^5.7.2",
     "@blueprintjs/icons": "^5.5.0",
     "@saschazar/wasm-webp": "^3.0.1",
+    "@types/lodash": "^4.14.202",
     "file-saver": "^2.0.5",
     "humanize-duration": "^3.31.0",
     "localforage": "^1.10.0",

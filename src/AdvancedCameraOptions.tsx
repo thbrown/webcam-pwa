@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Button,
   Collapse,
@@ -8,6 +8,7 @@ import {
   Spinner,
 } from "@blueprintjs/core";
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
+import { debounce } from "lodash";
 
 interface AdvancedCameraOptionsProps {
   setCameraSettings: (value: React.SetStateAction<MediaTrackSettings>) => void;
@@ -25,21 +26,19 @@ export function AdvancedCameraOptions(
       useState<boolean>(false);
 
     const handleToggleAdvancedOptions = () => {
-      setAreAdvancedOptionsEnabled(!areAdvancedOptionsEnabled);
+      setAreAdvancedOptionsEnabled((prev) => !prev);
     };
 
     const clamp = (value: number, min: number, max: number): number => {
       return Math.min(Math.max(value, min), max);
     };
 
-    useEffect(() => {
-      // Component mounted
-      console.log("MOUNTED!");
-      return () => {
-        // Component will unmount
-        console.log("UNMOUNTED!");
-      };
-    }, []);
+    const applyStylingChanges = useCallback(
+      debounce((constraints: MediaTrackConstraints) => {
+        props.activeTrack.applyConstraints(constraints);
+      }, 100),
+      [props.activeTrack]
+    );
 
     const handleAdvancedOptionChange = (
       value: string | number,
@@ -51,7 +50,7 @@ export function AdvancedCameraOptions(
       const constraints: MediaTrackConstraints = {
         advanced: [patch],
       };
-      props.activeTrack.applyConstraints(constraints);
+      applyStylingChanges(constraints);
       props.setCameraSettings({
         ...props.cameraSettings,
         ...(patch as Partial<MediaTrackSettings>),
@@ -82,6 +81,7 @@ export function AdvancedCameraOptions(
 
       return indexA - indexB;
     };
+
     const generateUIForCameraCapabilities = (
       capabilities: MediaTrackCapabilities | undefined,
       settings: MediaTrackSettings | undefined
@@ -93,7 +93,6 @@ export function AdvancedCameraOptions(
           </div>,
         ];
       }
-      console.log("rendering capabilities", capabilities);
       return Object.entries(capabilities)
         .sort(capabilitiesSort)
         .map((capability, index) => {
@@ -249,9 +248,6 @@ export function AdvancedCameraOptions(
     );
   } catch (e) {
     console.warn("PRINT", e);
-    console.error("SOMETHING", e);
-    console.log("PLEASE", e);
-    console.warn("AHHHHHH", e);
     alert("PIZZA" + e + " - " + e.stack);
   }
 }
