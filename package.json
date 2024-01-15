@@ -26,6 +26,7 @@
     "file-saver": "^2.0.5",
     "humanize-duration": "^3.31.0",
     "localforage": "^1.10.0",
+    "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "solar-calc": "^1.1.0",

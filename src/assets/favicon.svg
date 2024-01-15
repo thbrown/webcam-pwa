@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0.659 0.526 22.85 22.822" width="22.85" height="22.822" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0.659" y="0.526" width="22.85" height="22.822" style="stroke-linecap: round; stroke-miterlimit: 2.61; stroke: rgb(0, 0, 0); paint-order: fill; fill: rgb(255, 206, 52);" rx="4.121" ry="4.121" transform="matrix(1, 0, 0, 1, 0, 2.220446049250313e-16)"/>
+  <path d="M 14.773 10.11 L 17.942 8.842 L 17.942 15.181 L 14.773 13.913 M 7.167 7.891 C 6.971 7.891 13.613 7.891 14.139 7.891 C 14.49 7.891 14.773 8.175 14.773 8.525 L 14.773 15.497 C 14.773 15.848 14.49 16.132 14.139 16.132 L 7.167 16.132 C 6.817 16.132 6.533 15.848 6.533 15.497 L 6.533 8.525 C 6.533 8.175 6.817 7.891 7.167 7.891 Z" stroke-linecap="round" stroke-linejoin="round" style="stroke: rgb(0, 0, 0); paint-order: fill; fill: rgb(255, 206, 52);" stroke-width="1.5" transform="matrix(1, 0, 0, 1, 0, 2.220446049250313e-16)"/>
+  <path d="M 12.042 3.293 L 12.042 1.858 M 12.042 21.96 L 12.042 20.524 M 20.662 11.908 L 22.1 11.908 M 3.421 11.908 L 1.985 11.908 M 4.859 4.731 L 3.421 3.293 M 20.662 3.293 L 19.226 4.731 M 4.859 19.087 L 3.421 20.524 M 20.662 20.524 L 19.226 19.087" stroke-linecap="square" style="stroke: rgb(0, 0, 0);" transform="matrix(1, 0, 0, 1, 0, 2.220446049250313e-16)"/>
+</svg>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Collapse,
@@ -31,6 +31,15 @@ export function AdvancedCameraOptions(
     const clamp = (value: number, min: number, max: number): number => {
       return Math.min(Math.max(value, min), max);
     };
+
+    useEffect(() => {
+      // Component mounted
+      console.log("MOUNTED!");
+      return () => {
+        // Component will unmount
+        console.log("UNMOUNTED!");
+      };
+    }, []);
 
     const handleAdvancedOptionChange = (
       value: string | number,
@@ -142,10 +151,11 @@ export function AdvancedCameraOptions(
                   <div style={{ marginRight: "15px", width: "100%" }}>
                     {key}
                   </div>
-                  <Slider
+                  <input
+                    type="range"
                     min={min}
                     max={max}
-                    stepSize={Math.round(step)}
+                    //stepSize={Math.round(step)}
                     //initialValue={
                     //  clamp(
                     //  settings[key as keyof MediaTrackSettings] as number,
@@ -158,13 +168,20 @@ export function AdvancedCameraOptions(
                       min,
                       max
                     )}
-                    labelStepSize={calcStepSize}
-                    onChange={(v) =>
+                    //labelStepSize={calcStepSize}
+                    //onChange={(v) =>
+                    //  handleAdvancedOptionChange(
+                    //    v,
+                    //    key as keyof MediaTrackConstraintSet
+                    //  )
+                    //}
+                    onChange={(v) => {
+                      const a = v.target.value;
                       handleAdvancedOptionChange(
-                        v,
+                        a,
                         key as keyof MediaTrackConstraintSet
-                      )
-                    }
+                      );
+                    }}
                   />
                 </Label>
               );
@@ -188,7 +205,7 @@ export function AdvancedCameraOptions(
             <div
               key={index}
               style={{
-                padding: "0px 30px",
+                padding: "0px 12px",
               }}
             >
               {renderSettingUI()}
@@ -231,7 +248,10 @@ export function AdvancedCameraOptions(
       </>
     );
   } catch (e) {
-    console.log(e);
-    alert(e + " - " + e.stack);
+    console.warn("PRINT", e);
+    console.error("SOMETHING", e);
+    console.log("PLEASE", e);
+    console.warn("AHHHHHH", e);
+    alert("PIZZA" + e + " - " + e.stack);
   }
 }
