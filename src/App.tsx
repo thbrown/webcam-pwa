@@ -31,7 +31,7 @@ export const App: React.FC = () => {
     return (
       <HotkeysProvider>
         <div className="wrapper">
-          1
+          2
           <div
             style={{
               position: "fixed",

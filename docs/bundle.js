@@ -9453,8 +9453,9 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
             }));
           } else if (typeof value === "string" || typeof value === "number" || Array.isArray(value) && value.length <= 1) {
             // We wont render anything for these, there is only one option
-          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && ["width", "height", "aspectRatio", "sharpness", "saturation", "iso", "colorTemperature", "zoom" // Most recent started here
-          //"frameRate", //Problematic?
+          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && ["width", "height", "aspectRatio", "sharpness", "saturation", "iso", "colorTemperature"
+          //"zoom", //Problematic?
+          //"frameRate",
           //"exposureTime",
           //"exposureCompensation",
           ].includes(key)) {
@@ -9669,7 +9670,7 @@ var App = function App() {
   try {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.HotkeysProvider, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       className: "wrapper"
-    }, "1", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    }, "2", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       style: {
         position: "fixed",
         top: "0",
