@@ -2829,6 +2829,575 @@ var RadioGroup = /** @class */ (function (_super) {
 
 /***/ }),
 
+/***/ "./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkey.js":
+/*!*****************************************************************************!*\
+  !*** ./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkey.js ***!
+  \*****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Hotkey: () => (/* binding */ Hotkey)
+/* harmony export */ });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.mjs");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common */ "./node_modules/@blueprintjs/core/lib/esm/common/classes.js");
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common */ "./node_modules/@blueprintjs/core/lib/esm/common/props.js");
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common */ "./node_modules/@blueprintjs/core/lib/esm/common/abstractPureComponent.js");
+/* harmony import */ var _keyComboTag__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./keyComboTag */ "./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/keyComboTag.js");
+/*
+ * Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+/**
+ * Hotkey component used to display a hotkey in the HotkeysDialog.
+ * Should not be used by consumers directly.
+ */
+var Hotkey = /** @class */ (function (_super) {
+    (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__extends)(Hotkey, _super);
+    function Hotkey() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Hotkey.prototype.render = function () {
+        var _a = this.props, label = _a.label, className = _a.className, spreadableProps = (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__rest)(_a, ["label", "className"]);
+        var rootClasses = classnames__WEBPACK_IMPORTED_MODULE_0___default()(_common__WEBPACK_IMPORTED_MODULE_3__.HOTKEY, className);
+        return (react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", { className: rootClasses },
+            react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", { className: _common__WEBPACK_IMPORTED_MODULE_3__.HOTKEY_LABEL }, label),
+            react__WEBPACK_IMPORTED_MODULE_1__.createElement(_keyComboTag__WEBPACK_IMPORTED_MODULE_4__.KeyComboTag, (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)({}, spreadableProps))));
+    };
+    Hotkey.prototype.validateProps = function (props) {
+        if (props.global !== true && props.group == null) {
+            console.error("non-global Hotkeys must define a group");
+        }
+    };
+    Hotkey.displayName = "".concat(_common__WEBPACK_IMPORTED_MODULE_5__.DISPLAYNAME_PREFIX, ".Hotkey");
+    Hotkey.defaultProps = {
+        allowInInput: false,
+        disabled: false,
+        global: false,
+        preventDefault: false,
+        stopPropagation: false,
+    };
+    return Hotkey;
+}(_common__WEBPACK_IMPORTED_MODULE_6__.AbstractPureComponent));
+
+//# sourceMappingURL=hotkey.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeyParser.js":
+/*!***********************************************************************************!*\
+  !*** ./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeyParser.js ***!
+  \***********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CONFIG_ALIASES: () => (/* binding */ CONFIG_ALIASES),
+/* harmony export */   MODIFIER_BIT_MASKS: () => (/* binding */ MODIFIER_BIT_MASKS),
+/* harmony export */   SHIFT_KEYS: () => (/* binding */ SHIFT_KEYS),
+/* harmony export */   comboMatches: () => (/* binding */ comboMatches),
+/* harmony export */   getKeyCombo: () => (/* binding */ getKeyCombo),
+/* harmony export */   getKeyComboString: () => (/* binding */ getKeyComboString),
+/* harmony export */   normalizeKeyCombo: () => (/* binding */ normalizeKeyCombo),
+/* harmony export */   parseKeyCombo: () => (/* binding */ parseKeyCombo)
+/* harmony export */ });
+/*
+ * Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Named modifier keys
+ *
+ * @see https://www.w3.org/TR/uievents-key/#keys-modifier
+ */
+var MODIFIER_KEYS = new Set(["Shift", "Control", "Alt", "Meta"]);
+var MODIFIER_BIT_MASKS = {
+    alt: 1,
+    ctrl: 2,
+    meta: 4,
+    shift: 8,
+};
+var CONFIG_ALIASES = {
+    cmd: "meta",
+    command: "meta",
+    del: "delete",
+    esc: "escape",
+    escape: "escape",
+    minus: "-",
+    mod: isMac() ? "meta" : "ctrl",
+    option: "alt",
+    plus: "+",
+    return: "enter",
+    win: "meta",
+    // need these aliases for backwards-compatibility (but they're also convenient)
+    up: "ArrowUp",
+    left: "ArrowLeft",
+    down: "ArrowDown",
+    right: "ArrowRight",
+};
+/**
+ * Key mapping used in getKeyCombo() implementation for physical keys which are not alphabet characters or digits.
+ *
+ * N.B. at some point, we should stop using this mapping, since we can implement the desired functionality in a more
+ * straightforward way by using the `event.code` property, which will always tell us the identifiers represented by the
+ * _values_ in this object (the default physical keys, unaltered by modifier keys or keyboard layout).
+ */
+var SHIFT_KEYS = {
+    "~": "`",
+    _: "-",
+    "+": "=",
+    "{": "[",
+    "}": "]",
+    "|": "\\",
+    ":": ";",
+    '"': "'",
+    "<": ",",
+    ">": ".",
+    "?": "/",
+};
+function comboMatches(a, b) {
+    return a.modifiers === b.modifiers && a.key === b.key;
+}
+/**
+ * Converts a key combo string into a key combo object. Key combos include
+ * zero or more modifier keys, such as `shift` or `alt`, and exactly one
+ * action key, such as `A`, `enter`, or `left`.
+ *
+ * For action keys that require a shift, e.g. `@` or `|`, we inlude the
+ * necessary `shift` modifier and automatically convert the action key to the
+ * unshifted version. For example, `@` is equivalent to `shift+2`.
+ */
+var parseKeyCombo = function (combo) {
+    var pieces = combo.replace(/\s/g, "").toLowerCase().split("+");
+    var modifiers = 0;
+    var key;
+    for (var _i = 0, pieces_1 = pieces; _i < pieces_1.length; _i++) {
+        var piece = pieces_1[_i];
+        if (piece === "") {
+            throw new Error("Failed to parse key combo \"".concat(combo, "\".\n                Valid key combos look like \"cmd + plus\", \"shift+p\", or \"!\""));
+        }
+        if (CONFIG_ALIASES[piece] !== undefined) {
+            piece = CONFIG_ALIASES[piece];
+        }
+        if (MODIFIER_BIT_MASKS[piece] !== undefined) {
+            modifiers += MODIFIER_BIT_MASKS[piece];
+        }
+        else if (SHIFT_KEYS[piece] !== undefined) {
+            modifiers += MODIFIER_BIT_MASKS.shift;
+            key = SHIFT_KEYS[piece];
+        }
+        else {
+            key = piece.toLowerCase();
+        }
+    }
+    return { modifiers: modifiers, key: key };
+};
+/**
+ * Interprets a keyboard event as a valid KeyComboTag `combo` prop string value.
+ *
+ * Note that this function is only used in the docs example and tests; it is not used by `useHotkeys()` or any
+ * Blueprint consumers that we are currently aware of.
+ */
+var getKeyComboString = function (e) {
+    var comboParts = [];
+    // modifiers first
+    if (e.ctrlKey) {
+        comboParts.push("ctrl");
+    }
+    if (e.altKey) {
+        comboParts.push("alt");
+    }
+    if (e.shiftKey) {
+        comboParts.push("shift");
+    }
+    if (e.metaKey) {
+        comboParts.push("meta");
+    }
+    var key = maybeGetKeyFromEventCode(e);
+    if (key !== undefined) {
+        comboParts.push(key);
+    }
+    else {
+        if (e.code === "Space") {
+            comboParts.push("space");
+        }
+        else if (MODIFIER_KEYS.has(e.key)) {
+            // do nothing
+        }
+        else if (e.shiftKey && SHIFT_KEYS[e.key] !== undefined) {
+            comboParts.push(SHIFT_KEYS[e.key]);
+        }
+        else if (e.key !== undefined) {
+            comboParts.push(e.key.toLowerCase());
+        }
+    }
+    return comboParts.join(" + ");
+};
+var KEY_CODE_PREFIX = "Key";
+var DIGIT_CODE_PREFIX = "Digit";
+function maybeGetKeyFromEventCode(e) {
+    if (e.code == null) {
+        return undefined;
+    }
+    if (e.code.startsWith(KEY_CODE_PREFIX)) {
+        // Code looks like "KeyA", etc.
+        return e.code.substring(KEY_CODE_PREFIX.length).toLowerCase();
+    }
+    else if (e.code.startsWith(DIGIT_CODE_PREFIX)) {
+        // Code looks like "Digit1", etc.
+        return e.code.substring(DIGIT_CODE_PREFIX.length).toLowerCase();
+    }
+    else if (e.code === "Space") {
+        return "space";
+    }
+    return undefined;
+}
+/**
+ * Determines the key combo object from the given keyboard event. A key combo includes zero or more modifiers
+ * (represented by a bitmask) and one physical key. For most keys, we prefer dealing with the `code` property of the
+ * event, since this is not altered by keyboard layout or the state of modifier keys. Fall back to using the `key`
+ * property.
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code
+ */
+var getKeyCombo = function (e) {
+    var _a, _b;
+    var key;
+    if (MODIFIER_KEYS.has(e.key)) {
+        // Leave local variable `key` undefined
+    }
+    else {
+        key = (_a = maybeGetKeyFromEventCode(e)) !== null && _a !== void 0 ? _a : (_b = e.key) === null || _b === void 0 ? void 0 : _b.toLowerCase();
+    }
+    var modifiers = 0;
+    if (e.altKey) {
+        modifiers += MODIFIER_BIT_MASKS.alt;
+    }
+    if (e.ctrlKey) {
+        modifiers += MODIFIER_BIT_MASKS.ctrl;
+    }
+    if (e.metaKey) {
+        modifiers += MODIFIER_BIT_MASKS.meta;
+    }
+    if (e.shiftKey) {
+        modifiers += MODIFIER_BIT_MASKS.shift;
+        if (SHIFT_KEYS[e.key] !== undefined) {
+            key = SHIFT_KEYS[e.key];
+        }
+    }
+    return { modifiers: modifiers, key: key };
+};
+/**
+ * Splits a key combo string into its constituent key values and looks up
+ * aliases, such as `return` -> `enter`.
+ *
+ * Unlike the parseKeyCombo method, this method does NOT convert shifted
+ * action keys. So `"@"` will NOT be converted to `["shift", "2"]`).
+ */
+var normalizeKeyCombo = function (combo, platformOverride) {
+    var keys = combo.replace(/\s/g, "").split("+");
+    return keys.map(function (key) {
+        var keyName = CONFIG_ALIASES[key] != null ? CONFIG_ALIASES[key] : key;
+        return keyName === "meta" ? (isMac(platformOverride) ? "cmd" : "ctrl") : keyName;
+    });
+};
+function isMac(platformOverride) {
+    // HACKHACK: see https://github.com/palantir/blueprint/issues/5174
+    // eslint-disable-next-line deprecation/deprecation
+    var platform = platformOverride !== null && platformOverride !== void 0 ? platformOverride : (typeof navigator !== "undefined" ? navigator.platform : undefined);
+    return platform === undefined ? false : /Mac|iPod|iPhone|iPad/.test(platform);
+}
+//# sourceMappingURL=hotkeyParser.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeys.js":
+/*!******************************************************************************!*\
+  !*** ./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeys.js ***!
+  \******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Hotkeys: () => (/* binding */ Hotkeys)
+/* harmony export */ });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.mjs");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common */ "./node_modules/@blueprintjs/core/lib/esm/common/classes.js");
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../common */ "./node_modules/@blueprintjs/core/lib/esm/common/props.js");
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../common */ "./node_modules/@blueprintjs/core/lib/esm/common/abstractPureComponent.js");
+/* harmony import */ var _common_errors__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../common/errors */ "./node_modules/@blueprintjs/core/lib/esm/common/errors.js");
+/* harmony import */ var _common_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/utils */ "./node_modules/@blueprintjs/core/lib/esm/common/utils/reactUtils.js");
+/* harmony import */ var _html_html__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../html/html */ "./node_modules/@blueprintjs/core/lib/esm/components/html/html.js");
+/* harmony import */ var _hotkey__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./hotkey */ "./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkey.js");
+/*
+ * Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+
+
+
+/**
+ * Hotkeys component used to display a list of hotkeys in the HotkeysDialog.
+ * Should not be used by consumers directly.
+ */
+var Hotkeys = /** @class */ (function (_super) {
+    (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__extends)(Hotkeys, _super);
+    function Hotkeys() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Hotkeys.prototype.render = function () {
+        if (!(0,_common_utils__WEBPACK_IMPORTED_MODULE_3__.isReactChildrenElementOrElements)(this.props.children)) {
+            return null;
+        }
+        var hotkeys = react__WEBPACK_IMPORTED_MODULE_1__.Children.map(this.props.children, function (child) { return child.props; });
+        // sort by group label alphabetically, prioritize globals
+        hotkeys.sort(function (a, b) {
+            if (a.global === b.global && a.group && b.group) {
+                return a.group.localeCompare(b.group);
+            }
+            return a.global ? -1 : 1;
+        });
+        var lastGroup;
+        var elems = [];
+        for (var _i = 0, hotkeys_1 = hotkeys; _i < hotkeys_1.length; _i++) {
+            var hotkey = hotkeys_1[_i];
+            var groupLabel = hotkey.group;
+            if (groupLabel !== lastGroup) {
+                elems.push(react__WEBPACK_IMPORTED_MODULE_1__.createElement(_html_html__WEBPACK_IMPORTED_MODULE_4__.H4, { key: "group-".concat(elems.length) }, groupLabel));
+                lastGroup = groupLabel;
+            }
+            elems.push(react__WEBPACK_IMPORTED_MODULE_1__.createElement(_hotkey__WEBPACK_IMPORTED_MODULE_5__.Hotkey, (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)({ key: elems.length }, hotkey)));
+        }
+        var rootClasses = classnames__WEBPACK_IMPORTED_MODULE_0___default()(_common__WEBPACK_IMPORTED_MODULE_6__.HOTKEY_COLUMN, this.props.className);
+        return react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", { className: rootClasses }, elems);
+    };
+    Hotkeys.prototype.validateProps = function (props) {
+        if (!(0,_common_utils__WEBPACK_IMPORTED_MODULE_3__.isReactChildrenElementOrElements)(props.children)) {
+            return;
+        }
+        react__WEBPACK_IMPORTED_MODULE_1__.Children.forEach(props.children, function (child) {
+            if (!(0,_common_utils__WEBPACK_IMPORTED_MODULE_3__.isElementOfType)(child, _hotkey__WEBPACK_IMPORTED_MODULE_5__.Hotkey)) {
+                throw new Error(_common_errors__WEBPACK_IMPORTED_MODULE_7__.HOTKEYS_HOTKEY_CHILDREN);
+            }
+        });
+    };
+    Hotkeys.displayName = "".concat(_common__WEBPACK_IMPORTED_MODULE_8__.DISPLAYNAME_PREFIX, ".Hotkeys");
+    Hotkeys.defaultProps = {
+        tabIndex: 0,
+    };
+    return Hotkeys;
+}(_common__WEBPACK_IMPORTED_MODULE_9__.AbstractPureComponent));
+
+//# sourceMappingURL=hotkeys.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysDialog2.js":
+/*!*************************************************************************************!*\
+  !*** ./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysDialog2.js ***!
+  \*************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   HotkeysDialog2: () => (/* binding */ HotkeysDialog2)
+/* harmony export */ });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.mjs");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common */ "./node_modules/@blueprintjs/core/lib/esm/common/classes.js");
+/* harmony import */ var _dialog_dialog__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../dialog/dialog */ "./node_modules/@blueprintjs/core/lib/esm/components/dialog/dialog.js");
+/* harmony import */ var _dialog_dialogBody__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../dialog/dialogBody */ "./node_modules/@blueprintjs/core/lib/esm/components/dialog/dialogBody.js");
+/* harmony import */ var _hotkey__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./hotkey */ "./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkey.js");
+/* harmony import */ var _hotkeys__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./hotkeys */ "./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeys.js");
+/*
+ * Copyright 2021 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+
+
+
+var HotkeysDialog2 = function (_a) {
+    var _b = _a.globalGroupName, globalGroupName = _b === void 0 ? "Global" : _b, hotkeys = _a.hotkeys, props = (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__rest)(_a, ["globalGroupName", "hotkeys"]);
+    return (react__WEBPACK_IMPORTED_MODULE_1__.createElement(_dialog_dialog__WEBPACK_IMPORTED_MODULE_3__.Dialog, (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)({}, props, { className: classnames__WEBPACK_IMPORTED_MODULE_0___default()(_common__WEBPACK_IMPORTED_MODULE_4__.HOTKEY_DIALOG, props.className) }),
+        react__WEBPACK_IMPORTED_MODULE_1__.createElement(_dialog_dialogBody__WEBPACK_IMPORTED_MODULE_5__.DialogBody, null,
+            react__WEBPACK_IMPORTED_MODULE_1__.createElement(_hotkeys__WEBPACK_IMPORTED_MODULE_6__.Hotkeys, null, hotkeys.map(function (hotkey, index) { return (react__WEBPACK_IMPORTED_MODULE_1__.createElement(_hotkey__WEBPACK_IMPORTED_MODULE_7__.Hotkey, (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)({ key: index }, hotkey, { group: hotkey.global === true && hotkey.group == null ? globalGroupName : hotkey.group }))); })))));
+};
+//# sourceMappingURL=hotkeysDialog2.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/keyComboTag.js":
+/*!**********************************************************************************!*\
+  !*** ./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/keyComboTag.js ***!
+  \**********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   DISPLAY_ALIASES: () => (/* binding */ DISPLAY_ALIASES),
+/* harmony export */   KeyComboTag: () => (/* binding */ KeyComboTag)
+/* harmony export */ });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.mjs");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common */ "./node_modules/@blueprintjs/core/lib/esm/common/classes.js");
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common */ "./node_modules/@blueprintjs/core/lib/esm/common/props.js");
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../common */ "./node_modules/@blueprintjs/core/lib/esm/common/abstractPureComponent.js");
+/* harmony import */ var _icon_icon__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../icon/icon */ "./node_modules/@blueprintjs/core/lib/esm/components/icon/icon.js");
+/* harmony import */ var _hotkeyParser__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./hotkeyParser */ "./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeyParser.js");
+/*
+ * Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+
+var KEY_ICONS = {
+    ArrowDown: { icon: "arrow-down", iconTitle: "Down key" },
+    ArrowLeft: { icon: "arrow-left", iconTitle: "Left key" },
+    ArrowRight: { icon: "arrow-right", iconTitle: "Right key" },
+    ArrowUp: { icon: "arrow-up", iconTitle: "Up key" },
+    alt: { icon: "key-option", iconTitle: "Alt/Option key" },
+    cmd: { icon: "key-command", iconTitle: "Command key" },
+    ctrl: { icon: "key-control", iconTitle: "Control key" },
+    delete: { icon: "key-delete", iconTitle: "Delete key" },
+    enter: { icon: "key-enter", iconTitle: "Enter key" },
+    meta: { icon: "key-command", iconTitle: "Command key" },
+    shift: { icon: "key-shift", iconTitle: "Shift key" },
+};
+/** Reverse table of some CONFIG_ALIASES fields, for display by KeyComboTag */
+var DISPLAY_ALIASES = {
+    ArrowDown: "down",
+    ArrowLeft: "left",
+    ArrowRight: "right",
+    ArrowUp: "up",
+};
+var KeyComboTag = /** @class */ (function (_super) {
+    (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__extends)(KeyComboTag, _super);
+    function KeyComboTag() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.renderKey = function (key, index) {
+            var _a;
+            var _b;
+            var keyString = (_b = DISPLAY_ALIASES[key]) !== null && _b !== void 0 ? _b : key;
+            var icon = KEY_ICONS[key];
+            var reactKey = "key-".concat(index);
+            return (react__WEBPACK_IMPORTED_MODULE_1__.createElement("kbd", { className: classnames__WEBPACK_IMPORTED_MODULE_0___default()(_common__WEBPACK_IMPORTED_MODULE_3__.KEY, (_a = {}, _a[_common__WEBPACK_IMPORTED_MODULE_3__.MODIFIER_KEY] = icon != null, _a)), key: reactKey },
+                icon != null && react__WEBPACK_IMPORTED_MODULE_1__.createElement(_icon_icon__WEBPACK_IMPORTED_MODULE_4__.Icon, { icon: icon.icon, title: icon.iconTitle }),
+                keyString));
+        };
+        _this.renderMinimalKey = function (key, index) {
+            var icon = KEY_ICONS[key];
+            return icon == null ? key : react__WEBPACK_IMPORTED_MODULE_1__.createElement(_icon_icon__WEBPACK_IMPORTED_MODULE_4__.Icon, { icon: icon.icon, title: icon.iconTitle, key: "key-".concat(index) });
+        };
+        return _this;
+    }
+    KeyComboTag.prototype.render = function () {
+        var _a = this.props, className = _a.className, combo = _a.combo, minimal = _a.minimal;
+        var keys = (0,_hotkeyParser__WEBPACK_IMPORTED_MODULE_5__.normalizeKeyCombo)(combo)
+            .map(function (key) { return (key.length === 1 ? key.toUpperCase() : key); })
+            .map(minimal ? this.renderMinimalKey : this.renderKey);
+        return react__WEBPACK_IMPORTED_MODULE_1__.createElement("span", { className: classnames__WEBPACK_IMPORTED_MODULE_0___default()(_common__WEBPACK_IMPORTED_MODULE_3__.KEY_COMBO, className) }, keys);
+    };
+    KeyComboTag.displayName = "".concat(_common__WEBPACK_IMPORTED_MODULE_6__.DISPLAYNAME_PREFIX, ".KeyComboTag");
+    return KeyComboTag;
+}(_common__WEBPACK_IMPORTED_MODULE_7__.AbstractPureComponent));
+
+//# sourceMappingURL=keyComboTag.js.map
+
+/***/ }),
+
 /***/ "./node_modules/@blueprintjs/core/lib/esm/components/html/html.js":
 /*!************************************************************************!*\
   !*** ./node_modules/@blueprintjs/core/lib/esm/components/html/html.js ***!
@@ -5148,6 +5717,104 @@ Text.displayName = "".concat(_common_props__WEBPACK_IMPORTED_MODULE_5__.DISPLAYN
 
 /***/ }),
 
+/***/ "./node_modules/@blueprintjs/core/lib/esm/context/hotkeys/hotkeysProvider.js":
+/*!***********************************************************************************!*\
+  !*** ./node_modules/@blueprintjs/core/lib/esm/context/hotkeys/hotkeysProvider.js ***!
+  \***********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   HotkeysContext: () => (/* binding */ HotkeysContext),
+/* harmony export */   HotkeysProvider: () => (/* binding */ HotkeysProvider)
+/* harmony export */ });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.mjs");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _common_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/utils */ "./node_modules/@blueprintjs/core/lib/esm/common/utils/compareUtils.js");
+/* harmony import */ var _components_hotkeys_hotkeysDialog2__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../components/hotkeys/hotkeysDialog2 */ "./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysDialog2.js");
+/*
+ * Copyright 2021 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+var initialHotkeysState = { hasProvider: false, hotkeys: [], isDialogOpen: false };
+var noOpDispatch = function () { return null; };
+/**
+ * A React context used to register and deregister hotkeys as components are mounted and unmounted in an application.
+ * Users should take care to make sure that only _one_ of these is instantiated and used within an application, especially
+ * if using global hotkeys.
+ *
+ * You will likely not be using this HotkeysContext directly, except in cases where you need to get a direct handle on an
+ * existing context instance for advanced use cases involving nested HotkeysProviders.
+ *
+ * For more information, see the [HotkeysProvider documentation](https://blueprintjs.com/docs/#core/context/hotkeys-provider).
+ */
+var HotkeysContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext([initialHotkeysState, noOpDispatch]);
+var hotkeysReducer = function (state, action) {
+    switch (action.type) {
+        case "ADD_HOTKEYS":
+            // only pick up unique hotkeys which haven't been registered already
+            var newUniqueHotkeys = [];
+            for (var _i = 0, _a = action.payload; _i < _a.length; _i++) {
+                var a = _a[_i];
+                var isUnique = true;
+                for (var _b = 0, _c = state.hotkeys; _b < _c.length; _b++) {
+                    var b = _c[_b];
+                    isUnique && (isUnique = !(0,_common_utils__WEBPACK_IMPORTED_MODULE_1__.shallowCompareKeys)(a, b, { exclude: ["onKeyDown", "onKeyUp"] }));
+                }
+                if (isUnique) {
+                    newUniqueHotkeys.push(a);
+                }
+            }
+            return (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)((0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)({}, state), { hotkeys: (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__spreadArray)((0,tslib__WEBPACK_IMPORTED_MODULE_2__.__spreadArray)([], state.hotkeys, true), newUniqueHotkeys, true) });
+        case "REMOVE_HOTKEYS":
+            return (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)((0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)({}, state), { hotkeys: state.hotkeys.filter(function (key) { return action.payload.indexOf(key) === -1; }) });
+        case "OPEN_DIALOG":
+            return (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)((0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)({}, state), { isDialogOpen: true });
+        case "CLOSE_DIALOG":
+            return (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)((0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)({}, state), { isDialogOpen: false });
+        default:
+            return state;
+    }
+};
+/**
+ * Hotkeys context provider, necessary for the `useHotkeys` hook.
+ *
+ * @see https://blueprintjs.com/docs/#core/context/hotkeys-provider
+ */
+var HotkeysProvider = function (_a) {
+    var _b;
+    var children = _a.children, dialogProps = _a.dialogProps, renderDialog = _a.renderDialog, value = _a.value;
+    var hasExistingContext = value != null;
+    var fallbackReducer = react__WEBPACK_IMPORTED_MODULE_0__.useReducer(hotkeysReducer, (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)((0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)({}, initialHotkeysState), { hasProvider: true }));
+    var _c = value !== null && value !== void 0 ? value : fallbackReducer, state = _c[0], dispatch = _c[1];
+    var handleDialogClose = react__WEBPACK_IMPORTED_MODULE_0__.useCallback(function () { return dispatch({ type: "CLOSE_DIALOG" }); }, [dispatch]);
+    var dialog = (_b = renderDialog === null || renderDialog === void 0 ? void 0 : renderDialog(state, { handleDialogClose: handleDialogClose })) !== null && _b !== void 0 ? _b : (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_components_hotkeys_hotkeysDialog2__WEBPACK_IMPORTED_MODULE_3__.HotkeysDialog2, (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__assign)({}, dialogProps, { isOpen: state.isDialogOpen, hotkeys: state.hotkeys, onClose: handleDialogClose })));
+    // if we are working with an existing context, we don't need to generate our own dialog
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(HotkeysContext.Provider, { value: [state, dispatch] },
+        children,
+        hasExistingContext ? undefined : dialog));
+};
+//# sourceMappingURL=hotkeysProvider.js.map
+
+/***/ }),
+
 /***/ "./node_modules/@blueprintjs/core/lib/esm/context/portal/portalProvider.js":
 /*!*********************************************************************************!*\
   !*** ./node_modules/@blueprintjs/core/lib/esm/context/portal/portalProvider.js ***!
@@ -5197,6 +5864,143 @@ var PortalProvider = function (_a) {
     return react__WEBPACK_IMPORTED_MODULE_0__.createElement(PortalContext.Provider, { value: contextOptions }, children);
 };
 //# sourceMappingURL=portalProvider.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/core/lib/esm/hooks/hotkeys/useHotkeys.js":
+/*!****************************************************************************!*\
+  !*** ./node_modules/@blueprintjs/core/lib/esm/hooks/hotkeys/useHotkeys.js ***!
+  \****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   useHotkeys: () => (/* binding */ useHotkeys)
+/* harmony export */ });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.mjs");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _common_errors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/errors */ "./node_modules/@blueprintjs/core/lib/esm/common/errors.js");
+/* harmony import */ var _common_utils_domUtils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/utils/domUtils */ "./node_modules/@blueprintjs/core/lib/esm/common/utils/domUtils.js");
+/* harmony import */ var _components_hotkeys_hotkeyParser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../components/hotkeys/hotkeyParser */ "./node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeyParser.js");
+/* harmony import */ var _context__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../context */ "./node_modules/@blueprintjs/core/lib/esm/context/hotkeys/hotkeysProvider.js");
+/*
+ * Copyright 2021 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+
+/**
+ * React hook to register global and local hotkeys for a component.
+ *
+ * @see https://blueprintjs.com/docs/#core/hooks/use-hotkeys
+ * @param keys list of hotkeys to configure
+ * @param options hook options
+ */
+function useHotkeys(keys, options) {
+    if (options === void 0) { options = {}; }
+    var _a = options.document, document = _a === void 0 ? getDefaultDocument() : _a, _b = options.showDialogKeyCombo, showDialogKeyCombo = _b === void 0 ? "?" : _b;
+    var localKeys = react__WEBPACK_IMPORTED_MODULE_0__.useMemo(function () {
+        return keys
+            .filter(function (k) { return !k.global; })
+            .map(function (k) { return ({
+            combo: (0,_components_hotkeys_hotkeyParser__WEBPACK_IMPORTED_MODULE_1__.parseKeyCombo)(k.combo),
+            config: k,
+        }); });
+    }, [keys]);
+    var globalKeys = react__WEBPACK_IMPORTED_MODULE_0__.useMemo(function () {
+        return keys
+            .filter(function (k) { return k.global; })
+            .map(function (k) { return ({
+            combo: (0,_components_hotkeys_hotkeyParser__WEBPACK_IMPORTED_MODULE_1__.parseKeyCombo)(k.combo),
+            config: k,
+        }); });
+    }, [keys]);
+    // register keys with global context
+    var _c = react__WEBPACK_IMPORTED_MODULE_0__.useContext(_context__WEBPACK_IMPORTED_MODULE_2__.HotkeysContext), state = _c[0], dispatch = _c[1];
+    react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
+        if (!state.hasProvider) {
+            console.warn(_common_errors__WEBPACK_IMPORTED_MODULE_3__.HOTKEYS_PROVIDER_NOT_FOUND);
+        }
+    }, [state.hasProvider]);
+    // we can still bind the hotkeys if there is no HotkeysProvider, they just won't show up in the dialog
+    react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
+        var payload = (0,tslib__WEBPACK_IMPORTED_MODULE_4__.__spreadArray)((0,tslib__WEBPACK_IMPORTED_MODULE_4__.__spreadArray)([], globalKeys.map(function (k) { return k.config; }), true), localKeys.map(function (k) { return k.config; }), true);
+        dispatch({ type: "ADD_HOTKEYS", payload: payload });
+        return function () { return dispatch({ type: "REMOVE_HOTKEYS", payload: payload }); };
+    }, [dispatch, globalKeys, localKeys]);
+    var invokeNamedCallbackIfComboRecognized = react__WEBPACK_IMPORTED_MODULE_0__.useCallback(function (global, combo, callbackName, e) {
+        var _a, _b;
+        var isTextInput = (0,_common_utils_domUtils__WEBPACK_IMPORTED_MODULE_5__.elementIsTextInput)(e.target);
+        for (var _i = 0, _c = global ? globalKeys : localKeys; _i < _c.length; _i++) {
+            var key = _c[_i];
+            var _d = key.config, _e = _d.allowInInput, allowInInput = _e === void 0 ? false : _e, _f = _d.disabled, disabled = _f === void 0 ? false : _f, _g = _d.preventDefault, preventDefault = _g === void 0 ? false : _g, _h = _d.stopPropagation, stopPropagation = _h === void 0 ? false : _h;
+            var shouldIgnore = (isTextInput && !allowInInput) || disabled;
+            if (!shouldIgnore && (0,_components_hotkeys_hotkeyParser__WEBPACK_IMPORTED_MODULE_1__.comboMatches)(key.combo, combo)) {
+                if (preventDefault) {
+                    e.preventDefault();
+                }
+                if (stopPropagation) {
+                    // set a flag just for unit testing. not meant to be referenced in feature work.
+                    e.isPropagationStopped = true;
+                    e.stopPropagation();
+                }
+                (_b = (_a = key.config)[callbackName]) === null || _b === void 0 ? void 0 : _b.call(_a, e);
+            }
+        }
+    }, [globalKeys, localKeys]);
+    var handleGlobalKeyDown = react__WEBPACK_IMPORTED_MODULE_0__.useCallback(function (e) {
+        // special case for global keydown: if '?' is pressed, open the hotkeys dialog
+        var combo = (0,_components_hotkeys_hotkeyParser__WEBPACK_IMPORTED_MODULE_1__.getKeyCombo)(e);
+        var isTextInput = (0,_common_utils_domUtils__WEBPACK_IMPORTED_MODULE_5__.elementIsTextInput)(e.target);
+        if (!isTextInput && (0,_components_hotkeys_hotkeyParser__WEBPACK_IMPORTED_MODULE_1__.comboMatches)((0,_components_hotkeys_hotkeyParser__WEBPACK_IMPORTED_MODULE_1__.parseKeyCombo)(showDialogKeyCombo), combo)) {
+            dispatch({ type: "OPEN_DIALOG" });
+        }
+        else {
+            invokeNamedCallbackIfComboRecognized(true, (0,_components_hotkeys_hotkeyParser__WEBPACK_IMPORTED_MODULE_1__.getKeyCombo)(e), "onKeyDown", e);
+        }
+    }, [dispatch, invokeNamedCallbackIfComboRecognized, showDialogKeyCombo]);
+    var handleGlobalKeyUp = react__WEBPACK_IMPORTED_MODULE_0__.useCallback(function (e) { return invokeNamedCallbackIfComboRecognized(true, (0,_components_hotkeys_hotkeyParser__WEBPACK_IMPORTED_MODULE_1__.getKeyCombo)(e), "onKeyUp", e); }, [invokeNamedCallbackIfComboRecognized]);
+    var handleLocalKeyDown = react__WEBPACK_IMPORTED_MODULE_0__.useCallback(function (e) {
+        return invokeNamedCallbackIfComboRecognized(false, (0,_components_hotkeys_hotkeyParser__WEBPACK_IMPORTED_MODULE_1__.getKeyCombo)(e.nativeEvent), "onKeyDown", e.nativeEvent);
+    }, [invokeNamedCallbackIfComboRecognized]);
+    var handleLocalKeyUp = react__WEBPACK_IMPORTED_MODULE_0__.useCallback(function (e) {
+        return invokeNamedCallbackIfComboRecognized(false, (0,_components_hotkeys_hotkeyParser__WEBPACK_IMPORTED_MODULE_1__.getKeyCombo)(e.nativeEvent), "onKeyUp", e.nativeEvent);
+    }, [invokeNamedCallbackIfComboRecognized]);
+    react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
+        // document is guaranteed to be defined inside effects
+        document.addEventListener("keydown", handleGlobalKeyDown);
+        document.addEventListener("keyup", handleGlobalKeyUp);
+        return function () {
+            document.removeEventListener("keydown", handleGlobalKeyDown);
+            document.removeEventListener("keyup", handleGlobalKeyUp);
+        };
+    }, [handleGlobalKeyDown, handleGlobalKeyUp]);
+    return { handleKeyDown: handleLocalKeyDown, handleKeyUp: handleLocalKeyUp };
+}
+function getDefaultDocument() {
+    if (typeof window === "undefined") {
+        return undefined;
+    }
+    return window.document;
+}
+//# sourceMappingURL=useHotkeys.js.map
 
 /***/ }),
 
@@ -8651,7 +9455,10 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
             // We wont render anything for these, there is only one option
           } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && ["width", "height", "aspectRatio", "sharpness", "saturation", "iso", "colorTemperature", "zoom",
           // Most recent started here
-          "frameRate", "exposureTime", "exposureCompensation"].includes(key)) {
+          "frameRate"
+          //"exposureTime",
+          //"exposureCompensation",
+          ].includes(key)) {
             // Render slider for object with min, max, step properties
             try {
               var _ref6 = value,
@@ -8827,6 +9634,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _Main__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Main */ "./src/Main.tsx");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/context/hotkeys/hotkeysProvider.js");
 /* harmony import */ var _App_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./App.scss */ "./src/App.scss");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -8834,6 +9642,7 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 
 
 
@@ -8859,9 +9668,9 @@ var App = function App() {
       break;
   }
   try {
-    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.HotkeysProvider, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       className: "wrapper"
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    }, "1", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       style: {
         position: "fixed",
         top: "0",
@@ -8876,7 +9685,7 @@ var App = function App() {
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_Main__WEBPACK_IMPORTED_MODULE_1__.Main, {
       recordingStatus: recordingStatus,
       setRecordingStatus: setRecordingStatus
-    })));
+    }))));
   } catch (e) {
     console.log(e);
     alert("Top level error" + e + " - " + e.stack);
@@ -10687,35 +11496,47 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   StopMotionControl: () => (/* binding */ StopMotionControl)
 /* harmony export */ });
-/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/button/buttons.js");
-/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/spinner/spinner.js");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/hooks/hotkeys/useHotkeys.js");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/button/buttons.js");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @blueprintjs/core */ "./node_modules/@blueprintjs/core/lib/esm/components/spinner/spinner.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/flash.js");
-/* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/stop.js");
-/* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/record.js");
+/* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/flash.js");
+/* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/stop.js");
+/* harmony import */ var _blueprintjs_icons__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @blueprintjs/icons */ "./node_modules/@blueprintjs/icons/lib/esm/generated/components/record.js");
 
 
 
 function StopMotionControl(props) {
+  var hotkeys = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(function () {
+    return [{
+      combo: "space",
+      global: true,
+      label: "Start",
+      onKeyDown: props.recordingStatus === "Paused" ? props.onStart : props.onSnapshot
+    }];
+  }, [props.onStart, props.onSnapshot, props.recordingStatus]);
+  var _useHotkeys = (0,_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__.useHotkeys)(hotkeys),
+    handleKeyDown = _useHotkeys.handleKeyDown,
+    handleKeyUp = _useHotkeys.handleKeyUp;
   if (props.recordingStatus === "Paused") {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       className: "footer",
       style: {
         display: "flex"
       }
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__.Button, {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_2__.Button, {
       className: "big-button simple-label",
-      icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_2__.Flash, null),
+      icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_3__.Flash, null),
       large: true,
       fill: true,
       onClick: props.onSnapshot,
       style: {
         paddingRight: "2px"
       }
-    }, "Take Frame"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__.Button, {
+    }, "Take Frame"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_2__.Button, {
       className: "big-button simple-label",
-      icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_3__.Stop, null),
+      icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_4__.Stop, null),
       large: true,
       fill: true,
       onClick: props.onStop,
@@ -10726,9 +11547,9 @@ function StopMotionControl(props) {
   } else if (props.recordingStatus === "Stopped") {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       className: "footer"
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__.Button, {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_2__.Button, {
       className: "big-button simple-label",
-      icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_4__.Record, null),
+      icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_5__.Record, null),
       large: true,
       fill: true,
       onClick: props.onStart
@@ -10739,7 +11560,7 @@ function StopMotionControl(props) {
       style: {
         display: "flex"
       }
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Spinner, {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_6__.Spinner, {
       size: 16
     }));
   }

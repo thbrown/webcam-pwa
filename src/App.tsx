@@ -31,6 +31,7 @@ export const App: React.FC = () => {
     return (
       <HotkeysProvider>
         <div className="wrapper">
+          1
           <div
             style={{
               position: "fixed",
