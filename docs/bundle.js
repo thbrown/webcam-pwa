@@ -8561,29 +8561,33 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
       }
     };
     var handleAdvancedOptionChangeTest = function handleAdvancedOptionChangeTest(value, settingsKey) {
-      var patch = {};
-      if (typeof value === "number") {
-        patch[settingsKey] = value;
-        var constraints = {
-          advanced: [patch]
-        };
-        applySettingsChanges(constraints);
-        var testSliderUpdate = {};
-        testSliderUpdate[settingsKey] = value;
-        console.log("Constraints", constraints, testSliderUpdate, props.testSliderValue);
-        props.setTestSliderValue(_objectSpread(_objectSpread({}, props.testSliderValue), testSliderUpdate));
-        console.log("Advanced Option Change Test", value, settingsKey, _objectSpread(_objectSpread({}, props.testSliderValue), testSliderUpdate));
-      } else {
-        /*
-        patch[settingsKey] = value;
-        const constraints: MediaTrackConstraints = {
-          advanced: [patch],
-        };
-        applySettingsChanges(constraints);
-        const testSliderUpdate = {} as TestSliderType;
-        testSliderUpdate[settingsKey] = value;
-        props.setTestSliderValue(testSliderUpdate);
-        */
+      try {
+        var patch = {};
+        if (typeof value === "number") {
+          patch[settingsKey] = value;
+          var constraints = {
+            advanced: [patch]
+          };
+          applySettingsChanges(constraints);
+          var testSliderUpdate = {};
+          testSliderUpdate[settingsKey] = value;
+          console.log("Constraints", constraints, testSliderUpdate, props.testSliderValue);
+          props.setTestSliderValue(_objectSpread(_objectSpread({}, props.testSliderValue), testSliderUpdate));
+          console.log("Advanced Option Change Test", value, settingsKey, _objectSpread(_objectSpread({}, props.testSliderValue), testSliderUpdate));
+        } else {
+          /*
+          patch[settingsKey] = value;
+          const constraints: MediaTrackConstraints = {
+            advanced: [patch],
+          };
+          applySettingsChanges(constraints);
+          const testSliderUpdate = {} as TestSliderType;
+          testSliderUpdate[settingsKey] = value;
+          props.setTestSliderValue(testSliderUpdate);
+          */
+        }
+      } catch (e) {
+        alert("A " + e);
       }
     };
     var capabilitiesSort = function capabilitiesSort(_ref2, _ref3) {
@@ -8647,32 +8651,36 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
             // We wont render anything for these, there is only one option
           } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number") {
             // Render slider for object with min, max, step properties
-            var _ref6 = value,
-              min = _ref6.min,
-              max = _ref6.max,
-              _ref6$step = _ref6.step,
-              step = _ref6$step === void 0 ? 1 : _ref6$step;
-            var NUM_STEPS = 4;
-            var calcLabelStepSize = (max - min) / NUM_STEPS;
-            return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
-              style: {
-                display: "flex"
-              }
-            }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
-              style: {
-                marginRight: "15px",
-                width: "100%"
-              }
-            }, key), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
-              max: max,
-              min: min,
-              stepSize: Math.round(step),
-              onChange: function onChange(v) {
-                return handleAdvancedOptionChangeTest(v, key);
-              },
-              value: props.testSliderValue[key],
-              labelStepSize: calcLabelStepSize
-            }));
+            try {
+              var _ref6 = value,
+                min = _ref6.min,
+                max = _ref6.max,
+                _ref6$step = _ref6.step,
+                step = _ref6$step === void 0 ? 1 : _ref6$step;
+              var NUM_STEPS = 4;
+              var calcLabelStepSize = (max - min) / NUM_STEPS;
+              return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
+                style: {
+                  display: "flex"
+                }
+              }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+                style: {
+                  marginRight: "15px",
+                  width: "100%"
+                }
+              }, key), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
+                max: max,
+                min: min,
+                stepSize: Math.round(step),
+                onChange: function onChange(v) {
+                  return handleAdvancedOptionChangeTest(v, key);
+                },
+                value: props.testSliderValue[key],
+                labelStepSize: calcLabelStepSize
+              }));
+            } catch (e) {
+              alert("A " + e);
+            }
 
             /*
             return (

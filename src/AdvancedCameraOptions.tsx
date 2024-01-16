@@ -68,42 +68,45 @@ export const AdvancedCameraOptions = React.memo(
         value: string | number,
         settingsKey: keyof TestSliderType
       ): void => {
-        const patch: MediaTrackConstraintSet = {};
+        try {
+          const patch: MediaTrackConstraintSet = {};
+          if (typeof value === "number") {
+            patch[settingsKey as keyof MediaTrackConstraintSet] = value;
+            const constraints: MediaTrackConstraints = {
+              advanced: [patch],
+            };
+            applySettingsChanges(constraints);
+            const testSliderUpdate = {} as TestSliderType;
+            testSliderUpdate[settingsKey] = value;
+            console.log(
+              "Constraints",
+              constraints,
+              testSliderUpdate,
+              props.testSliderValue
+            );
 
-        if (typeof value === "number") {
-          patch[settingsKey as keyof MediaTrackConstraintSet] = value;
-          const constraints: MediaTrackConstraints = {
-            advanced: [patch],
-          };
-          applySettingsChanges(constraints);
-          const testSliderUpdate = {} as TestSliderType;
-          testSliderUpdate[settingsKey] = value;
-          console.log(
-            "Constraints",
-            constraints,
-            testSliderUpdate,
-            props.testSliderValue
-          );
-
-          props.setTestSliderValue({
-            ...props.testSliderValue,
-            ...testSliderUpdate,
-          });
-          console.log("Advanced Option Change Test", value, settingsKey, {
-            ...props.testSliderValue,
-            ...testSliderUpdate,
-          });
-        } else {
-          /*
-          patch[settingsKey] = value;
-          const constraints: MediaTrackConstraints = {
-            advanced: [patch],
-          };
-          applySettingsChanges(constraints);
-          const testSliderUpdate = {} as TestSliderType;
-          testSliderUpdate[settingsKey] = value;
-          props.setTestSliderValue(testSliderUpdate);
-          */
+            props.setTestSliderValue({
+              ...props.testSliderValue,
+              ...testSliderUpdate,
+            });
+            console.log("Advanced Option Change Test", value, settingsKey, {
+              ...props.testSliderValue,
+              ...testSliderUpdate,
+            });
+          } else {
+            /*
+            patch[settingsKey] = value;
+            const constraints: MediaTrackConstraints = {
+              advanced: [patch],
+            };
+            applySettingsChanges(constraints);
+            const testSliderUpdate = {} as TestSliderType;
+            testSliderUpdate[settingsKey] = value;
+            props.setTestSliderValue(testSliderUpdate);
+            */
+          }
+        } catch (e) {
+          alert("A " + e);
         }
       };
 
@@ -188,28 +191,32 @@ export const AdvancedCameraOptions = React.memo(
                 typeof value.max === "number"
               ) {
                 // Render slider for object with min, max, step properties
-                const {
-                  min,
-                  max,
-                  step = 1,
-                } = value as { min: number; max: number; step?: number };
-                const NUM_STEPS = 4;
-                const calcLabelStepSize = (max - min) / NUM_STEPS;
-                return (
-                  <Label style={{ display: "flex" }}>
-                    <div style={{ marginRight: "15px", width: "100%" }}>
-                      {key}
-                    </div>
-                    <Slider
-                      max={max}
-                      min={min}
-                      stepSize={Math.round(step)}
-                      onChange={(v) => handleAdvancedOptionChangeTest(v, key)}
-                      value={props.testSliderValue[key] as number}
-                      labelStepSize={calcLabelStepSize}
-                    />
-                  </Label>
-                );
+                try {
+                  const {
+                    min,
+                    max,
+                    step = 1,
+                  } = value as { min: number; max: number; step?: number };
+                  const NUM_STEPS = 4;
+                  const calcLabelStepSize = (max - min) / NUM_STEPS;
+                  return (
+                    <Label style={{ display: "flex" }}>
+                      <div style={{ marginRight: "15px", width: "100%" }}>
+                        {key}
+                      </div>
+                      <Slider
+                        max={max}
+                        min={min}
+                        stepSize={Math.round(step)}
+                        onChange={(v) => handleAdvancedOptionChangeTest(v, key)}
+                        value={props.testSliderValue[key] as number}
+                        labelStepSize={calcLabelStepSize}
+                      />
+                    </Label>
+                  );
+                } catch (e) {
+                  alert("A " + e);
+                }
 
                 /*
                 return (

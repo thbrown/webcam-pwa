@@ -1,0 +1,13 @@
+{
+  "name": "timel.app",
+  "short_name": "timel.app",
+  "icons": [
+    {
+      "src": "google-touch-icon.png",
+      "sizes": "512x512"
+    }
+  ],
+  "background_color": "#ffa500",
+  "theme_color": "#ffa500",
+  "display": "fullscreen"
+}
