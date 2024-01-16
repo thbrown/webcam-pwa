@@ -195,27 +195,21 @@ export const AdvancedCameraOptions = React.memo(
                 } = value as { min: number; max: number; step?: number };
                 const NUM_STEPS = 4;
                 const calcLabelStepSize = (max - min) / NUM_STEPS;
-                if (key === "width") {
-                  return (
-                    <Label style={{ display: "flex" }}>
-                      <div style={{ marginRight: "15px", width: "100%" }}>
-                        {"TEST SLIDER"}
-                      </div>
-                      <Slider
-                        max={max}
-                        min={min}
-                        stepSize={Math.round(step)}
-                        onChange={(v) =>
-                          handleAdvancedOptionChangeTest(v, "width")
-                        }
-                        value={props.testSliderValue.width as number}
-                        labelStepSize={calcLabelStepSize}
-                      />
-                    </Label>
-                  );
-                } else {
-                  return null;
-                }
+                return (
+                  <Label style={{ display: "flex" }}>
+                    <div style={{ marginRight: "15px", width: "100%" }}>
+                      {key}
+                    </div>
+                    <Slider
+                      max={max}
+                      min={min}
+                      stepSize={Math.round(step)}
+                      onChange={(v) => handleAdvancedOptionChangeTest(v, key)}
+                      value={props.testSliderValue[key] as number}
+                      labelStepSize={calcLabelStepSize}
+                    />
+                  </Label>
+                );
 
                 /*
                 return (

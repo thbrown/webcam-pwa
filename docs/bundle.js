@@ -8654,29 +8654,25 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
               step = _ref6$step === void 0 ? 1 : _ref6$step;
             var NUM_STEPS = 4;
             var calcLabelStepSize = (max - min) / NUM_STEPS;
-            if (key === "width") {
-              return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
-                style: {
-                  display: "flex"
-                }
-              }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
-                style: {
-                  marginRight: "15px",
-                  width: "100%"
-                }
-              }, "TEST SLIDER"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
-                max: max,
-                min: min,
-                stepSize: Math.round(step),
-                onChange: function onChange(v) {
-                  return handleAdvancedOptionChangeTest(v, "width");
-                },
-                value: props.testSliderValue.width,
-                labelStepSize: calcLabelStepSize
-              }));
-            } else {
-              return null;
-            }
+            return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
+              style: {
+                display: "flex"
+              }
+            }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+              style: {
+                marginRight: "15px",
+                width: "100%"
+              }
+            }, key), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
+              max: max,
+              min: min,
+              stepSize: Math.round(step),
+              onChange: function onChange(v) {
+                return handleAdvancedOptionChangeTest(v, key);
+              },
+              value: props.testSliderValue[key],
+              labelStepSize: calcLabelStepSize
+            }));
 
             /*
             return (
