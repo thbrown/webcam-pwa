@@ -257,10 +257,10 @@ export const AdvancedCameraOptions = React.memo(
                     />
                   </Label>
                 </div>
-                {generateUIForCameraCapabilities(
+                {/*generateUIForCameraCapabilities(
                   props.supportedCameraCapabilities,
                   props.cameraSettings
-                )}
+                )*/}
               </div>
             )
           ) : null}

@@ -50,23 +50,6 @@ interface CameraPanelProps {
 
 export type CameraStatus = "idle" | "initializing" | "initialized";
 
-/*
-export type CameraSettings = {
-  [key: string]: string | number;
-};
-
-export type CameraCapabilities = {
-  [key: string]:
-    | {
-        max: number;
-        min: number;
-        step?: number;
-      }
-    | string[]
-    | string;
-};
-*/
-
 export function CameraPanel(props: CameraPanelProps): JSX.Element {
   // Common state
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -82,9 +65,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [savingVideo, setSavingVideo] = useState<boolean>(false);
   const [supportedCameraCapabilities, setSupportedCameraCapabilities] =
     useState<MediaTrackCapabilities | undefined>(undefined);
-  const [cameraSettings, setCameraSettings] = useState<
-    MediaTrackSettings | undefined
-  >(undefined);
+  const [cameraSettings, setCameraSettings] = useState<MediaTrackSettings>({});
   const [testSliderValue, setTestSliderValue] = useState<number>(1);
 
   const [isCameraSelectDialogOpen, setIsCameraSelectDialogOpen] =
@@ -211,6 +192,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         const settings = JSON.parse(JSON.stringify(track.getSettings()));
         setCameraSettings(settings);
         setCameraStatus("initialized");
+        setTestSliderValue(Math.round(Math.random() * 10));
       } else {
         console.error("No video ref!");
       }
@@ -382,8 +364,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   };
 
   const setIsInitializing = () => {
-    console.log("initializing");
-    console.trace();
     setCameraStatus("initializing");
   };
 

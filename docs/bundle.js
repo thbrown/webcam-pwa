@@ -8707,7 +8707,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
         return props.setTestSliderValue(v);
       },
       value: props.testSliderValue
-    }))), generateUIForCameraCapabilities(props.supportedCameraCapabilities, props.cameraSettings)) : null);
+    })))) : null);
   } catch (e) {
     console.warn("PRINT", e);
     alert("PIZZA" + e + " - " + e.stack);
@@ -8857,23 +8857,6 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-/*
-export type CameraSettings = {
-  [key: string]: string | number;
-};
-
-export type CameraCapabilities = {
-  [key: string]:
-    | {
-        max: number;
-        min: number;
-        step?: number;
-      }
-    | string[]
-    | string;
-};
-*/
-
 function CameraPanel(props) {
   // Common state
   var videoRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
@@ -8903,7 +8886,7 @@ function CameraPanel(props) {
     _useState12 = _slicedToArray(_useState11, 2),
     supportedCameraCapabilities = _useState12[0],
     setSupportedCameraCapabilities = _useState12[1];
-  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(undefined),
+  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({}),
     _useState14 = _slicedToArray(_useState13, 2),
     cameraSettings = _useState14[0],
     setCameraSettings = _useState14[1];
@@ -9049,7 +9032,7 @@ function CameraPanel(props) {
           case 5:
             mediaStream = _context2.sent;
             if (!videoRef.current) {
-              _context2.next = 27;
+              _context2.next = 28;
               break;
             }
             console.log("START VIDEO", videoRef.current);
@@ -9097,16 +9080,17 @@ function CameraPanel(props) {
             settings = JSON.parse(JSON.stringify(track.getSettings()));
             setCameraSettings(settings);
             setCameraStatus("initialized");
-            _context2.next = 28;
+            setTestSliderValue(Math.round(Math.random() * 10));
+            _context2.next = 29;
             break;
-          case 27:
-            console.error("No video ref!");
           case 28:
+            console.error("No video ref!");
+          case 29:
             resizeVideo();
-            _context2.next = 36;
+            _context2.next = 37;
             break;
-          case 31:
-            _context2.prev = 31;
+          case 32:
+            _context2.prev = 32;
             _context2.t0 = _context2["catch"](1);
             console.warn("Could not access webcam ", _context2.t0);
             if (_context2.t0.message === "Permission denied") {
@@ -9117,11 +9101,11 @@ function CameraPanel(props) {
               setCameraPermission("prompt");
             }
             setCameraStatus("idle");
-          case 36:
+          case 37:
           case "end":
             return _context2.stop();
         }
-      }, _callee2, null, [[1, 31]]);
+      }, _callee2, null, [[1, 32]]);
     }));
     return function startVideo() {
       return _ref2.apply(this, arguments);
@@ -9343,8 +9327,6 @@ function CameraPanel(props) {
     console.log("VIDEO RESIZE - div", "".concat(Math.max(vidHeight, overlayHeight), "px"));
   };
   var setIsInitializing = function setIsInitializing() {
-    console.log("initializing");
-    console.trace();
     setCameraStatus("initializing");
   };
 
