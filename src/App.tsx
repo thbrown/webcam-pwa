@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Main } from "./Main";
+import { HotkeysProvider } from "@blueprintjs/core";
+
 import "./App.scss";
 
 export type RecordingStatus = "Stopped" | "Recording" | "Paused";
@@ -27,25 +29,27 @@ export const App: React.FC = () => {
   }
   try {
     return (
-      <div className="wrapper">
-        <div
-          style={{
-            position: "fixed",
-            top: "0",
-            left: "0",
-            width: "100%",
-            height: "100vh",
-            backgroundColor,
-            zIndex: "-1",
-          }}
-        ></div>
-        <div className="main-margin">
-          <Main
-            recordingStatus={recordingStatus}
-            setRecordingStatus={setRecordingStatus}
-          ></Main>
+      <HotkeysProvider>
+        <div className="wrapper">
+          <div
+            style={{
+              position: "fixed",
+              top: "0",
+              left: "0",
+              width: "100%",
+              height: "100vh",
+              backgroundColor,
+              zIndex: "-1",
+            }}
+          ></div>
+          <div className="main-margin">
+            <Main
+              recordingStatus={recordingStatus}
+              setRecordingStatus={setRecordingStatus}
+            ></Main>
+          </div>
         </div>
-      </div>
+      </HotkeysProvider>
     );
   } catch (e) {
     console.log(e);

@@ -1,5 +1,5 @@
-import { Button, Spinner, Tab, Tabs } from "@blueprintjs/core";
-import React, { useRef, useState, useEffect } from "react";
+import { Button, Spinner, Tab, Tabs, useHotkeys } from "@blueprintjs/core";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 
 import { Record, Stop, Flash } from "@blueprintjs/icons";
 import { RecordingStatus } from "./App";
@@ -12,6 +12,20 @@ interface StopMotionControlProps {
 }
 
 export function StopMotionControl(props: StopMotionControlProps): JSX.Element {
+  const hotkeys = useMemo(
+    () => [
+      {
+        combo: "space",
+        global: true,
+        label: "Start",
+        onKeyDown:
+          props.recordingStatus === "Paused" ? props.onStart : props.onSnapshot,
+      },
+    ],
+    [props.onStart, props.onSnapshot, props.recordingStatus]
+  );
+
+  const { handleKeyDown, handleKeyUp } = useHotkeys(hotkeys);
   if (props.recordingStatus === "Paused") {
     return (
       <div className="footer" style={{ display: "flex" }}>
