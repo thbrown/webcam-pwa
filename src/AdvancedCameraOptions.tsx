@@ -198,7 +198,7 @@ export const AdvancedCameraOptions = React.memo(
                   "iso",
                   "colorTemperature",
                   "zoom", // Most recent started here
-                  "frameRate",
+                  //"frameRate", //Problematic?
                   //"exposureTime",
                   //"exposureCompensation",
                 ].includes(key)
