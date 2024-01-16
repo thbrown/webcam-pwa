@@ -36,8 +36,9 @@ export const AdvancedCameraOptions = React.memo(
       };
 
       const applySettingsChanges = useCallback(
-        debounce((constraints: MediaTrackConstraints) => {
-          props.activeTrack.applyConstraints(constraints);
+        debounce(async (constraints: MediaTrackConstraints) => {
+          // Maybe go to loading state here for the camera?
+          await props.activeTrack.applyConstraints(constraints);
         }, 100),
         [props.activeTrack]
       );
@@ -70,7 +71,7 @@ export const AdvancedCameraOptions = React.memo(
         const patch: MediaTrackConstraintSet = {};
 
         if (typeof value === "number") {
-          patch[settingsKey] = value;
+          patch[settingsKey as keyof MediaTrackConstraintSet] = value;
           const constraints: MediaTrackConstraints = {
             advanced: [patch],
           };
@@ -193,7 +194,30 @@ export const AdvancedCameraOptions = React.memo(
                   step = 1,
                 } = value as { min: number; max: number; step?: number };
                 const NUM_STEPS = 4;
-                const calcStepSize = (max - min) / NUM_STEPS;
+                const calcLabelStepSize = (max - min) / NUM_STEPS;
+                if (key === "width") {
+                  return (
+                    <Label style={{ display: "flex" }}>
+                      <div style={{ marginRight: "15px", width: "100%" }}>
+                        {"TEST SLIDER"}
+                      </div>
+                      <Slider
+                        max={max}
+                        min={min}
+                        stepSize={Math.round(step)}
+                        onChange={(v) =>
+                          handleAdvancedOptionChangeTest(v, "width")
+                        }
+                        value={props.testSliderValue.width as number}
+                        labelStepSize={calcLabelStepSize}
+                      />
+                    </Label>
+                  );
+                } else {
+                  return null;
+                }
+
+                /*
                 return (
                   <Label style={{ display: "flex" }}>
                     <div style={{ marginRight: "15px", width: "100%" }}>
@@ -232,6 +256,7 @@ export const AdvancedCameraOptions = React.memo(
                     />
                   </Label>
                 );
+                    */
               } else if (typeof value === "object") {
                 return (
                   <Label style={{ display: "flex" }}>
@@ -302,7 +327,7 @@ export const AdvancedCameraOptions = React.memo(
                       onChange={(v) =>
                         handleAdvancedOptionChangeTest(v, "width")
                       }
-                      value={props.testSliderValue.width}
+                      value={props.testSliderValue.width as number}
                     />
                   </Label>
                   <Label style={{ display: "flex" }}>
@@ -316,14 +341,14 @@ export const AdvancedCameraOptions = React.memo(
                       onChange={(v) =>
                         handleAdvancedOptionChangeTest(v, "height")
                       }
-                      value={props.testSliderValue.height}
+                      value={props.testSliderValue.height as number}
                     />
                   </Label>
                 </div>
-                {/*generateUIForCameraCapabilities(
+                {generateUIForCameraCapabilities(
                   props.supportedCameraCapabilities,
                   props.cameraSettings
-                )*/}
+                )}
               </div>
             )
           ) : null}

@@ -48,7 +48,7 @@ interface CameraPanelProps {
   setVideoToShow: (video: Blob) => void;
 }
 
-export type TestSliderType = { width?: number; height?: number };
+export type TestSliderType = Record<string, string | number | boolean>;
 
 export type CameraStatus = "idle" | "initializing" | "initialized";
 
