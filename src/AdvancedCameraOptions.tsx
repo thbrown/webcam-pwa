@@ -65,27 +65,45 @@ export const AdvancedCameraOptions = React.memo(
 
       const handleAdvancedOptionChangeTest = (
         value: string | number,
-        settingsKey: keyof MediaTrackConstraintSet
+        settingsKey: keyof TestSliderType
       ): void => {
-        console.log("Advanced Option Change Test", value, settingsKey);
-        //const patch: MediaTrackConstraintSet = {};
-        //patch[settingsKey] = value;
-        //const constraints: MediaTrackConstraints = {
-        //  advanced: [patch],
-        //};
-        //applySettingsChanges(constraints);
-        const updatedValue =
-          typeof value === "number" ? value : parseInt(value);
         const patch: MediaTrackConstraintSet = {};
-        const constraints: MediaTrackConstraints = {
-          advanced: [patch],
-        };
-        patch[settingsKey] = updatedValue;
-        applySettingsChanges(constraints);
 
-        props.setTestSliderValue({
-          value: updatedValue,
-        });
+        if (typeof value === "number") {
+          patch[settingsKey] = value;
+          const constraints: MediaTrackConstraints = {
+            advanced: [patch],
+          };
+          applySettingsChanges(constraints);
+          const testSliderUpdate = {} as TestSliderType;
+          testSliderUpdate[settingsKey] = value;
+          console.log(
+            "Constraints",
+            constraints,
+            testSliderUpdate,
+            props.testSliderValue
+          );
+
+          props.setTestSliderValue({
+            ...props.testSliderValue,
+            ...testSliderUpdate,
+          });
+          console.log("Advanced Option Change Test", value, settingsKey, {
+            ...props.testSliderValue,
+            ...testSliderUpdate,
+          });
+        } else {
+          /*
+          patch[settingsKey] = value;
+          const constraints: MediaTrackConstraints = {
+            advanced: [patch],
+          };
+          applySettingsChanges(constraints);
+          const testSliderUpdate = {} as TestSliderType;
+          testSliderUpdate[settingsKey] = value;
+          props.setTestSliderValue(testSliderUpdate);
+          */
+        }
       };
 
       const capabilitiesSort = (
@@ -282,16 +300,30 @@ export const AdvancedCameraOptions = React.memo(
                       min={-2}
                       stepSize={2}
                       onChange={(v) =>
-                        handleAdvancedOptionChangeTest(String(v), "width")
+                        handleAdvancedOptionChangeTest(v, "width")
                       }
-                      value={props.testSliderValue.value}
+                      value={props.testSliderValue.width}
+                    />
+                  </Label>
+                  <Label style={{ display: "flex" }}>
+                    <div style={{ marginRight: "15px", width: "100%" }}>
+                      {"TEST SLIDER 2"}
+                    </div>
+                    <Slider
+                      max={10}
+                      min={-2}
+                      stepSize={2}
+                      onChange={(v) =>
+                        handleAdvancedOptionChangeTest(v, "height")
+                      }
+                      value={props.testSliderValue.height}
                     />
                   </Label>
                 </div>
-                {generateUIForCameraCapabilities(
+                {/*generateUIForCameraCapabilities(
                   props.supportedCameraCapabilities,
                   props.cameraSettings
-                )}
+                )*/}
               </div>
             )
           ) : null}

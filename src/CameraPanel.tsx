@@ -48,7 +48,7 @@ interface CameraPanelProps {
   setVideoToShow: (video: Blob) => void;
 }
 
-export type TestSliderType = { value: number };
+export type TestSliderType = { width?: number; height?: number };
 
 export type CameraStatus = "idle" | "initializing" | "initialized";
 
@@ -69,7 +69,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     useState<MediaTrackCapabilities | undefined>(undefined);
   const [cameraSettings, setCameraSettings] = useState<MediaTrackSettings>({});
   const [testSliderValue, setTestSliderValue] = useState<TestSliderType>({
-    value: 4,
+    width: 4,
+    height: 10,
   });
 
   const [isCameraSelectDialogOpen, setIsCameraSelectDialogOpen] =
@@ -196,7 +197,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         const settings = JSON.parse(JSON.stringify(track.getSettings()));
         setCameraSettings(settings);
         setCameraStatus("initialized");
-        setTestSliderValue({ value: Math.round(Math.random() * 10) });
+        setTestSliderValue({ width: Math.round(Math.random() * 10) });
       } else {
         console.error("No video ref!");
       }
