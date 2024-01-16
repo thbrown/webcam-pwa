@@ -70,9 +70,8 @@ export const AdvancedCameraOptions = React.memo(
           advanced: [patch],
         };
         applySettingsChanges(constraints);
-        props.setCameraSettings({
-          ...props.cameraSettings,
-          ...(patch as Partial<MediaTrackSettings>),
+        props.setTestSliderValue({
+          value: value as number,
         });
       };
 

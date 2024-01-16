@@ -8547,7 +8547,9 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
         advanced: [patch]
       };
       applySettingsChanges(constraints);
-      props.setCameraSettings(_objectSpread(_objectSpread({}, props.cameraSettings), patch));
+      props.setTestSliderValue({
+        value: value
+      });
     };
     var capabilitiesSort = function capabilitiesSort(_ref, _ref2) {
       var _ref3 = _slicedToArray(_ref, 1),
