@@ -8704,9 +8704,11 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
       min: -2,
       stepSize: 2,
       onChange: function onChange(v) {
-        return props.setTestSliderValue(v);
+        return props.setTestSliderValue({
+          value: v
+        });
       },
-      value: props.testSliderValue
+      value: props.testSliderValue.value
     })))) : null);
   } catch (e) {
     console.warn("PRINT", e);
@@ -8890,7 +8892,9 @@ function CameraPanel(props) {
     _useState14 = _slicedToArray(_useState13, 2),
     cameraSettings = _useState14[0],
     setCameraSettings = _useState14[1];
-  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
+  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
+      value: 4
+    }),
     _useState16 = _slicedToArray(_useState15, 2),
     testSliderValue = _useState16[0],
     setTestSliderValue = _useState16[1];
@@ -9080,7 +9084,9 @@ function CameraPanel(props) {
             settings = JSON.parse(JSON.stringify(track.getSettings()));
             setCameraSettings(settings);
             setCameraStatus("initialized");
-            setTestSliderValue(Math.round(Math.random() * 10));
+            setTestSliderValue({
+              value: Math.round(Math.random() * 10)
+            });
             _context2.next = 29;
             break;
           case 28:

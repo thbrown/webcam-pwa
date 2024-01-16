@@ -9,7 +9,7 @@ import {
 } from "@blueprintjs/core";
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
 import { debounce } from "lodash";
-import { CameraStatus } from "./CameraPanel";
+import { CameraStatus, TestSliderType } from "./CameraPanel";
 
 interface AdvancedCameraOptionsProps {
   setCameraSettings: (value: React.SetStateAction<MediaTrackSettings>) => void;
@@ -17,8 +17,8 @@ interface AdvancedCameraOptionsProps {
   cameraSettings: MediaTrackSettings;
   activeTrack: MediaStreamTrack;
   supportedCameraCapabilities: MediaTrackCapabilities;
-  setTestSliderValue: (value: number) => void;
-  testSliderValue: number;
+  setTestSliderValue: (value: TestSliderType) => void;
+  testSliderValue: TestSliderType;
 }
 
 export const AdvancedCameraOptions = React.memo(
@@ -252,8 +252,8 @@ export const AdvancedCameraOptions = React.memo(
                       max={10}
                       min={-2}
                       stepSize={2}
-                      onChange={(v) => props.setTestSliderValue(v)}
-                      value={props.testSliderValue}
+                      onChange={(v) => props.setTestSliderValue({ value: v })}
+                      value={props.testSliderValue.value}
                     />
                   </Label>
                 </div>
