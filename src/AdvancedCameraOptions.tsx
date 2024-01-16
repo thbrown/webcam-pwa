@@ -197,6 +197,10 @@ export const AdvancedCameraOptions = React.memo(
                   "saturation",
                   "iso",
                   "colorTemperature",
+                  "zoom", // Most recent started here
+                  "frameRate",
+                  "exposureTime",
+                  "exposureCompensation",
                 ].includes(key)
               ) {
                 // Render slider for object with min, max, step properties
