@@ -63,15 +63,24 @@ export const AdvancedCameraOptions = React.memo(
         value: string | number,
         settingsKey: keyof MediaTrackConstraintSet
       ): void => {
-        console.log("Advanced Option Change", value, settingsKey);
+        console.log("Advanced Option Change Test", value, settingsKey);
+        //const patch: MediaTrackConstraintSet = {};
+        //patch[settingsKey] = value;
+        //const constraints: MediaTrackConstraints = {
+        //  advanced: [patch],
+        //};
+        //applySettingsChanges(constraints);
+        const updatedValue =
+          typeof value === "number" ? value : parseInt(value);
         const patch: MediaTrackConstraintSet = {};
-        patch[settingsKey] = value;
         const constraints: MediaTrackConstraints = {
           advanced: [patch],
         };
+        patch[settingsKey] = updatedValue;
         applySettingsChanges(constraints);
+
         props.setTestSliderValue({
-          value: value as number,
+          value: updatedValue,
         });
       };
 
@@ -269,10 +278,7 @@ export const AdvancedCameraOptions = React.memo(
                       min={-2}
                       stepSize={2}
                       onChange={(v) =>
-                        handleAdvancedOptionChangeTest(
-                          "width",
-                          String(v) as keyof MediaTrackConstraintSet
-                        )
+                        handleAdvancedOptionChangeTest(String(v), "width")
                       }
                       value={props.testSliderValue.value}
                     />

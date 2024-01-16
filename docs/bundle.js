@@ -8540,15 +8540,22 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
       props.setCameraSettings(_objectSpread(_objectSpread({}, props.cameraSettings), patch));
     };
     var handleAdvancedOptionChangeTest = function handleAdvancedOptionChangeTest(value, settingsKey) {
-      console.log("Advanced Option Change", value, settingsKey);
+      console.log("Advanced Option Change Test", value, settingsKey);
+      //const patch: MediaTrackConstraintSet = {};
+      //patch[settingsKey] = value;
+      //const constraints: MediaTrackConstraints = {
+      //  advanced: [patch],
+      //};
+      //applySettingsChanges(constraints);
+      var updatedValue = typeof value === "number" ? value : parseInt(value);
       var patch = {};
-      patch[settingsKey] = value;
       var constraints = {
         advanced: [patch]
       };
+      patch[settingsKey] = updatedValue;
       applySettingsChanges(constraints);
       props.setTestSliderValue({
-        value: value
+        value: updatedValue
       });
     };
     var capabilitiesSort = function capabilitiesSort(_ref, _ref2) {
@@ -8713,7 +8720,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
       min: -2,
       stepSize: 2,
       onChange: function onChange(v) {
-        return handleAdvancedOptionChangeTest("width", String(v));
+        return handleAdvancedOptionChangeTest(String(v), "width");
       },
       value: props.testSliderValue.value
     })))) : null);
