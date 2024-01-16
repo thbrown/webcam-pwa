@@ -56,16 +56,6 @@ export function TimelapseControl(props: TimelapseControlProps): JSX.Element {
       <div className="footer" style={{ display: "flex" }}>
         <Button
           className={"big-button simple-label"}
-          icon={<Stop />}
-          large={true}
-          fill={true}
-          onClick={props.onStop}
-          style={{ paddingRight: "2px" }}
-        >
-          Stop
-        </Button>
-        <Button
-          className={"big-button simple-label"}
           icon={<Record />}
           large={true}
           fill={true}
@@ -73,6 +63,16 @@ export function TimelapseControl(props: TimelapseControlProps): JSX.Element {
           style={{ paddingLeft: "2px" }}
         >
           Resume
+        </Button>
+        <Button
+          className={"big-button simple-label"}
+          icon={<Stop />}
+          large={true}
+          fill={true}
+          onClick={props.onStop}
+          style={{ paddingRight: "2px" }}
+        >
+          Stop
         </Button>
       </div>
     );
