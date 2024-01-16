@@ -8544,7 +8544,6 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
       }
     };
     var handleAdvancedOptionChangeTest = function handleAdvancedOptionChangeTest(value, settingsKey) {
-      console.log("Advanced Option Change Test", value, settingsKey);
       var patch = {};
       if (typeof value === "number") {
         patch[settingsKey] = value;
@@ -8552,15 +8551,22 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
           advanced: [patch]
         };
         applySettingsChanges(constraints);
-        props.setTestSliderValue({
-          value: value
-        });
+        var testSliderUpdate = {};
+        testSliderUpdate[settingsKey] = value;
+        console.log("Constraints", constraints, testSliderUpdate, props.testSliderValue);
+        props.setTestSliderValue(_objectSpread(_objectSpread({}, props.testSliderValue), testSliderUpdate));
+        console.log("Advanced Option Change Test", value, settingsKey, _objectSpread(_objectSpread({}, props.testSliderValue), testSliderUpdate));
       } else {
+        /*
         patch[settingsKey] = value;
-        var _constraints = {
-          advanced: [patch]
+        const constraints: MediaTrackConstraints = {
+          advanced: [patch],
         };
-        applySettingsChanges(_constraints);
+        applySettingsChanges(constraints);
+        const testSliderUpdate = {} as TestSliderType;
+        testSliderUpdate[settingsKey] = value;
+        props.setTestSliderValue(testSliderUpdate);
+        */
       }
     };
     var capabilitiesSort = function capabilitiesSort(_ref, _ref2) {
@@ -8725,9 +8731,26 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
       min: -2,
       stepSize: 2,
       onChange: function onChange(v) {
-        return handleAdvancedOptionChangeTest(String(v), "width");
+        return handleAdvancedOptionChangeTest(v, "width");
       },
-      value: props.testSliderValue.value
+      value: props.testSliderValue.width
+    })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
+      style: {
+        display: "flex"
+      }
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+      style: {
+        marginRight: "15px",
+        width: "100%"
+      }
+    }, "TEST SLIDER 2"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
+      max: 10,
+      min: -2,
+      stepSize: 2,
+      onChange: function onChange(v) {
+        return handleAdvancedOptionChangeTest(v, "height");
+      },
+      value: props.testSliderValue.height
     })))) : null);
   } catch (e) {
     console.warn("PRINT", e);
@@ -8912,7 +8935,8 @@ function CameraPanel(props) {
     cameraSettings = _useState14[0],
     setCameraSettings = _useState14[1];
   var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
-      value: 4
+      width: 4,
+      height: 10
     }),
     _useState16 = _slicedToArray(_useState15, 2),
     testSliderValue = _useState16[0],
@@ -9104,7 +9128,7 @@ function CameraPanel(props) {
             setCameraSettings(settings);
             setCameraStatus("initialized");
             setTestSliderValue({
-              value: Math.round(Math.random() * 10)
+              width: Math.round(Math.random() * 10)
             });
             _context2.next = 29;
             break;
