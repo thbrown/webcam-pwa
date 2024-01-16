@@ -10790,15 +10790,6 @@ function TimelapseControl(props) {
       }
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__.Button, {
       className: "big-button simple-label",
-      icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_3__.Stop, null),
-      large: true,
-      fill: true,
-      onClick: props.onStop,
-      style: {
-        paddingRight: "2px"
-      }
-    }, "Stop"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__.Button, {
-      className: "big-button simple-label",
       icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_4__.Record, null),
       large: true,
       fill: true,
@@ -10806,7 +10797,16 @@ function TimelapseControl(props) {
       style: {
         paddingLeft: "2px"
       }
-    }, "Resume"));
+    }, "Resume"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__.Button, {
+      className: "big-button simple-label",
+      icon: /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_icons__WEBPACK_IMPORTED_MODULE_3__.Stop, null),
+      large: true,
+      fill: true,
+      onClick: props.onStop,
+      style: {
+        paddingRight: "2px"
+      }
+    }, "Stop"));
   }
 }
 
