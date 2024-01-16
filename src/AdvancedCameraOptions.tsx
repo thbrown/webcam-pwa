@@ -189,7 +189,15 @@ export const AdvancedCameraOptions = React.memo(
                 typeof value === "object" &&
                 typeof value.min === "number" &&
                 typeof value.max === "number" &&
-                ["width", "height", "aspectRatio"].includes(value)
+                [
+                  "width",
+                  "height",
+                  "aspectRatio",
+                  "sharpness",
+                  "saturation",
+                  "iso",
+                  "colorTemperature",
+                ].includes(key)
               ) {
                 // Render slider for object with min, max, step properties
                 try {
