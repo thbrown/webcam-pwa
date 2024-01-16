@@ -59,6 +59,23 @@ export const AdvancedCameraOptions = React.memo(
         });
       };
 
+      const handleAdvancedOptionChangeTest = (
+        value: string | number,
+        settingsKey: keyof MediaTrackConstraintSet
+      ): void => {
+        console.log("Advanced Option Change", value, settingsKey);
+        const patch: MediaTrackConstraintSet = {};
+        patch[settingsKey] = value;
+        const constraints: MediaTrackConstraints = {
+          advanced: [patch],
+        };
+        applySettingsChanges(constraints);
+        props.setCameraSettings({
+          ...props.cameraSettings,
+          ...(patch as Partial<MediaTrackSettings>),
+        });
+      };
+
       const capabilitiesSort = (
         [keyA]: [
           keyof MediaTrackSettings,
@@ -169,12 +186,12 @@ export const AdvancedCameraOptions = React.memo(
                         max
                       )}
                       labelStepSize={calcStepSize}
-                      //onChange={(v) =>
-                      //  handleAdvancedOptionChange(
-                      //    v,
-                      //    key as keyof MediaTrackConstraintSet
-                      //  )
-                      //}
+                      onChange={(v) =>
+                        handleAdvancedOptionChange(
+                          v,
+                          key as keyof MediaTrackConstraintSet
+                        )
+                      }
                       //onChange={(v) => {
                       //  const a = v.target.value;
                       //  handleAdvancedOptionChange(
@@ -252,7 +269,12 @@ export const AdvancedCameraOptions = React.memo(
                       max={10}
                       min={-2}
                       stepSize={2}
-                      onChange={(v) => props.setTestSliderValue({ value: v })}
+                      onChange={(v) =>
+                        handleAdvancedOptionChangeTest(
+                          "width",
+                          String(v) as keyof MediaTrackConstraintSet
+                        )
+                      }
                       value={props.testSliderValue.value}
                     />
                   </Label>
