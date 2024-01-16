@@ -46,17 +46,21 @@ export const AdvancedCameraOptions = React.memo(
         value: string | number,
         settingsKey: keyof MediaTrackConstraintSet
       ): void => {
-        console.log("Advanced Option Change", value, settingsKey);
-        const patch: MediaTrackConstraintSet = {};
-        patch[settingsKey] = value;
-        const constraints: MediaTrackConstraints = {
-          advanced: [patch],
-        };
-        applySettingsChanges(constraints);
-        props.setCameraSettings({
-          ...props.cameraSettings,
-          ...(patch as Partial<MediaTrackSettings>),
-        });
+        try {
+          console.log("Advanced Option Change", value, settingsKey);
+          const patch: MediaTrackConstraintSet = {};
+          patch[settingsKey] = value;
+          const constraints: MediaTrackConstraints = {
+            advanced: [patch],
+          };
+          applySettingsChanges(constraints);
+          props.setCameraSettings({
+            ...props.cameraSettings,
+            ...(patch as Partial<MediaTrackSettings>),
+          });
+        } catch (e) {
+          alert("Error on option " + e);
+        }
       };
 
       const handleAdvancedOptionChangeTest = (
@@ -284,10 +288,10 @@ export const AdvancedCameraOptions = React.memo(
                     />
                   </Label>
                 </div>
-                {/*generateUIForCameraCapabilities(
+                {generateUIForCameraCapabilities(
                   props.supportedCameraCapabilities,
                   props.cameraSettings
-                )*/}
+                )}
               </div>
             )
           ) : null}

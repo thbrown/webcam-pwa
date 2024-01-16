@@ -8530,14 +8530,18 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
       props.activeTrack.applyConstraints(constraints);
     }, 100), [props.activeTrack]);
     var handleAdvancedOptionChange = function handleAdvancedOptionChange(value, settingsKey) {
-      console.log("Advanced Option Change", value, settingsKey);
-      var patch = {};
-      patch[settingsKey] = value;
-      var constraints = {
-        advanced: [patch]
-      };
-      applySettingsChanges(constraints);
-      props.setCameraSettings(_objectSpread(_objectSpread({}, props.cameraSettings), patch));
+      try {
+        console.log("Advanced Option Change", value, settingsKey);
+        var patch = {};
+        patch[settingsKey] = value;
+        var constraints = {
+          advanced: [patch]
+        };
+        applySettingsChanges(constraints);
+        props.setCameraSettings(_objectSpread(_objectSpread({}, props.cameraSettings), patch));
+      } catch (e) {
+        alert("Error on option " + e);
+      }
     };
     var handleAdvancedOptionChangeTest = function handleAdvancedOptionChangeTest(value, settingsKey) {
       console.log("Advanced Option Change Test", value, settingsKey);
@@ -8723,7 +8727,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
         return handleAdvancedOptionChangeTest(String(v), "width");
       },
       value: props.testSliderValue.value
-    })))) : null);
+    }))), generateUIForCameraCapabilities(props.supportedCameraCapabilities, props.cameraSettings)) : null);
   } catch (e) {
     console.warn("PRINT", e);
     alert("PIZZA" + e + " - " + e.stack);
