@@ -188,7 +188,8 @@ export const AdvancedCameraOptions = React.memo(
                 value !== null &&
                 typeof value === "object" &&
                 typeof value.min === "number" &&
-                typeof value.max === "number"
+                typeof value.max === "number" &&
+                ["width", "height", "aspectRatio"].includes(value)
               ) {
                 // Render slider for object with min, max, step properties
                 try {
@@ -270,7 +271,11 @@ export const AdvancedCameraOptions = React.memo(
                   </Label>
                 );
               } else {
-                return <div>Unsupported camera option: {value}</div>;
+                return (
+                  <div>
+                    Unsupported camera option: {value} {value}
+                  </div>
+                );
               }
             };
 

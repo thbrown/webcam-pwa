@@ -8649,7 +8649,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
             }));
           } else if (typeof value === "string" || typeof value === "number" || Array.isArray(value) && value.length <= 1) {
             // We wont render anything for these, there is only one option
-          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number") {
+          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && ["width", "height", "aspectRatio"].includes(value)) {
             // Render slider for object with min, max, step properties
             try {
               var _ref6 = value,
@@ -8734,7 +8734,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
               }
             }, key), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, "Unsupported camera option object: ", JSON.stringify(value)));
           } else {
-            return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, "Unsupported camera option: ", value);
+            return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, "Unsupported camera option: ", value, " ", value);
           }
         };
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
