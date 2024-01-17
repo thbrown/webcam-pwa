@@ -58,7 +58,7 @@ export const AdvancedCameraOptions = React.memo(
           const constraints: MediaTrackConstraints = {
             advanced: [patch],
           };
-          applySettingsChanges(constraints);
+          // applySettingsChanges(constraints);
           props.setCameraSettings({
             ...props.cameraSettings,
             ...(patch as Partial<MediaTrackSettings>),

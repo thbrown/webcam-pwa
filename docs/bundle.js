@@ -9366,7 +9366,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
         var constraints = {
           advanced: [patch]
         };
-        applySettingsChanges(constraints);
+        // applySettingsChanges(constraints);
         props.setCameraSettings(_objectSpread(_objectSpread({}, props.cameraSettings), patch));
       } catch (e) {
         alert("Error on option " + e);
@@ -9680,7 +9680,7 @@ var App = function App() {
   try {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.HotkeysProvider, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       className: "wrapper"
-    }, "5", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    }, "6", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       style: {
         position: "fixed",
         top: "0",
