@@ -58,7 +58,7 @@ export const AdvancedCameraOptions = React.memo(
           const constraints: MediaTrackConstraints = {
             advanced: [patch],
           };
-          // applySettingsChanges(constraints);
+          applySettingsChanges(constraints);
           props.setCameraSettings({
             ...props.cameraSettings,
             ...(patch as Partial<MediaTrackSettings>),
@@ -79,7 +79,7 @@ export const AdvancedCameraOptions = React.memo(
             const constraints: MediaTrackConstraints = {
               advanced: [patch],
             };
-            applySettingsChanges(constraints);
+            //applySettingsChanges(constraints);
             const testSliderUpdate = {} as TestSliderType;
             testSliderUpdate[settingsKey] = value;
             console.log(
@@ -229,6 +229,7 @@ export const AdvancedCameraOptions = React.memo(
                         value={props.testSliderValue[key] as number}
                         labelStepSize={calcLabelStepSize}
                       />
+                      {JSON.stringify(value)}
                     </Label>
                   );
                 } catch (e) {
@@ -287,7 +288,22 @@ export const AdvancedCameraOptions = React.memo(
                   //"exposureCompensation", // Problematic
                 ].includes(key)
               ) {
-                return <div>ZOOM IS BROKEN</div>;
+                return (
+                  <Label style={{ display: "flex" }}>
+                    <div style={{ marginRight: "15px", width: "100%" }}>
+                      BROKEN ZOOM
+                    </div>
+                    <Slider
+                      max={10}
+                      min={1}
+                      stepSize={1}
+                      onChange={(v) => handleAdvancedOptionChangeTest(v, key)}
+                      value={props.testSliderValue[key] as number}
+                      labelStepSize={2}
+                    />
+                    {JSON.stringify(value)}
+                  </Label>
+                );
               } else if (typeof value === "object") {
                 return (
                   <Label style={{ display: "flex" }}>

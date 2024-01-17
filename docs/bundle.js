@@ -9366,7 +9366,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
         var constraints = {
           advanced: [patch]
         };
-        // applySettingsChanges(constraints);
+        applySettingsChanges(constraints);
         props.setCameraSettings(_objectSpread(_objectSpread({}, props.cameraSettings), patch));
       } catch (e) {
         alert("Error on option " + e);
@@ -9380,7 +9380,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
           var constraints = {
             advanced: [patch]
           };
-          applySettingsChanges(constraints);
+          //applySettingsChanges(constraints);
           var testSliderUpdate = {};
           testSliderUpdate[settingsKey] = value;
           console.log("Constraints", constraints, testSliderUpdate, props.testSliderValue);
@@ -9496,7 +9496,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
                 },
                 value: props.testSliderValue[key],
                 labelStepSize: calcLabelStepSize
-              }));
+              }), JSON.stringify(value));
             } catch (e) {
               alert("A " + e);
             }
@@ -9546,7 +9546,25 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
           //"exposureTime", //Problematic
           //"exposureCompensation", // Problematic
           ].includes(key)) {
-            return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, "ZOOM IS BROKEN");
+            return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
+              style: {
+                display: "flex"
+              }
+            }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+              style: {
+                marginRight: "15px",
+                width: "100%"
+              }
+            }, "BROKEN ZOOM"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
+              max: 10,
+              min: 1,
+              stepSize: 1,
+              onChange: function onChange(v) {
+                return handleAdvancedOptionChangeTest(v, key);
+              },
+              value: props.testSliderValue[key],
+              labelStepSize: 2
+            }), JSON.stringify(value));
           } else if (_typeof(value) === "object") {
             return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
               style: {
@@ -9686,7 +9704,7 @@ var App = function App() {
   try {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.HotkeysProvider, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       className: "wrapper"
-    }, "6", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    }, "7", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       style: {
         position: "fixed",
         top: "0",
