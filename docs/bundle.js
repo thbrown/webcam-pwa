@@ -9541,7 +9541,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
               </Label>
             );
                 */
-          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && value.max !== value.min && ["zoom",
+          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && value.max > value.min && ["zoom",
           //Problematic
           "frameRate",
           //Problematic
@@ -9563,13 +9563,13 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
                 width: "100%"
               }
             }, key), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
-              max: value.max > value.min ? value.max : 10,
-              min: value.max > value.min ? value.min : 0,
-              stepSize: value.stepSize <= 0 ? value.stepSize : 1,
+              max: value.max,
+              min: value.min,
+              stepSize: value.stepSize,
               onChange: function onChange(v) {
                 return handleAdvancedOptionChangeTest(v, key);
               },
-              value: props.testSliderValue[key],
+              value: clamp(settings[key], value.min, value.max),
               labelStepSize: _calcLabelStepSize > 0 ? _calcLabelStepSize : undefined
             }));
           } else if (_typeof(value) === "object") {

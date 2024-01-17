@@ -280,7 +280,7 @@ export const AdvancedCameraOptions = React.memo(
                 typeof value === "object" &&
                 typeof value.min === "number" &&
                 typeof value.max === "number" &&
-                value.max !== value.min &&
+                value.max > value.min &&
                 [
                   "zoom", //Problematic
                   "frameRate", //Problematic
@@ -299,11 +299,17 @@ export const AdvancedCameraOptions = React.memo(
                       {key}
                     </div>
                     <Slider
-                      max={value.max > value.min ? value.max : 10}
-                      min={value.max > value.min ? value.min : 0}
-                      stepSize={value.stepSize <= 0 ? value.stepSize : 1}
+                      max={value.max}
+                      min={value.min}
+                      stepSize={value.stepSize}
                       onChange={(v) => handleAdvancedOptionChangeTest(v, key)}
-                      value={props.testSliderValue[key] as number}
+                      value={
+                        clamp(
+                          settings[key as keyof MediaTrackSettings] as number,
+                          value.min,
+                          value.max
+                        ) as number
+                      }
                       labelStepSize={
                         calcLabelStepSize > 0 ? calcLabelStepSize : undefined
                       }
