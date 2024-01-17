@@ -139,6 +139,17 @@ export const AdvancedCameraOptions = React.memo(
         return indexA - indexB;
       };
 
+      const roundToShortReadable = (num: number): number => {
+        const absNum = Math.abs(num);
+
+        if (absNum >= 1) {
+          const magnitude = Math.pow(10, Math.floor(Math.log10(absNum)));
+          return (Math.round((num / magnitude) * 10) / 10) * magnitude;
+        } else {
+          const precision = Math.pow(10, Math.ceil(-Math.log10(absNum)) + 1);
+          return Math.round(num * precision) / precision;
+        }
+      };
       const generateUIForCameraCapabilities = (
         capabilities: MediaTrackCapabilities | undefined,
         settings: MediaTrackSettings | undefined
@@ -217,6 +228,7 @@ export const AdvancedCameraOptions = React.memo(
                   } = value as { min: number; max: number; step?: number };
                   const NUM_STEPS = 4;
                   const calcLabelStepSize = (max - min) / NUM_STEPS;
+                  const shortStep = roundToShortReadable(step);
                   return (
                     <Label style={{ display: "flex" }}>
                       <div style={{ marginRight: "15px", width: "100%" }}>
@@ -225,7 +237,7 @@ export const AdvancedCameraOptions = React.memo(
                       <Slider
                         max={max}
                         min={min}
-                        stepSize={step > 0 ? step : 1}
+                        stepSize={shortStep > 0 ? shortStep : (max - min) / 10}
                         onChange={(v) => handleAdvancedOptionChangeTest(v, key)}
                         value={props.testSliderValue[key] as number}
                         labelStepSize={

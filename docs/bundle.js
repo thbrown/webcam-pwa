@@ -9416,6 +9416,16 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
       if (indexB === -1) return 1;
       return indexA - indexB;
     };
+    var roundToShortReadable = function roundToShortReadable(num) {
+      var absNum = Math.abs(num);
+      if (absNum >= 1) {
+        var magnitude = Math.pow(10, Math.floor(Math.log10(absNum)));
+        return Math.round(num / magnitude * 10) / 10 * magnitude;
+      } else {
+        var precision = Math.pow(10, Math.ceil(-Math.log10(absNum)) + 1);
+        return Math.round(num * precision) / precision;
+      }
+    };
     var generateUIForCameraCapabilities = function generateUIForCameraCapabilities(capabilities, settings) {
       if (capabilities === undefined) {
         return [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
@@ -9482,6 +9492,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
                 step = _ref6$step === void 0 ? 1 : _ref6$step;
               var NUM_STEPS = 4;
               var calcLabelStepSize = (max - min) / NUM_STEPS;
+              var shortStep = roundToShortReadable(step);
               return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
                 style: {
                   display: "flex"
@@ -9494,7 +9505,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
               }, key), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
                 max: max,
                 min: min,
-                stepSize: step > 0 ? step : 1,
+                stepSize: shortStep > 0 ? shortStep : (max - min) / 10,
                 onChange: function onChange(v) {
                   return handleAdvancedOptionChangeTest(v, key);
                 },
