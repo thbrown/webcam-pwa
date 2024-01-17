@@ -9541,14 +9541,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
               </Label>
             );
                 */
-          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && ["zoom",
-          //Problematic
-          "frameRate",
-          //Problematic
-          "exposureTime",
-          //Problematic
-          "exposureCompensation" // Problematic
-          ].includes(key)) {
+          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number") {
             var _NUM_STEPS = 4;
             var _calcLabelStepSize = (value.max - value.min) / _NUM_STEPS;
             var stepSize = Math.round(value.stepSize);
@@ -9710,7 +9703,7 @@ var App = function App() {
   try {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.HotkeysProvider, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       className: "wrapper"
-    }, "11", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    }, "12", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       style: {
         position: "fixed",
         top: "0",

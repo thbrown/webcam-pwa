@@ -280,13 +280,7 @@ export const AdvancedCameraOptions = React.memo(
                 value !== null &&
                 typeof value === "object" &&
                 typeof value.min === "number" &&
-                typeof value.max === "number" &&
-                [
-                  "zoom", //Problematic
-                  "frameRate", //Problematic
-                  "exposureTime", //Problematic
-                  "exposureCompensation", // Problematic
-                ].includes(key)
+                typeof value.max === "number"
               ) {
                 const NUM_STEPS = 4;
                 const calcLabelStepSize = (value.max - value.min) / NUM_STEPS;
