@@ -9463,12 +9463,12 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
             // We wont render anything for these, there is only one option
           } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && ["width", "height", "aspectRatio", "sharpness", "saturation", "iso",
           // okay
-          "colorTemperature",
-          // okay
+          "colorTemperature" // okay
           //"zoom", //Problematic
           //"frameRate", //Problematic
           //"exposureTime", //Problematic
-          "exposureCompensation"].includes(key)) {
+          //"exposureCompensation", // Problematic
+          ].includes(key)) {
             // Render slider for object with min, max, step properties
             try {
               var _ref6 = value,
@@ -9541,6 +9541,12 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
               </Label>
             );
                 */
+          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && ["zoom" //Problematic
+          //"frameRate", //Problematic
+          //"exposureTime", //Problematic
+          //"exposureCompensation", // Problematic
+          ].includes(key)) {
+            return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, "ZOOM IS BROKEN");
           } else if (_typeof(value) === "object") {
             return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
               style: {

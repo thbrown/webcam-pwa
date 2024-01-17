@@ -204,7 +204,7 @@ export const AdvancedCameraOptions = React.memo(
                   //"zoom", //Problematic
                   //"frameRate", //Problematic
                   //"exposureTime", //Problematic
-                  "exposureCompensation",
+                  //"exposureCompensation", // Problematic
                 ].includes(key)
               ) {
                 // Render slider for object with min, max, step properties
@@ -275,6 +275,19 @@ export const AdvancedCameraOptions = React.memo(
                   </Label>
                 );
                     */
+              } else if (
+                value !== null &&
+                typeof value === "object" &&
+                typeof value.min === "number" &&
+                typeof value.max === "number" &&
+                [
+                  "zoom", //Problematic
+                  //"frameRate", //Problematic
+                  //"exposureTime", //Problematic
+                  //"exposureCompensation", // Problematic
+                ].includes(key)
+              ) {
+                return <div>ZOOM IS BROKEN</div>;
               } else if (typeof value === "object") {
                 return (
                   <Label style={{ display: "flex" }}>
