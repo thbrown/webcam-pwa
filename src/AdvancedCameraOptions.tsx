@@ -229,7 +229,7 @@ export const AdvancedCameraOptions = React.memo(
                         value={props.testSliderValue[key] as number}
                         labelStepSize={calcLabelStepSize}
                       />
-                      {JSON.stringify(value)}
+                      {/*JSON.stringify(value)*/}
                     </Label>
                   );
                 } catch (e) {
@@ -280,17 +280,11 @@ export const AdvancedCameraOptions = React.memo(
                 value !== null &&
                 typeof value === "object" &&
                 typeof value.min === "number" &&
-                typeof value.max === "number" &&
-                [
-                  "zoom", // Problematic
-                  "frameRate", // Problematic
-                  "exposureTime", // Problematic
-                  "exposureCompensation", // Problematic
-                ].includes(key)
+                typeof value.max === "number"
               ) {
                 const NUM_STEPS = 4;
                 const calcLabelStepSize = (value.max - value.min) / NUM_STEPS;
-
+                const stepSize = Math.round(value.stepSize);
                 return (
                   <Label style={{ display: "flex" }}>
                     <div style={{ marginRight: "15px", width: "100%" }}>
@@ -299,12 +293,12 @@ export const AdvancedCameraOptions = React.memo(
                     <Slider
                       max={value.max}
                       min={value.min}
-                      stepSize={1}
+                      stepSize={stepSize <= 0 ? stepSize : 1}
                       onChange={(v) => handleAdvancedOptionChangeTest(v, key)}
                       value={props.testSliderValue[key] as number}
                       labelStepSize={Math.round(calcLabelStepSize)}
                     />
-                    {JSON.stringify(value)}
+                    {/*JSON.stringify(value)*/}
                   </Label>
                 );
               } else if (typeof value === "object") {

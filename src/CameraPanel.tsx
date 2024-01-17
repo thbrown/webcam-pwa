@@ -134,6 +134,11 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     checkCameraPermission();
   }, []);
 
+  // Persist select fields to localstorage, if state changes
+  //useEffect(() => {
+  //  window.localStorage.setItem("recordingMode", JSON.stringify(recordingMode));
+  //}, [recordingMode]);
+
   // Use useRef to store the interval ID so it persists across renders
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
