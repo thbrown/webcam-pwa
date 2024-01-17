@@ -209,7 +209,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         const settings = JSON.parse(JSON.stringify(track.getSettings()));
         setCameraSettings(settings);
         setCameraStatus("initialized");
-        setTestSliderValue({ width: Math.round(Math.random() * 10) });
+        setTestSliderValue(settings);
       } else {
         console.error("No video ref!");
       }

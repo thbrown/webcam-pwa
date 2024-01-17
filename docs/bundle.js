@@ -10041,9 +10041,7 @@ function CameraPanel(props) {
             settings = JSON.parse(JSON.stringify(track.getSettings()));
             setCameraSettings(settings);
             setCameraStatus("initialized");
-            setTestSliderValue({
-              width: Math.round(Math.random() * 10)
-            });
+            setTestSliderValue(settings);
             _context2.next = 29;
             break;
           case 28:
