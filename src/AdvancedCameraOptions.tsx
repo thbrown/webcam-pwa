@@ -38,7 +38,11 @@ export const AdvancedCameraOptions = React.memo(
       const applySettingsChanges = useCallback(
         debounce(async (constraints: MediaTrackConstraints) => {
           // Maybe go to loading state here for the camera?
-          await props.activeTrack.applyConstraints(constraints);
+          try {
+            await props.activeTrack.applyConstraints(constraints);
+          } catch (e) {
+            alert("NACHOS" + e);
+          }
         }, 100),
         [props.activeTrack]
       );

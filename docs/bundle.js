@@ -9338,13 +9338,21 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
-              _context.next = 2;
+              _context.prev = 0;
+              _context.next = 3;
               return props.activeTrack.applyConstraints(constraints);
-            case 2:
+            case 3:
+              _context.next = 8;
+              break;
+            case 5:
+              _context.prev = 5;
+              _context.t0 = _context["catch"](0);
+              alert("NACHOS" + _context.t0);
+            case 8:
             case "end":
               return _context.stop();
           }
-        }, _callee);
+        }, _callee, null, [[0, 5]]);
       }));
       return function (_x) {
         return _ref.apply(this, arguments);
