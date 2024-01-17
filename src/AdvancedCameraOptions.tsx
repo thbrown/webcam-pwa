@@ -79,7 +79,7 @@ export const AdvancedCameraOptions = React.memo(
             const constraints: MediaTrackConstraints = {
               advanced: [patch],
             };
-            //applySettingsChanges(constraints);
+            applySettingsChanges(constraints);
             const testSliderUpdate = {} as TestSliderType;
             testSliderUpdate[settingsKey] = value;
             console.log(
