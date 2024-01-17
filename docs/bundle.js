@@ -9496,7 +9496,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
                 },
                 value: props.testSliderValue[key],
                 labelStepSize: calcLabelStepSize
-              }), JSON.stringify(value));
+              }));
             } catch (e) {
               alert("A " + e);
             }
@@ -9548,9 +9548,10 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
           "exposureTime",
           //Problematic
           "exposureCompensation" // Problematic
+          //"focusDistance", // Problematic in a different way
           ].includes(key)) {
             var _NUM_STEPS = 4;
-            var _calcLabelStepSize = (value.max - value.min) / _NUM_STEPS;
+            var _calcLabelStepSize = Math.abs((value.max - value.min) / _NUM_STEPS);
             return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
               style: {
                 display: "flex"
@@ -9568,7 +9569,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
                 return handleAdvancedOptionChangeTest(v, key);
               },
               value: props.testSliderValue[key],
-              labelStepSize: Math.round(_calcLabelStepSize)
+              labelStepSize: _calcLabelStepSize > 0 ? _calcLabelStepSize : undefined
             }));
           } else if (_typeof(value) === "object") {
             return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
@@ -9953,10 +9954,16 @@ function CameraPanel(props) {
     checkCameraPermission();
   }, []);
 
-  // Persist select fields to localstorage, if state changes
-  //useEffect(() => {
-  //  window.localStorage.setItem("recordingMode", JSON.stringify(recordingMode));
-  //}, [recordingMode]);
+  // Persist select fields on change
+  /*
+  useEffect(() => {
+    const storeStateCameraPanel = async () => {
+      localforage.setItem("recordingMode", JSON.stringify(recordingMode));
+      localforage.setItem("capturedFrames", JSON.stringify(capturedFrames));
+    };
+    storeStateCameraPanel();
+  }, [capturedFrames, recordingMode]);
+  */
 
   // Use useRef to store the interval ID so it persists across renders
   var intervalIdRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
@@ -10665,9 +10672,9 @@ function Main(props) {
       return _ref.apply(this, arguments);
     };
   }();
-
-  // TODO: useEffect here instead
-  (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(reloadSavedVideos, []);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    reloadSavedVideos();
+  }, []);
   var handleTabChange = function handleTabChange(targetPanel) {
     setMainPanel(targetPanel);
   };
@@ -11964,33 +11971,6 @@ var downloadVideo = /*#__PURE__*/function () {
         case 0:
           // TODO: Prompt here for file name?
           file_saver__WEBPACK_IMPORTED_MODULE_2___default().saveAs(videoBlob, "timelapse.webm");
-          /*
-            // TODO: can we append a hidden link to body? Or can we click a link with display: none?
-          const playbackContainer = document.getElementById(
-            "timelapsePlaybackContainer"
-          );
-          const downloadLinkContainer = document.getElementById("downloadLink");
-          if (playbackContainer) {
-            playbackContainer.innerHTML = "";
-            playbackContainer.appendChild(videoElement);
-              // Provide download link for the video
-            const downloadLink = document.createElement("a");
-            downloadLink.href = videoUrl;
-            downloadLink.download = "timelapse.webm";
-            downloadLink.textContent = "Download Timelapse Video";
-            downloadLinkContainer.appendChild(downloadLink);
-          }
-            // Revoke the object URL to free up memory
-          URL.revokeObjectURL(videoUrl);
-          */
-          // Stop the video stream
-          /*
-          if (videoRef.current && videoRef.current.srcObject) {
-            const mediaStream = videoRef.current.srcObject as MediaStream;
-            mediaStream.getTracks().forEach(track => track.stop());
-            videoRef.current.srcObject = null;
-          }
-          */
         case 1:
         case "end":
           return _context2.stop();
@@ -12001,18 +11981,6 @@ var downloadVideo = /*#__PURE__*/function () {
     return _ref2.apply(this, arguments);
   };
 }();
-
-/*
-export const getVideoElement = (videoBlob: Blob) => {
-  const videoUrl = URL.createObjectURL(videoBlob);
-  const videoElement = document.createElement("video");
-  videoElement.src = videoUrl;
-  videoElement.controls = true;
-  videoElement.autoplay = true;
-  return videoElement;
-};
-*/
-
 var getVideoElement = function getVideoElement(videoBlob, style) {
   var videoUrl = URL.createObjectURL(videoBlob);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_3___default().createElement("video", {

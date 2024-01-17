@@ -37,6 +37,7 @@ import { StopMotionParameters } from "./StopMotionParameters";
 import { SolarParameters } from "./SolarParameters";
 import { CaptureTime, getTimes, millisecondsUntilDate } from "./SolarTimeUtil";
 import { SolarRecordingStats } from "./SolarRecordingStats";
+import localforage from "localforage";
 
 export type RecordingMode = "Timelapse" | "StopMotion" | "Solar";
 export type OutputSpec = "FPS" | "Duration";
@@ -134,10 +135,16 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     checkCameraPermission();
   }, []);
 
-  // Persist select fields to localstorage, if state changes
-  //useEffect(() => {
-  //  window.localStorage.setItem("recordingMode", JSON.stringify(recordingMode));
-  //}, [recordingMode]);
+  // Persist select fields on change
+  /*
+  useEffect(() => {
+    const storeStateCameraPanel = async () => {
+      localforage.setItem("recordingMode", JSON.stringify(recordingMode));
+      localforage.setItem("capturedFrames", JSON.stringify(capturedFrames));
+    };
+    storeStateCameraPanel();
+  }, [capturedFrames, recordingMode]);
+  */
 
   // Use useRef to store the interval ID so it persists across renders
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);

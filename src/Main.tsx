@@ -36,8 +36,9 @@ export function Main(props: MainProps): JSX.Element {
     return allSavedVideoMetadata;
   };
 
-  // TODO: useEffect here instead
-  useMemo(reloadSavedVideos, []);
+  useEffect(() => {
+    reloadSavedVideos();
+  }, []);
 
   const handleTabChange = (targetPanel: MainPanel) => {
     setMainPanel(targetPanel);

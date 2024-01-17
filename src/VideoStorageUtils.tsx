@@ -84,48 +84,7 @@ function getBlobKey(keyUuid: string) {
 export const downloadVideo = async (videoBlob: Blob) => {
   // TODO: Prompt here for file name?
   FileSaver.saveAs(videoBlob, "timelapse.webm");
-  /*
-
-  // TODO: can we append a hidden link to body? Or can we click a link with display: none?
-  const playbackContainer = document.getElementById(
-    "timelapsePlaybackContainer"
-  );
-  const downloadLinkContainer = document.getElementById("downloadLink");
-  if (playbackContainer) {
-    playbackContainer.innerHTML = "";
-    playbackContainer.appendChild(videoElement);
-
-    // Provide download link for the video
-    const downloadLink = document.createElement("a");
-    downloadLink.href = videoUrl;
-    downloadLink.download = "timelapse.webm";
-    downloadLink.textContent = "Download Timelapse Video";
-    downloadLinkContainer.appendChild(downloadLink);
-  }
-
-  // Revoke the object URL to free up memory
-  URL.revokeObjectURL(videoUrl);
-  */
-  // Stop the video stream
-  /*
-  if (videoRef.current && videoRef.current.srcObject) {
-    const mediaStream = videoRef.current.srcObject as MediaStream;
-    mediaStream.getTracks().forEach(track => track.stop());
-    videoRef.current.srcObject = null;
-  }
-  */
 };
-
-/*
-export const getVideoElement = (videoBlob: Blob) => {
-  const videoUrl = URL.createObjectURL(videoBlob);
-  const videoElement = document.createElement("video");
-  videoElement.src = videoUrl;
-  videoElement.controls = true;
-  videoElement.autoplay = true;
-  return videoElement;
-};
-*/
 
 export const getVideoElement = (videoBlob: Blob, style?: object) => {
   const videoUrl = URL.createObjectURL(videoBlob);
