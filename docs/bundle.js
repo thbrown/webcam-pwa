@@ -9461,13 +9461,17 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
             }));
           } else if (typeof value === "string" || typeof value === "number" || Array.isArray(value) && value.length <= 1) {
             // We wont render anything for these, there is only one option
-          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && ["width", "height", "aspectRatio", "sharpness", "saturation", "iso",
+          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && value.max > value.min && ["width", "height", "aspectRatio", "sharpness", "saturation", "iso",
           // okay
-          "colorTemperature" // okay
-          //"zoom", //Problematic
-          //"frameRate", //Problematic
-          //"exposureTime", //Problematic
-          //"exposureCompensation", // Problematic
+          "zoom",
+          //Problematic
+          "frameRate",
+          //Problematic
+          "exposureTime",
+          //Problematic
+          "exposureCompensation",
+          // Problematic
+          "focusDistance" // Problematic in a different way
           ].includes(key)) {
             // Render slider for object with min, max, step properties
             try {
@@ -9490,12 +9494,12 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
               }, key), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
                 max: max,
                 min: min,
-                stepSize: Math.round(step),
+                stepSize: step > 0 ? step : 1,
                 onChange: function onChange(v) {
                   return handleAdvancedOptionChangeTest(v, key);
                 },
                 value: props.testSliderValue[key],
-                labelStepSize: calcLabelStepSize
+                labelStepSize: calcLabelStepSize > 0 ? calcLabelStepSize : undefined
               }));
             } catch (e) {
               alert("A " + e);
@@ -9541,37 +9545,6 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
               </Label>
             );
                 */
-          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && value.max > value.min && ["zoom",
-          //Problematic
-          "frameRate",
-          //Problematic
-          "exposureTime",
-          //Problematic
-          "exposureCompensation",
-          // Problematic
-          "focusDistance" // Problematic in a different way
-          ].includes(key)) {
-            var _NUM_STEPS = 4;
-            var _calcLabelStepSize = Math.abs((value.max - value.min) / _NUM_STEPS);
-            return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
-              style: {
-                display: "flex"
-              }
-            }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
-              style: {
-                marginRight: "15px",
-                width: "100%"
-              }
-            }, key), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
-              max: value.max,
-              min: value.min,
-              stepSize: value.stepSize,
-              onChange: function onChange(v) {
-                return handleAdvancedOptionChangeTest(v, key);
-              },
-              value: clamp(settings[key], value.min, value.max),
-              labelStepSize: _calcLabelStepSize > 0 ? _calcLabelStepSize : undefined
-            }));
           } else if (_typeof(value) === "object") {
             return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
               style: {

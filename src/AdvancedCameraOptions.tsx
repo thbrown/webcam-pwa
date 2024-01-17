@@ -193,6 +193,7 @@ export const AdvancedCameraOptions = React.memo(
                 typeof value === "object" &&
                 typeof value.min === "number" &&
                 typeof value.max === "number" &&
+                value.max > value.min &&
                 [
                   "width",
                   "height",
@@ -200,11 +201,11 @@ export const AdvancedCameraOptions = React.memo(
                   "sharpness",
                   "saturation",
                   "iso", // okay
-                  "colorTemperature", // okay
-                  //"zoom", //Problematic
-                  //"frameRate", //Problematic
-                  //"exposureTime", //Problematic
-                  //"exposureCompensation", // Problematic
+                  "zoom", //Problematic
+                  "frameRate", //Problematic
+                  "exposureTime", //Problematic
+                  "exposureCompensation", // Problematic
+                  "focusDistance", // Problematic in a different way
                 ].includes(key)
               ) {
                 // Render slider for object with min, max, step properties
@@ -224,10 +225,12 @@ export const AdvancedCameraOptions = React.memo(
                       <Slider
                         max={max}
                         min={min}
-                        stepSize={Math.round(step)}
+                        stepSize={step > 0 ? step : 1}
                         onChange={(v) => handleAdvancedOptionChangeTest(v, key)}
                         value={props.testSliderValue[key] as number}
-                        labelStepSize={calcLabelStepSize}
+                        labelStepSize={
+                          calcLabelStepSize > 0 ? calcLabelStepSize : undefined
+                        }
                       />
                     </Label>
                   );
@@ -275,47 +278,6 @@ export const AdvancedCameraOptions = React.memo(
                   </Label>
                 );
                     */
-              } else if (
-                value !== null &&
-                typeof value === "object" &&
-                typeof value.min === "number" &&
-                typeof value.max === "number" &&
-                value.max > value.min &&
-                [
-                  "zoom", //Problematic
-                  "frameRate", //Problematic
-                  "exposureTime", //Problematic
-                  "exposureCompensation", // Problematic
-                  "focusDistance", // Problematic in a different way
-                ].includes(key)
-              ) {
-                const NUM_STEPS = 4;
-                const calcLabelStepSize = Math.abs(
-                  (value.max - value.min) / NUM_STEPS
-                );
-                return (
-                  <Label style={{ display: "flex" }}>
-                    <div style={{ marginRight: "15px", width: "100%" }}>
-                      {key}
-                    </div>
-                    <Slider
-                      max={value.max}
-                      min={value.min}
-                      stepSize={value.stepSize}
-                      onChange={(v) => handleAdvancedOptionChangeTest(v, key)}
-                      value={
-                        clamp(
-                          settings[key as keyof MediaTrackSettings] as number,
-                          value.min,
-                          value.max
-                        ) as number
-                      }
-                      labelStepSize={
-                        calcLabelStepSize > 0 ? calcLabelStepSize : undefined
-                      }
-                    />
-                  </Label>
-                );
               } else if (typeof value === "object") {
                 return (
                   <Label style={{ display: "flex" }}>
