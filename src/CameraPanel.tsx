@@ -69,10 +69,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [supportedCameraCapabilities, setSupportedCameraCapabilities] =
     useState<MediaTrackCapabilities | undefined>(undefined);
   const [cameraSettings, setCameraSettings] = useState<MediaTrackSettings>({});
-  const [testSliderValue, setTestSliderValue] = useState<TestSliderType>({
-    width: 4,
-    height: 10,
-  });
 
   const [isCameraSelectDialogOpen, setIsCameraSelectDialogOpen] =
     useState<boolean>(false);
@@ -209,7 +205,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         const settings = JSON.parse(JSON.stringify(track.getSettings()));
         setCameraSettings(settings);
         setCameraStatus("initialized");
-        setTestSliderValue(settings);
       } else {
         console.error("No video ref!");
       }
@@ -650,8 +645,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     cameraSettings={cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
-                    testSliderValue={testSliderValue}
-                    setTestSliderValue={setTestSliderValue}
                   />
                 </div>
               )
@@ -694,8 +687,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     cameraSettings={cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
-                    testSliderValue={testSliderValue}
-                    setTestSliderValue={setTestSliderValue}
                   />
                 </div>
               </>
@@ -742,8 +733,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     cameraSettings={cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
-                    testSliderValue={testSliderValue}
-                    setTestSliderValue={setTestSliderValue}
                   />
                 </div>
               </>
