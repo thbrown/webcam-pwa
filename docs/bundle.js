@@ -9496,7 +9496,7 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
                 },
                 value: props.testSliderValue[key],
                 labelStepSize: calcLabelStepSize
-              }));
+              }), JSON.stringify(value));
             } catch (e) {
               alert("A " + e);
             }
@@ -9541,7 +9541,14 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
               </Label>
             );
                 */
-          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number") {
+          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && ["zoom",
+          //Problematic
+          "frameRate",
+          //Problematic
+          "exposureTime",
+          //Problematic
+          "exposureCompensation" // Problematic
+          ].includes(key)) {
             var _NUM_STEPS = 4;
             var _calcLabelStepSize = (value.max - value.min) / _NUM_STEPS;
             var stepSize = Math.round(value.stepSize);
@@ -9555,8 +9562,8 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
                 width: "100%"
               }
             }, "BROKEN ZOOM"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
-              max: value.max,
-              min: value.min,
+              max: value.max > value.min ? value.max : 10,
+              min: value.max > value.min ? value.max : 0,
               stepSize: stepSize <= 0 ? stepSize : 1,
               onChange: function onChange(v) {
                 return handleAdvancedOptionChangeTest(v, key);
@@ -9703,7 +9710,7 @@ var App = function App() {
   try {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.HotkeysProvider, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       className: "wrapper"
-    }, "10", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    }, "11", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       style: {
         position: "fixed",
         top: "0",
