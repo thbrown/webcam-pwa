@@ -282,24 +282,27 @@ export const AdvancedCameraOptions = React.memo(
                 typeof value.min === "number" &&
                 typeof value.max === "number" &&
                 [
-                  "zoom", //Problematic
-                  //"frameRate", //Problematic
-                  //"exposureTime", //Problematic
-                  //"exposureCompensation", // Problematic
+                  "zoom", // Problematic
+                  "frameRate", // Problematic
+                  "exposureTime", // Problematic
+                  "exposureCompensation", // Problematic
                 ].includes(key)
               ) {
+                const NUM_STEPS = 4;
+                const calcLabelStepSize = (value.max - value.min) / NUM_STEPS;
+
                 return (
                   <Label style={{ display: "flex" }}>
                     <div style={{ marginRight: "15px", width: "100%" }}>
                       BROKEN ZOOM
                     </div>
                     <Slider
-                      max={10}
-                      min={1}
+                      max={value.max}
+                      min={value.min}
                       stepSize={1}
                       onChange={(v) => handleAdvancedOptionChangeTest(v, key)}
                       value={props.testSliderValue[key] as number}
-                      labelStepSize={2}
+                      labelStepSize={Math.round(calcLabelStepSize)}
                     />
                     {JSON.stringify(value)}
                   </Label>

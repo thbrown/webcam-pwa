@@ -9541,11 +9541,16 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
               </Label>
             );
                 */
-          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && ["zoom" //Problematic
-          //"frameRate", //Problematic
-          //"exposureTime", //Problematic
-          //"exposureCompensation", // Problematic
+          } else if (value !== null && _typeof(value) === "object" && typeof value.min === "number" && typeof value.max === "number" && ["zoom",
+          // Problematic
+          "frameRate",
+          // Problematic
+          "exposureTime",
+          // Problematic
+          "exposureCompensation" // Problematic
           ].includes(key)) {
+            var _NUM_STEPS = 4;
+            var _calcLabelStepSize = (value.max - value.min) / _NUM_STEPS;
             return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
               style: {
                 display: "flex"
@@ -9556,14 +9561,14 @@ var AdvancedCameraOptions = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___defa
                 width: "100%"
               }
             }, "BROKEN ZOOM"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_5__.Slider, {
-              max: 10,
-              min: 1,
+              max: value.max,
+              min: value.min,
               stepSize: 1,
               onChange: function onChange(v) {
                 return handleAdvancedOptionChangeTest(v, key);
               },
               value: props.testSliderValue[key],
-              labelStepSize: 2
+              labelStepSize: Math.round(_calcLabelStepSize)
             }), JSON.stringify(value));
           } else if (_typeof(value) === "object") {
             return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__.Label, {
