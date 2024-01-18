@@ -149,9 +149,7 @@ export const AdvancedCameraOptions = React.memo(
                 // Render radio buttons for arrays
                 return (
                   <Label style={{ display: "flex" }}>
-                    <div style={{ marginRight: "15px", width: "100%" }}>
-                      {key}
-                    </div>
+                    <div style={{ width: "70%" }}>{key}</div>
                     <SegmentedControl
                       className="capability-input"
                       key={index}
@@ -195,30 +193,37 @@ export const AdvancedCameraOptions = React.memo(
                 const shortStep = roundToShortReadable(step);
                 return (
                   <Label style={{ display: "flex" }}>
-                    <div style={{ marginRight: "15px", width: "100%" }}>
-                      {key}
+                    <div style={{ width: "70%" }}>{key}</div>
+                    <div
+                      style={{
+                        width: "100%",
+                        overflow: "hidden",
+                        paddingRight: "25px",
+                        paddingLeft: "15px",
+                      }}
+                    >
+                      <Slider
+                        max={max}
+                        min={min}
+                        stepSize={shortStep > 0 ? shortStep : (max - min) / 10}
+                        onChange={(v) =>
+                          handleAdvancedOptionNumberChange(
+                            v,
+                            key as keyof MediaTrackConstraintSet
+                          )
+                        }
+                        value={clamp(
+                          props.cameraSettings[
+                            key as keyof MediaTrackSettings
+                          ] as number,
+                          min,
+                          max
+                        )}
+                        labelStepSize={
+                          calcLabelStepSize > 0 ? calcLabelStepSize : undefined
+                        }
+                      />
                     </div>
-                    <Slider
-                      max={max}
-                      min={min}
-                      stepSize={shortStep > 0 ? shortStep : (max - min) / 10}
-                      onChange={(v) =>
-                        handleAdvancedOptionNumberChange(
-                          v,
-                          key as keyof MediaTrackConstraintSet
-                        )
-                      }
-                      value={clamp(
-                        props.cameraSettings[
-                          key as keyof MediaTrackSettings
-                        ] as number,
-                        min,
-                        max
-                      )}
-                      labelStepSize={
-                        calcLabelStepSize > 0 ? calcLabelStepSize : undefined
-                      }
-                    />
                   </Label>
                 );
               } else if (typeof value === "object") {

@@ -88,7 +88,7 @@ export const downloadVideo = async (videoBlob: Blob) => {
 
 export const getVideoElement = (videoBlob: Blob, style?: object) => {
   const videoUrl = URL.createObjectURL(videoBlob);
-  return <video src={videoUrl} style={style} controls autoPlay />;
+  return <video src={videoUrl} style={style} controls autoPlay loop />;
 };
 
 export const freeVideoElement = (videoElement: HTMLVideoElement) => {

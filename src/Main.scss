@@ -63,6 +63,9 @@ $max-width: 960px;
 
 .parent {
     position: relative;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 .footer {
