@@ -9,13 +9,7 @@ import {
   Tab,
   Tabs,
 } from "@blueprintjs/core";
-import React, {
-  useRef,
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import {
   Time,
   Stopwatch,
@@ -50,6 +44,30 @@ interface CameraPanelProps {
   setInfoDialogContent: (value: React.ReactNode) => void;
 }
 
+export type CapturedFrame = {
+  image: string;
+  type: CaptureType;
+};
+
+export type CaptureType = TimelapseCapture | StopMotionCapture | SolarCapture;
+
+export interface BaseCapture {
+  mode: RecordingMode;
+}
+
+export type TimelapseCapture = BaseCapture & {
+  mode: "Timelapse";
+};
+
+export type StopMotionCapture = BaseCapture & {
+  mode: "StopMotion";
+};
+
+export type SolarCapture = BaseCapture & {
+  mode: "Solar";
+  solarEvent: string;
+};
+
 export type TestSliderType = Record<string, string | number | boolean>;
 
 export type CameraStatus = "idle" | "initializing" | "initialized";
@@ -61,7 +79,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const videoPlaceholderRef = useRef<HTMLDivElement>(null);
   const [recordingMode, setRecordingMode] =
     useState<RecordingMode>("Timelapse");
-  const [capturedFrames, setCapturedFrames] = useState<string[]>([]);
+  const [capturedFrames, setCapturedFrames] = useState<CapturedFrame[]>([]);
   const [cameraPermission, setCameraPermission] = useState<
     PermissionState | undefined
   >(undefined);
@@ -223,6 +241,17 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     }
   };
 
+  const getCapturedFrameObject = (image: string): CapturedFrame => {
+    if (recordingMode === "Solar") {
+      return {
+        image,
+        type: { mode: recordingMode, solarEvent: captureQueue[0].type },
+      };
+    } else {
+      return { image, type: { mode: recordingMode } };
+    }
+  };
+
   // Draw video frame to canvas
   const captureFrame = async (): Promise<void> => {
     if (canvasRef.current && videoRef.current) {
@@ -235,14 +264,17 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           canvasRef.current.width,
           canvasRef.current.height
         );
-        const frame = canvasRef.current.toDataURL("image/webp");
+        const frameImageData = canvasRef.current.toDataURL("image/webp");
 
         // TODO: it's a fun idea to color resolution text based of the background, but it's hard because the video element has a letterbox usually
         // Plus this isn't really the right place for it, we want to do it even when we aren't capturing frames
         // console.log("COLOR", context.getImageData(10, 10, 1, 1).data);
 
         setCapturedFrames((prevFrames) => {
-          const newFrames = [...prevFrames, frame];
+          const newFrames = [
+            ...prevFrames,
+            getCapturedFrameObject(frameImageData),
+          ];
           console.log("Capturing frame!", newFrames.length); // Log the number of frames captured
           return newFrames;
         });
@@ -273,8 +305,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     const times = getTimes(location.latitude, location.longitude);
     const filteredTimes = times.filter((v) => captureTimes.includes(v.type));
     setCaptureQueue(filteredTimes);
-    const nextCapture = millisecondsUntilDate(times[0].time);
-    console.log("Next capture ", nextCapture, times[0].type);
+    const nextCapture = millisecondsUntilDate(filteredTimes[0].time);
+    console.log("Next capture ", nextCapture, filteredTimes[0].type);
     intervalIdRef.current = setTimeout(captureSolarFrame, nextCapture);
     console.log("Start recording!!", intervalIdRef.current);
   };
@@ -299,29 +331,61 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     }
   };
 
+  const solarCapturesComparator = (
+    captureA: CapturedFrame,
+    captureB: CapturedFrame
+  ) => {
+    // We dont support mixed capture frames now so not sute what his behavior should be if we did
+    if (captureA.type.mode !== "Solar" || captureB.type.mode !== "Solar") {
+      return 0;
+    }
+
+    // Compare solarEvent values
+    const solarEventComparison = captureA.type.solarEvent.localeCompare(
+      captureB.type.solarEvent
+    );
+
+    // If solarEvent values are the same, maintain the original order
+    if (solarEventComparison === 0) {
+      return 0;
+    }
+
+    // Otherwise, sort by solarEvent
+    return solarEventComparison;
+  };
+
   // Stop time-lapse recording
   const stopAndSave = () => {
     if (props.recordingStatus) {
       console.log("Stop recording!!", intervalIdRef.current);
       setSavingVideo(true); // TODO: show loading overlay
+
       if (intervalIdRef.current) {
         clearInterval(intervalIdRef.current);
         intervalIdRef.current = null; // Clear the stored interval ID
       }
       props.setRecordingStatus("Stopped");
 
+      let processedCaptures = capturedFrames;
+      if (recordingMode === "Solar") {
+        processedCaptures = capturedFrames.sort(solarCapturesComparator);
+      }
+
       // Wait for the last frames to be captured before compiling the video
       setTimeout(async () => {
         console.log(
           "Number of frames before compiling:",
-          capturedFrames.length
+          processedCaptures.length
         );
-        if (capturedFrames.length > 0) {
+        if (processedCaptures.length > 0) {
           const calculatedFPS =
             outputSpec === "FPS"
               ? outputFPS
-              : (capturedFrames.length / outputDuration) * 1000;
-          const videoBlob = await compileVideo(capturedFrames, calculatedFPS);
+              : (processedCaptures.length / outputDuration) * 1000;
+          const videoBlob = await compileVideo(
+            processedCaptures.map((v) => v.image),
+            calculatedFPS
+          );
           await saveVideo(
             videoBlob.blob,
             videoBlob.previewImage,

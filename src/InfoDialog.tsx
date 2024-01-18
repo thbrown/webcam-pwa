@@ -1,11 +1,4 @@
-import {
-  Button,
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  Tab,
-  Tabs,
-} from "@blueprintjs/core";
+import { Button, Dialog, DialogBody, DialogFooter } from "@blueprintjs/core";
 import { InfoSign } from "@blueprintjs/icons";
 import React, { useState } from "react";
 
