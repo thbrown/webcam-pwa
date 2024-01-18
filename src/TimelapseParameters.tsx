@@ -51,6 +51,7 @@ export function TimelapseParameters(props: MainProps): JSX.Element {
           />
         </label>
       </div>
+      <Divider></Divider>
       <OutputSpecProps
         outputFPS={props.outputFPS}
         outputDuration={props.outputDuration}

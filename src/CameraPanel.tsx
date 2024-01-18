@@ -237,6 +237,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         );
         const frame = canvasRef.current.toDataURL("image/webp");
 
+        // To color resolution
+        console.log("COLOR", context.getImageData(10, 10, 1, 1).data);
+
         setCapturedFrames((prevFrames) => {
           const newFrames = [...prevFrames, frame];
           console.log("Capturing frame!", newFrames.length); // Log the number of frames captured
@@ -578,6 +581,20 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
               setIsCameraSelectDialogOpen(true);
             }}
           ></Button>
+        ) : null}
+        {activeTrack !== undefined ? (
+          <div
+            style={{
+              position: "absolute",
+              top: "10px",
+              left: "10px",
+              zIndex: "1",
+              color: "white",
+            }}
+          >
+            {activeTrack.getSettings().width} x{" "}
+            {activeTrack.getSettings().height}
+          </div>
         ) : null}
         <video
           ref={videoRef}

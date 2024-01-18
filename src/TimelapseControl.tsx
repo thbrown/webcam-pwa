@@ -47,7 +47,7 @@ export function TimelapseControl(props: TimelapseControlProps): JSX.Element {
           fill={true}
           onClick={props.onStart}
         >
-          Start Recording
+          Start Recording Timelapse
         </Button>
       </div>
     );

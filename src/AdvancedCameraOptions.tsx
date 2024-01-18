@@ -35,11 +35,12 @@ export const AdvancedCameraOptions = React.memo(
 
       const applySettingsChanges = useCallback(
         debounce(async (constraints: MediaTrackConstraints) => {
-          // Maybe go to loading state here for the camera?
+          // TODO: Maybe go to loading state here for the camera?
           try {
             await props.activeTrack.applyConstraints(constraints);
+            props.setCameraSettings(props.activeTrack.getSettings());
           } catch (e) {
-            alert("NACHOS" + e);
+            alert(e);
           }
         }, 100),
         [props.activeTrack]
@@ -262,19 +263,21 @@ export const AdvancedCameraOptions = React.memo(
       return (
         <>
           {props.cameraStatus === "initialized" ? (
-            <Button
-              icon={
-                areAdvancedOptionsEnabled ? <ChevronDown /> : <ChevronRight />
-              }
-              alignText={"left"}
-              onClick={handleToggleAdvancedOptions}
-              fill={true}
-              outlined={false}
-              style={{ marginBottom: "5px" }}
-              minimal={true}
-            >
-              {areAdvancedOptionsEnabled ? "Hide" : "Show"} Advanced Options
-            </Button>
+            <div className={"expansion-button-container"}>
+              <Button
+                icon={
+                  areAdvancedOptionsEnabled ? <ChevronDown /> : <ChevronRight />
+                }
+                alignText={"left"}
+                onClick={handleToggleAdvancedOptions}
+                fill={true}
+                outlined={false}
+                minimal={true}
+                className={"expansion-button"}
+              >
+                {areAdvancedOptionsEnabled ? "Hide" : "Show"} Camera Options
+              </Button>
+            </div>
           ) : null}
           {areAdvancedOptionsEnabled ? (
             Object.keys(props.supportedCameraCapabilities).length === 0 ? (

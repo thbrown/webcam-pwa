@@ -10,10 +10,9 @@ import {
   Slider,
   Spinner,
 } from "@blueprintjs/core";
-import { SavedVideoPanel } from "./SavedVideo";
-import { SavedVideoMetadata } from "./VideoStorageUtils";
+
+import { OutputSpec } from "./CameraPanel";
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
-import { CameraCapabilities, CameraSettings, OutputSpec } from "./CameraPanel";
 
 interface OutputSpecProps {
   outputFPS: number;
@@ -27,6 +26,13 @@ interface OutputSpecProps {
 export function OutputSpecProps(props: OutputSpecProps): JSX.Element {
   const initialDuration = useMemo(() => props.outputDuration, []);
   const initialFPS = useMemo(() => props.outputFPS, []);
+
+  const [areOutputOptionsEnabled, setAreOutputOptionsEnabled] =
+    useState<boolean>(false);
+
+  const handleToggleOutputOptions = () => {
+    setAreOutputOptionsEnabled((prev) => !prev);
+  };
 
   const handleFpsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = Number(e.target.value);
@@ -44,56 +50,75 @@ export function OutputSpecProps(props: OutputSpecProps): JSX.Element {
 
   return (
     <>
-      <RadioGroup
-        selectedValue={props.outputSpec}
-        onChange={(e: React.FormEvent<HTMLInputElement>): void => {
-          props.setOutputSpec(e.currentTarget.value as OutputSpec);
-        }}
-        className="complex-radio-group"
-        inline={true}
-      >
-        <Radio label="Output FPS" value="FPS" />
-        <Radio label="Output Duration (ms)" value="Duration" />
-      </RadioGroup>
-      {props.outputSpec === "FPS" ? (
-        <div style={{ padding: "7px" }} className="radio-option">
-          <div style={props.outputSpec === "FPS" ? {} : { color: "lightgrey" }}>
-            FPS (Frames Per Second)
-          </div>
-          <input
-            type="number"
-            className={
-              Classes.INPUT +
-              " radio-input " +
-              (props.outputSpec === "FPS" ? "" : "dull")
-            }
-            placeholder={String(initialFPS)}
-            disabled={props.outputSpec !== "FPS"}
-            onChange={handleFpsChange}
-          />
-        </div>
-      ) : (
-        <div style={{ padding: "7px" }} className="radio-option">
-          <div
-            style={
-              props.outputSpec === "Duration" ? {} : { color: "lightgrey" }
-            }
+      <div className={"expansion-button-container"}>
+        <Button
+          icon={areOutputOptionsEnabled ? <ChevronDown /> : <ChevronRight />}
+          alignText={"left"}
+          onClick={handleToggleOutputOptions}
+          fill={true}
+          outlined={false}
+          minimal={true}
+          className={"expansion-button"}
+        >
+          {areOutputOptionsEnabled ? "Hide" : "Show"} Output Options
+        </Button>
+      </div>
+      {areOutputOptionsEnabled ? (
+        <>
+          <RadioGroup
+            selectedValue={props.outputSpec}
+            onChange={(e: React.FormEvent<HTMLInputElement>): void => {
+              props.setOutputSpec(e.currentTarget.value as OutputSpec);
+            }}
+            className="complex-radio-group"
+            inline={true}
           >
-            Output Duration (ms)
-          </div>
-          <input
-            type="number"
-            className={
-              Classes.INPUT +
-              " radio-input " +
-              (props.outputSpec === "Duration" ? "" : "dull")
-            }
-            placeholder={String(initialDuration)}
-            disabled={props.outputSpec !== "Duration"}
-            onChange={handleDurationChange}
-          />
-        </div>
-      )}
+            <Radio label="Output FPS" value="FPS" />
+            <Radio label="Output Duration (ms)" value="Duration" />
+          </RadioGroup>
+          {props.outputSpec === "FPS" ? (
+            <div style={{ padding: "7px" }} className="radio-option">
+              <div
+                style={props.outputSpec === "FPS" ? {} : { color: "lightgrey" }}
+              >
+                FPS (Frames Per Second)
+              </div>
+              <input
+                type="number"
+                className={
+                  Classes.INPUT +
+                  " radio-input " +
+                  (props.outputSpec === "FPS" ? "" : "dull")
+                }
+                placeholder={String(initialFPS)}
+                disabled={props.outputSpec !== "FPS"}
+                onChange={handleFpsChange}
+              />
+            </div>
+          ) : (
+            <div style={{ padding: "7px" }} className="radio-option">
+              <div
+                style={
+                  props.outputSpec === "Duration" ? {} : { color: "lightgrey" }
+                }
+              >
+                Output Duration (ms)
+              </div>
+              <input
+                type="number"
+                className={
+                  Classes.INPUT +
+                  " radio-input " +
+                  (props.outputSpec === "Duration" ? "" : "dull")
+                }
+                placeholder={String(initialDuration)}
+                disabled={props.outputSpec !== "Duration"}
+                onChange={handleDurationChange}
+              />
+            </div>
+          )}
+        </>
+      ) : null}
     </>
   );
 }

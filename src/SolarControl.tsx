@@ -36,7 +36,7 @@ export function SolarControl(props: SolarControlProps): JSX.Element {
           fill={true}
           onClick={props.onStart}
         >
-          Start Recording
+          Start Recording Solar Timelapse
         </Button>
       </div>
     );

@@ -61,7 +61,7 @@ export function StopMotionControl(props: StopMotionControlProps): JSX.Element {
           fill={true}
           onClick={props.onStart}
         >
-          Start Stop Motion
+          Start Recording Stop Motion
         </Button>
       </div>
     );

@@ -32,7 +32,7 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
   const initialLat = useMemo(() => props.location.latitude, []);
 
   const [areSolarPositionsEnabled, setAreSolarPositionsEnabled] =
-    useState<boolean>(false);
+    useState<boolean>(true);
   const [time, setTime] = useState<number>(new Date().getTime());
 
   const handleToggleSolarPositions = () => {
@@ -100,14 +100,6 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
 
   return (
     <div>
-      <OutputSpecProps
-        outputFPS={props.outputFPS}
-        outputDuration={props.outputDuration}
-        outputSpec={props.outputSpec}
-        setOutputFPS={props.setOutputFPS}
-        setOutputDuration={props.setOutputDuration}
-        setOutputSpec={props.setOutputSpec}
-      />
       <div>
         <div style={{ padding: "7px" }} className="radio-option">
           <div>Latitude</div>
@@ -144,6 +136,7 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
           />
         </div>
         <Button
+          className="spacer-vert"
           fill={true}
           onClick={() => {
             const success = (position: {
@@ -178,19 +171,20 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
           Get My Location
         </Button>
       </div>
-      <Divider></Divider>
 
-      <Button
-        icon={areSolarPositionsEnabled ? <ChevronDown /> : <ChevronRight />}
-        alignText={"left"}
-        onClick={handleToggleSolarPositions}
-        fill={true}
-        outlined={false}
-        style={{ marginBottom: "5px" }}
-        minimal={true}
-      >
-        {areSolarPositionsEnabled ? "Hide" : "Show"} Solar Positions
-      </Button>
+      <div className={"expansion-button-container"}>
+        <Button
+          icon={areSolarPositionsEnabled ? <ChevronDown /> : <ChevronRight />}
+          alignText={"left"}
+          onClick={handleToggleSolarPositions}
+          fill={true}
+          outlined={false}
+          minimal={true}
+          className={"expansion-button"}
+        >
+          {areSolarPositionsEnabled ? "Hide" : "Show"} Solar Positions
+        </Button>
+      </div>
       {areSolarPositionsEnabled ? (
         <div style={{ padding: "7px" }}>
           <div>{timeCheckboxes}</div>
@@ -221,6 +215,14 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
         </div>
       ) : null}
       <Divider></Divider>
+      <OutputSpecProps
+        outputFPS={props.outputFPS}
+        outputDuration={props.outputDuration}
+        outputSpec={props.outputSpec}
+        setOutputFPS={props.setOutputFPS}
+        setOutputDuration={props.setOutputDuration}
+        setOutputSpec={props.setOutputSpec}
+      />
     </div>
   );
 }
