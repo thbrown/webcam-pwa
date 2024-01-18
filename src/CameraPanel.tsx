@@ -47,6 +47,7 @@ interface CameraPanelProps {
   setRecordingStatus: (v: RecordingStatus) => void;
   reloadSavedVideos: () => void;
   setVideoToShow: (video: Blob) => void;
+  setInfoDialogContent: (value: React.ReactNode) => void;
 }
 
 export type TestSliderType = Record<string, string | number | boolean>;
@@ -152,7 +153,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       activeCamera === undefined
         ? { video: true }
         : {
-            video: { deviceId: { ideal: activeCamera } }, // TODO: is ideal okay here?
+            video: { deviceId: { ideal: activeCamera } },
           };
 
     try {
@@ -201,7 +202,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         }
 
         // TODO: Idk if this copy is necessary
-        console.log("SETTING SETTINGS FROM track.settings()");
         const settings = JSON.parse(JSON.stringify(track.getSettings()));
         setCameraSettings(settings);
         setCameraStatus("initialized");
@@ -237,8 +237,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         );
         const frame = canvasRef.current.toDataURL("image/webp");
 
-        // To color resolution
-        console.log("COLOR", context.getImageData(10, 10, 1, 1).data);
+        // TODO: it's a fun idea to color resolution text based of the background, but it's hard because the video element has a letterbox usually
+        // Plus this isn't really the right place for it, we want to do it even when we aren't capturing frames
+        // console.log("COLOR", context.getImageData(10, 10, 1, 1).data);
 
         setCapturedFrames((prevFrames) => {
           const newFrames = [...prevFrames, frame];
@@ -254,14 +255,17 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     await captureFrame();
     setTimeout(() => {
       props.setRecordingStatus("Paused");
-    }, 100); // TODO: this might be annoying, remove?
+    }, 100);
   };
 
   // Start time-lapse recording
   const scheduleSolarTimelapse = async (): Promise<void> => {
     if (captureTimes.length === 0) {
-      alert(
-        "You must select at least one solar position for which to capture frames, otherwise no frames will be captured!"
+      props.setInfoDialogContent(
+        <div>
+          You must select at least one solar position for which to capture
+          frames, otherwise no frames will be captured!
+        </div>
       );
       return;
     }
@@ -326,7 +330,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           );
           props.setVideoToShow(videoBlob.blob);
         } else {
-          alert("No frames were captured!");
+          props.setInfoDialogContent(<div>No frames were captured!</div>);
         }
 
         setCapturedFrames([]);
@@ -462,7 +466,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         );
       case "granted":
         // Show spinner -  this shouldn't happen, granted should always mean initialized
-        alert("Error on page. Try refreshing. Camera permission ");
+        props.setInfoDialogContent(
+          <div>Error on page involving Camera permissions. Try refreshing.</div>
+        );
       case undefined:
         // Spinner
         return (

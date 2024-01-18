@@ -11,6 +11,7 @@ import {
   getVideoElement,
 } from "./VideoStorageUtils";
 import { CameraPanel } from "./CameraPanel";
+import { InfoDialog } from "./InfoDialog";
 
 export type MainPanel = "camera" | "recordings";
 
@@ -25,6 +26,8 @@ export function Main(props: MainProps): JSX.Element {
     SavedVideoMetadata[] | undefined
   >(undefined);
   const [videoToShow, setVideoToShow] = useState<Blob | undefined>(undefined);
+  const [infoDialogContent, setInfoDialogContent] =
+    useState<React.ReactNode>(undefined);
 
   const handleShowVideoClose = () => {
     setVideoToShow(undefined);
@@ -62,6 +65,7 @@ export function Main(props: MainProps): JSX.Element {
               setRecordingStatus={props.setRecordingStatus}
               reloadSavedVideos={reloadSavedVideos}
               setVideoToShow={setVideoToShow}
+              setInfoDialogContent={setInfoDialogContent}
             />
           }
           icon={<Camera />}
@@ -98,6 +102,10 @@ export function Main(props: MainProps): JSX.Element {
           })}
         </Dialog>
       ) : null}
+      <InfoDialog
+        content={infoDialogContent}
+        setContent={setInfoDialogContent}
+      />
     </>
   );
 }
