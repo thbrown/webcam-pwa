@@ -100,6 +100,12 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
 
   return (
     <div>
+      <div className="mode-description">
+        <b>Solar</b> Choose solar positions and get daily frames. Perfect for
+        tracking the sun's journey or creating timelapses with specific lighting
+        conditions.
+      </div>
+      <Divider></Divider>
       <div>
         <div style={{ padding: "7px" }} className="radio-option">
           <div>Latitude</div>
@@ -136,7 +142,7 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
           />
         </div>
         <Button
-          className="spacer-vert"
+          className="spacer-vert accessible-button"
           fill={true}
           onClick={() => {
             const success = (position: {
@@ -197,6 +203,7 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
               outlined={true}
               style={{ marginBottom: "5px" }}
               minimal={true}
+              className="accessible-button"
             >
               Select All
             </Button>{" "}
@@ -208,6 +215,7 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
               outlined={true}
               style={{ marginBottom: "5px" }}
               minimal={true}
+              className="accessible-button"
             >
               Select None
             </Button>

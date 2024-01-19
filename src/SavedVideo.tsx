@@ -5,7 +5,7 @@ import { RecordingMode } from "./CameraPanel";
 import {
   Time,
   Stopwatch,
-  Clean,
+  Flash,
   Download,
   Trash,
   Play,
@@ -83,7 +83,7 @@ export function SavedVideoPanel(
       case "StopMotion":
         return <Stopwatch />;
       case "Solar":
-        return <Clean />;
+        return <Flash />;
       default:
         // Never
         return "default-icon";

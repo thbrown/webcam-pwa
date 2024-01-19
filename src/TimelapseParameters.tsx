@@ -30,6 +30,12 @@ export function TimelapseParameters(props: MainProps): JSX.Element {
 
   return (
     <div>
+      <div className="mode-description">
+        <b>Timelapse</b> Set the frame frequency to control the pace of your
+        video in Timelapse mode. Customize how time unfolds with your chosen
+        intervals.
+      </div>
+      <Divider></Divider>
       <div className="complex-radio-group">
         <label className="radio-option">
           <Label style={{ marginBottom: "5px" }} htmlFor="time-between-frames">

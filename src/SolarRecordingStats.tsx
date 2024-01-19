@@ -41,7 +41,7 @@ export function SolarRecordingStats(
       break;
     }
     captures.push(
-      <div>
+      <div key={counter}>
         {cap.type}
         {" in "}
         <i>

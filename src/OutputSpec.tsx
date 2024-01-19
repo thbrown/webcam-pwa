@@ -60,7 +60,7 @@ export function OutputSpecProps(props: OutputSpecProps): JSX.Element {
           minimal={true}
           className={"expansion-button"}
         >
-          {areOutputOptionsEnabled ? "Hide" : "Show"} Output Options
+          {areOutputOptionsEnabled ? "Hide" : "Show"} Video Output Options
         </Button>
       </div>
       {areOutputOptionsEnabled ? (

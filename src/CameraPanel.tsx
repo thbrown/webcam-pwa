@@ -68,8 +68,6 @@ export type SolarCapture = BaseCapture & {
   solarEvent: string;
 };
 
-export type TestSliderType = Record<string, string | number | boolean>;
-
 export type CameraStatus = "idle" | "initializing" | "initialized";
 
 export function CameraPanel(props: CameraPanelProps): JSX.Element {
@@ -241,8 +239,12 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     }
   };
 
-  const getCapturedFrameObject = (image: string): CapturedFrame => {
+  const getCapturedFrameObject = (
+    image: string,
+    captureQueue: CaptureTime[]
+  ): CapturedFrame => {
     if (recordingMode === "Solar") {
+      console.log("CAP QUEUE", captureQueue);
       return {
         image,
         type: { mode: recordingMode, solarEvent: captureQueue[0].type },
@@ -253,7 +255,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   };
 
   // Draw video frame to canvas
-  const captureFrame = async (): Promise<void> => {
+  const captureFrame = async (
+    captureQueue?: CaptureTime[] // Just used for solar capture
+  ): Promise<CapturedFrame> => {
     if (canvasRef.current && videoRef.current) {
       const context = canvasRef.current.getContext("2d");
       if (context) {
@@ -270,14 +274,13 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         // Plus this isn't really the right place for it, we want to do it even when we aren't capturing frames
         // console.log("COLOR", context.getImageData(10, 10, 1, 1).data);
 
+        const newFrame = getCapturedFrameObject(frameImageData, captureQueue);
         setCapturedFrames((prevFrames) => {
-          const newFrames = [
-            ...prevFrames,
-            getCapturedFrameObject(frameImageData),
-          ];
+          const newFrames = [...prevFrames, newFrame];
           console.log("Capturing frame!", newFrames.length); // Log the number of frames captured
           return newFrames;
         });
+        return newFrame;
       }
     }
   };
@@ -290,13 +293,17 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     }, 100);
   };
 
+  useEffect(() => {
+    console.log("Capture queue changed ", captureQueue);
+  }, [captureQueue]);
+
   // Start time-lapse recording
-  const scheduleSolarTimelapse = async (): Promise<void> => {
+  const scheduleSolarTimelapse = async (): Promise<CaptureTime[]> => {
     if (captureTimes.length === 0) {
       props.setInfoDialogContent(
         <div>
-          You must select at least one solar position for which to capture
-          frames, otherwise no frames will be captured!
+          In solar mode, you must select at least one solar position for which
+          to capture frames, otherwise no frames will be captured!
         </div>
       );
       return;
@@ -306,14 +313,26 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     const filteredTimes = times.filter((v) => captureTimes.includes(v.type));
     setCaptureQueue(filteredTimes);
     const nextCapture = millisecondsUntilDate(filteredTimes[0].time);
-    console.log("Next capture ", nextCapture, filteredTimes[0].type);
-    intervalIdRef.current = setTimeout(captureSolarFrame, nextCapture);
+    console.log(
+      "Next capture in ",
+      nextCapture,
+      filteredTimes[0].type,
+      filteredTimes
+    );
+
+    // We need to pass the updated queue here, if we try to get it from the state?
+    intervalIdRef.current = setTimeout(() => {
+      captureSolarFrame(filteredTimes);
+    }, nextCapture);
     console.log("Start recording!!", intervalIdRef.current);
+    return Promise.resolve(filteredTimes);
   };
 
   // Take frame and keep going
-  const captureSolarFrame = async (): Promise<void> => {
-    await captureFrame();
+  const captureSolarFrame = async (
+    captureQueue: CaptureTime[]
+  ): Promise<void> => {
+    await captureFrame(captureQueue);
     await scheduleSolarTimelapse();
   };
 

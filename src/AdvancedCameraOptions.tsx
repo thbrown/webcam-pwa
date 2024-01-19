@@ -273,9 +273,8 @@ export const AdvancedCameraOptions = React.memo(
                 fill={true}
                 outlined={false}
                 minimal={true}
-                className={"expansion-button"}
               >
-                {areAdvancedOptionsEnabled ? "Hide" : "Show"} Camera Options
+                {areAdvancedOptionsEnabled ? "Hide" : "Show"} Camera Settings
               </Button>
             </div>
           ) : null}

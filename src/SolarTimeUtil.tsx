@@ -1,3 +1,4 @@
+import _ from "lodash";
 //@ts-ignore - https://github.com/Hypnos3/suncalc3/issues/4
 import SunCalc from "suncalc3";
 
@@ -6,20 +7,39 @@ export interface CaptureTime {
   time: Date;
 }
 
+// Function to memoize
+const testTimes = _.memoize(() => {
+  let currentDate = new Date();
+
+  return {
+    alpha: { value: new Date(currentDate.getTime() + 10000) },
+    bravo: { value: new Date(currentDate.getTime() + 20000) },
+    charlie: { value: new Date(currentDate.getTime() + 30000) },
+    delta: { value: new Date(currentDate.getTime() + 40000) },
+    echo: { value: new Date(currentDate.getTime() + 50000) },
+    foxtrot: { value: new Date(currentDate.getTime() + 60000) },
+  };
+});
+
 /**
  * A sorted array of capture times for today and tomorrow with past times filtered out
  */
-export const getTimes = (latitude: number, longitude: number) => {
+export const getTimes = (
+  latitude: number,
+  longitude: number
+): CaptureTime[] => {
   // Get the current date
   const currentDate = new Date();
 
   // Get the times for today
   const timesToday = SunCalc.getSunTimes(currentDate, latitude, longitude);
+  //const timesToday = testTimes();
 
   // Get the times for tomorrow
   const tomorrowDate = new Date(currentDate);
   tomorrowDate.setDate(currentDate.getDate() + 1); // Increment the date to get tomorrow's date
   const timesTomorrow = SunCalc.getSunTimes(tomorrowDate, latitude, longitude);
+  //const timesTomorrow = testTimes();
 
   type ObjectWithStringProperties = {
     [key: string]: any;
@@ -37,7 +57,7 @@ export const getTimes = (latitude: number, longitude: number) => {
     })),
   ];
 
-  // TO memo this somehow
+  // TODO memo this somehow
   //console.log("COMBO TIMES", combinedTimes);
 
   // Sort the combined times array by time
