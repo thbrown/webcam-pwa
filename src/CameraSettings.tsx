@@ -11,7 +11,7 @@ import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
 import { debounce } from "lodash";
 import { CameraStatus } from "./CameraPanel";
 
-interface AdvancedCameraOptionsProps {
+interface CameraSettingsProps {
   setCameraSettings: (value: React.SetStateAction<MediaTrackSettings>) => void;
   cameraStatus: CameraStatus;
   cameraSettings: MediaTrackSettings;
@@ -19,8 +19,8 @@ interface AdvancedCameraOptionsProps {
   supportedCameraCapabilities: MediaTrackCapabilities;
 }
 
-export const AdvancedCameraOptions = React.memo(
-  (props: AdvancedCameraOptionsProps): JSX.Element => {
+export const CameraSettings = React.memo(
+  (props: CameraSettingsProps): JSX.Element => {
     try {
       const [areAdvancedOptionsEnabled, setAreAdvancedOptionsEnabled] =
         useState<boolean>(false);
@@ -36,6 +36,7 @@ export const AdvancedCameraOptions = React.memo(
       const applySettingsChanges = useCallback(
         debounce(async (constraints: MediaTrackConstraints) => {
           // TODO: Maybe go to loading state here for the camera?
+          console.log("Applying camera settings", constraints);
           try {
             await props.activeTrack.applyConstraints(constraints);
             props.setCameraSettings(props.activeTrack.getSettings());
@@ -50,7 +51,6 @@ export const AdvancedCameraOptions = React.memo(
         value: string,
         settingsKey: keyof MediaTrackConstraintSet
       ): void => {
-        console.log("Advanced Option Change (string)", value, settingsKey);
         const patch: MediaTrackConstraintSet = {};
         patch[settingsKey] = value;
         const constraints: MediaTrackConstraints = {
@@ -76,18 +76,7 @@ export const AdvancedCameraOptions = React.memo(
         const reactStateUpdate = {} as MediaTrackSettings;
         //@ts-ignore
         reactStateUpdate[settingsKey] = value;
-        console.log(
-          "Constraints",
-          constraints,
-          reactStateUpdate,
-          props.cameraSettings
-        );
-
         props.setCameraSettings({
-          ...props.cameraSettings,
-          ...reactStateUpdate,
-        });
-        console.log("Advanced Option Change (number)", value, settingsKey, {
           ...props.cameraSettings,
           ...reactStateUpdate,
         });
@@ -281,7 +270,7 @@ export const AdvancedCameraOptions = React.memo(
           {areAdvancedOptionsEnabled ? (
             Object.keys(props.supportedCameraCapabilities).length === 0 ? (
               <div style={{ padding: "10px" }}>
-                <i>No advanced options available</i>
+                <i>No camera settings available</i>
               </div>
             ) : (
               <div style={{ paddingTop: "10px" }}>

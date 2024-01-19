@@ -13,6 +13,7 @@ import { RecordingsPanel } from "./RecordingsPanel";
 import { FolderOpen, Camera } from "@blueprintjs/icons";
 import "./Main.scss";
 import { OutputSpecProps } from "./OutputSpec";
+import { RecordingStatus } from "./App";
 
 interface StopMotionParametersProps {
   outputFPS: number;
@@ -21,6 +22,7 @@ interface StopMotionParametersProps {
   setOutputFPS: (fps: number) => void;
   setOutputDuration: (duration: number) => void;
   setOutputSpec: (spec: OutputSpec) => void;
+  recordingStatus: RecordingStatus;
 }
 
 export function StopMotionParameters(
@@ -28,11 +30,15 @@ export function StopMotionParameters(
 ): JSX.Element {
   return (
     <>
-      <div className="mode-description">
-        <b>Stop Motion</b> Capture moments on demand. Press the button, take a
-        frame. Build your story frame by frame with Stop Motion mode.
-      </div>
-      <Divider></Divider>
+      {props.recordingStatus === "Stopped" ? (
+        <>
+          <div className="mode-description">
+            <b>Stop Motion</b> Capture moments on demand. Press the button, take
+            a frame. Build your story frame by frame with Stop Motion mode.
+          </div>
+          <Divider></Divider>
+        </>
+      ) : null}
       <div>
         <OutputSpecProps
           outputFPS={props.outputFPS}

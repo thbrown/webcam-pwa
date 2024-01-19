@@ -10,6 +10,7 @@ import {
 } from "./SolarTimeUtil";
 import humanizeDuration from "humanize-duration";
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
+import { RecordingStatus } from "./App";
 
 interface SolarParametersProps {
   location: {
@@ -25,6 +26,7 @@ interface SolarParametersProps {
   setOutputFPS: (fps: number) => void;
   setOutputDuration: (duration: number) => void;
   setOutputSpec: (spec: OutputSpec) => void;
+  recordingStatus: RecordingStatus;
 }
 
 export function SolarParameters(props: SolarParametersProps): JSX.Element {
@@ -100,12 +102,16 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
 
   return (
     <div>
-      <div className="mode-description">
-        <b>Solar</b> Choose solar positions and get daily frames. Perfect for
-        tracking the sun's journey or creating timelapses with specific lighting
-        conditions.
-      </div>
-      <Divider></Divider>
+      {props.recordingStatus === "Stopped" ? (
+        <>
+          <div className="mode-description">
+            <b>Solar</b> Choose solar positions and get daily frames. Perfect
+            for tracking the sun's journey or creating timelapse with specific
+            lighting conditions.
+          </div>
+          <Divider></Divider>
+        </>
+      ) : null}
       <div>
         <div style={{ padding: "7px" }} className="radio-option">
           <div>Latitude</div>

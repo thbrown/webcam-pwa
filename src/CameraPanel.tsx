@@ -25,7 +25,7 @@ import { StopMotionRecordingStats } from "./StopMotionRecordingStats";
 import { TimelapseControl } from "./TimelapseControl";
 import { StopMotionControl } from "./StopMotionControl";
 import { SolarControl } from "./SolarControl";
-import { AdvancedCameraOptions } from "./AdvancedCameraOptions";
+import { CameraSettings } from "./CameraSettings";
 import { TimelapseParameters } from "./TimelapseParameters";
 import { StopMotionParameters } from "./StopMotionParameters";
 import { SolarParameters } from "./SolarParameters";
@@ -723,17 +723,18 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             id="Timelapse"
             title={<div className="spacer">Timelapse</div>}
             panel={
-              props.recordingStatus === "Recording" ||
-              props.recordingStatus === "Paused" ? (
-                <TimelapseRecordingStats
-                  mode={recordingMode}
-                  framesCaptured={capturedFrames.length}
-                  outputFPS={outputFPS}
-                  outputSpec={outputSpec}
-                  outputDuration={outputDuration}
-                  timeLapseInterval={timeLapseInterval}
-                />
-              ) : (
+              <>
+                {props.recordingStatus === "Recording" ||
+                props.recordingStatus === "Paused" ? (
+                  <TimelapseRecordingStats
+                    mode={recordingMode}
+                    framesCaptured={capturedFrames.length}
+                    outputFPS={outputFPS}
+                    outputSpec={outputSpec}
+                    outputDuration={outputDuration}
+                    timeLapseInterval={timeLapseInterval}
+                  />
+                ) : null}
                 <div>
                   <TimelapseParameters
                     timeLapseInterval={timeLapseInterval}
@@ -744,8 +745,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     setOutputFPS={setOutputFPS}
                     setOutputDuration={setOutputDuration}
                     setOutputSpec={setOutputSpec}
+                    recordingStatus={props.recordingStatus}
                   />
-                  <AdvancedCameraOptions
+                  <CameraSettings
                     setCameraSettings={setCameraSettings}
                     cameraStatus={cameraStatus}
                     cameraSettings={cameraSettings}
@@ -753,7 +755,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     supportedCameraCapabilities={supportedCameraCapabilities}
                   />
                 </div>
-              )
+              </>
             }
             icon={<Time />}
             disabled={
@@ -786,8 +788,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     setOutputFPS={setOutputFPS}
                     setOutputDuration={setOutputDuration}
                     setOutputSpec={setOutputSpec}
+                    recordingStatus={props.recordingStatus}
                   />
-                  <AdvancedCameraOptions
+                  <CameraSettings
                     setCameraSettings={setCameraSettings}
                     cameraStatus={cameraStatus}
                     cameraSettings={cameraSettings}
@@ -832,8 +835,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     setOutputFPS={setOutputFPS}
                     setOutputDuration={setOutputDuration}
                     setOutputSpec={setOutputSpec}
+                    recordingStatus={props.recordingStatus}
                   />
-                  <AdvancedCameraOptions
+                  <CameraSettings
                     setCameraSettings={setCameraSettings}
                     cameraStatus={cameraStatus}
                     cameraSettings={cameraSettings}
