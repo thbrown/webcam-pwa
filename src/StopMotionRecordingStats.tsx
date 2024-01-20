@@ -14,6 +14,7 @@ interface StopMotionRecordingStatsProps {
   timeLapseInterval: number;
   outputDuration: number;
   outputSpec: OutputSpec;
+  recordingStatus: RecordingStatus;
 }
 
 export function StopMotionRecordingStats(
@@ -21,6 +22,9 @@ export function StopMotionRecordingStats(
 ): JSX.Element {
   return (
     <div style={{ padding: "10px" }}>
+      <div>
+        <b>Status:</b> {props.recordingStatus}
+      </div>
       <div>
         <b>Mode:</b> {props.mode}
       </div>

@@ -15,7 +15,7 @@ Live at: https://thbrown.github.io/webcam-pwa/
 
 ### Build Notes: Static assets
 
-I haven't figured out why but adding *any* plugins (even [] or undefined) to the webpack config prevents `index.html` from being served by dev server (even though it appears in the output directory).
+I haven't figured out why but defining *any* plugins (even [] or undefined) in the webpack config prevents `index.html` from being served by dev server (even though it appears in the output directory).
 
 This means the copy plugin can't be used and you'll probably need to copy `src/assets/*` to the output directory's manually (`docs` or `dev`) the first time you build to enabled complete functionality.
 

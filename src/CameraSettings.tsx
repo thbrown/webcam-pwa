@@ -269,11 +269,11 @@ export const CameraSettings = React.memo(
           ) : null}
           {areAdvancedOptionsEnabled ? (
             Object.keys(props.supportedCameraCapabilities).length === 0 ? (
-              <div style={{ padding: "10px" }}>
+              <div className="expansion-content">
                 <i>No camera settings available</i>
               </div>
             ) : (
-              <div style={{ paddingTop: "10px" }}>
+              <div className="expansion-content">
                 {generateUIForCameraCapabilities(
                   props.supportedCameraCapabilities,
                   props.cameraSettings

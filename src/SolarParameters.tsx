@@ -112,123 +112,129 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
           <Divider></Divider>
         </>
       ) : null}
-      <div>
-        <div style={{ padding: "7px" }} className="radio-option">
-          <div>Latitude</div>
-          <input
-            type="number"
-            className={Classes.INPUT}
-            placeholder={String(initialLat)}
-            value={props.location.latitude}
-            onChange={(v) => {
-              const newValue = Number(v.target.value);
-              props.setLocation({
-                ...props.location,
-                latitude:
-                  isNaN(newValue) || newValue <= 0 ? initialLat : newValue,
-              });
-            }}
-          />
-        </div>
-        <div style={{ padding: "7px" }} className="radio-option">
-          <div>Longitude</div>
-          <input
-            type="number"
-            className={Classes.INPUT}
-            placeholder={String(initialLong)}
-            value={props.location.longitude}
-            onChange={(v) => {
-              const newValue = Number(v.target.value);
-              props.setLocation({
-                ...props.location,
-                longitude:
-                  isNaN(newValue) || newValue <= 0 ? initialLong : newValue,
-              });
-            }}
-          />
-        </div>
-        <Button
-          className="spacer-vert accessible-button"
-          fill={true}
-          onClick={() => {
-            const success = (position: {
-              coords: { latitude: any; longitude: any };
-            }) => {
-              console.log("LOCATION IS", position);
-              props.setLocation({
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-              });
-            };
-
-            const showError = (error: any) => {
-              switch (error.code) {
-                case error.PERMISSION_DENIED:
-                  break;
-                case error.POSITION_UNAVAILABLE:
-                  alert("Geo position unavailable.");
-                  break;
-                case error.TIMEOUT:
-                  break;
-                case error.UNKNOWN_ERROR:
-                  alert(
-                    "An unknown error occurred while fetching geo location."
-                  );
-                  break;
-              }
-            };
-            navigator.geolocation.getCurrentPosition(success);
-          }}
-        >
-          Get My Location
-        </Button>
-      </div>
-
-      <div className={"expansion-button-container"}>
-        <Button
-          icon={areSolarPositionsEnabled ? <ChevronDown /> : <ChevronRight />}
-          alignText={"left"}
-          onClick={handleToggleSolarPositions}
-          fill={true}
-          outlined={false}
-          minimal={true}
-          className={"expansion-button"}
-        >
-          {areSolarPositionsEnabled ? "Hide" : "Show"} Solar Positions
-        </Button>
-      </div>
-      {areSolarPositionsEnabled ? (
-        <div style={{ padding: "7px" }}>
-          <div>{timeCheckboxes}</div>
-          <div style={{ display: "flex", justifyContent: "space-evenly" }}>
+      {props.recordingStatus === "Stopped" ? (
+        <>
+          <div>
+            <div style={{ padding: "7px" }} className="radio-option">
+              <div>Latitude</div>
+              <input
+                type="number"
+                className={Classes.INPUT}
+                placeholder={String(initialLat)}
+                value={props.location.latitude}
+                onChange={(v) => {
+                  const newValue = Number(v.target.value);
+                  props.setLocation({
+                    ...props.location,
+                    latitude:
+                      isNaN(newValue) || newValue <= 0 ? initialLat : newValue,
+                  });
+                }}
+              />
+            </div>
+            <div style={{ padding: "7px" }} className="radio-option">
+              <div>Longitude</div>
+              <input
+                type="number"
+                className={Classes.INPUT}
+                placeholder={String(initialLong)}
+                value={props.location.longitude}
+                onChange={(v) => {
+                  const newValue = Number(v.target.value);
+                  props.setLocation({
+                    ...props.location,
+                    longitude:
+                      isNaN(newValue) || newValue <= 0 ? initialLong : newValue,
+                  });
+                }}
+              />
+            </div>
             <Button
+              className="spacer-vert accessible-button"
+              fill={true}
               onClick={() => {
-                props.setCaptureTimes(timeEntries.map((v) => v.type));
-                console.log("All");
+                const success = (position: {
+                  coords: { latitude: any; longitude: any };
+                }) => {
+                  console.log("LOCATION IS", position);
+                  props.setLocation({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                  });
+                };
+
+                const showError = (error: any) => {
+                  switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                      break;
+                    case error.POSITION_UNAVAILABLE:
+                      alert("Geo position unavailable.");
+                      break;
+                    case error.TIMEOUT:
+                      break;
+                    case error.UNKNOWN_ERROR:
+                      alert(
+                        "An unknown error occurred while fetching geo location."
+                      );
+                      break;
+                  }
+                };
+                navigator.geolocation.getCurrentPosition(success);
               }}
-              outlined={true}
-              style={{ marginBottom: "5px" }}
-              minimal={true}
-              className="accessible-button"
             >
-              Select All
-            </Button>{" "}
-            <Button
-              onClick={() => {
-                console.log("None");
-                props.setCaptureTimes([]);
-              }}
-              outlined={true}
-              style={{ marginBottom: "5px" }}
-              minimal={true}
-              className="accessible-button"
-            >
-              Select None
+              Get My Location
             </Button>
           </div>
-        </div>
+
+          <div className={"expansion-button-container"}>
+            <Button
+              icon={
+                areSolarPositionsEnabled ? <ChevronDown /> : <ChevronRight />
+              }
+              alignText={"left"}
+              onClick={handleToggleSolarPositions}
+              fill={true}
+              outlined={false}
+              minimal={true}
+              className={"expansion-button"}
+            >
+              {areSolarPositionsEnabled ? "Hide" : "Show"} Solar Positions
+            </Button>
+          </div>
+          {areSolarPositionsEnabled ? (
+            <div className="expansion-content">
+              <div>{timeCheckboxes}</div>
+              <div style={{ display: "flex", justifyContent: "space-evenly" }}>
+                <Button
+                  onClick={() => {
+                    props.setCaptureTimes(timeEntries.map((v) => v.type));
+                    console.log("All");
+                  }}
+                  outlined={true}
+                  style={{ marginBottom: "5px" }}
+                  minimal={true}
+                  className="accessible-button"
+                >
+                  Select All
+                </Button>{" "}
+                <Button
+                  onClick={() => {
+                    console.log("None");
+                    props.setCaptureTimes([]);
+                  }}
+                  outlined={true}
+                  style={{ marginBottom: "5px" }}
+                  minimal={true}
+                  className="accessible-button"
+                >
+                  Select None
+                </Button>
+              </div>
+            </div>
+          ) : null}
+          <Divider></Divider>
+        </>
       ) : null}
-      <Divider></Divider>
       <OutputSpecProps
         outputFPS={props.outputFPS}
         outputDuration={props.outputDuration}

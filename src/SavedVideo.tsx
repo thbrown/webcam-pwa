@@ -105,6 +105,7 @@ export function SavedVideoPanel(
           justifyContent: "space-between",
           backgroundColor: "lightgrey",
           borderRadius: "3px",
+          boxShadow: "0 3px 10px rgb(0 0 0 / .2)",
         }}
       >
         <Spinner size={16} />

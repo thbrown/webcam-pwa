@@ -64,7 +64,7 @@ export function OutputSpecProps(props: OutputSpecProps): JSX.Element {
         </Button>
       </div>
       {areOutputOptionsEnabled ? (
-        <>
+        <div className="expansion-content">
           <RadioGroup
             selectedValue={props.outputSpec}
             onChange={(e: React.FormEvent<HTMLInputElement>): void => {
@@ -117,7 +117,7 @@ export function OutputSpecProps(props: OutputSpecProps): JSX.Element {
               />
             </div>
           )}
-        </>
+        </div>
       ) : null}
     </>
   );
