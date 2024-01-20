@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect } from "react";
 
 import { Record, Stop, Pause } from "@blueprintjs/icons";
 import { RecordingStatus } from "./App";
-import { OutputSpec, RecordingMode } from "./CameraPanel";
+import { OutputSpec, RecordingMode, Location } from "./CameraPanel";
 import humanizeDuration from "humanize-duration";
 import { CaptureTime, millisecondsUntilDate } from "./SolarTimeUtil";
 
@@ -15,6 +15,8 @@ interface SolarRecordingStatsProps {
   outputDuration: number;
   outputSpec: OutputSpec;
   captureQueue: CaptureTime[];
+  location: Location;
+  recordingStatus: RecordingStatus;
 }
 
 export function SolarRecordingStats(
@@ -55,6 +57,9 @@ export function SolarRecordingStats(
   return (
     <div style={{ padding: "10px" }}>
       <div>
+        <b>Status:</b> {props.recordingStatus}
+      </div>
+      <div>
         <b>Mode:</b> {props.mode}
       </div>
       <div>
@@ -74,8 +79,14 @@ export function SolarRecordingStats(
         </div>
       )}
       <div>
-        <b>Next Frames:</b>
+        <b>{"Next Frame" + (captures.length > 1 ? "s:" : ":")} </b>
         <div>{captures}</div>
+      </div>
+      <div>
+        <b>Location:</b>
+        <div>
+          {props.location.latitude}, {props.location.longitude}
+        </div>
       </div>
     </div>
   );

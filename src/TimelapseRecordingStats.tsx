@@ -13,6 +13,7 @@ interface TimelapseRecordingStatsProps {
   timeLapseInterval: number;
   outputDuration: number;
   outputSpec: OutputSpec;
+  recordingStatus: RecordingStatus;
 }
 
 export function TimelapseRecordingStats(
@@ -20,6 +21,9 @@ export function TimelapseRecordingStats(
 ): JSX.Element {
   return (
     <div style={{ padding: "10px" }}>
+      <div>
+        <b>Status:</b> {props.recordingStatus}
+      </div>
       <div>
         <b>Mode:</b> {props.mode}
       </div>

@@ -70,6 +70,11 @@ export type SolarCapture = BaseCapture & {
 
 export type CameraStatus = "idle" | "initializing" | "initialized";
 
+export type Location = {
+  longitude: number;
+  latitude: number;
+};
+
 export function CameraPanel(props: CameraPanelProps): JSX.Element {
   // Common state
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -104,10 +109,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
 
   // Solar State
   const [captureTimes, setCaptureTimes] = useState<string[]>([]);
-  const [location, setLocation] = useState<{
-    longitude: number;
-    latitude: number;
-  }>({
+  const [location, setLocation] = useState<Location>({
     // Denver default
     longitude: -104.991531,
     latitude: 39.742043,
@@ -244,7 +246,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     captureQueue: CaptureTime[]
   ): CapturedFrame => {
     if (recordingMode === "Solar") {
-      console.log("CAP QUEUE", captureQueue);
       return {
         image,
         type: { mode: recordingMode, solarEvent: captureQueue[0].type },
@@ -695,6 +696,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             width: "100%",
             padding: "3px",
             backgroundColor: "black",
+            boxShadow: "0 3px 10px rgb(0 0 0 / 1)",
           }}
         />
       </div>
@@ -733,6 +735,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     outputSpec={outputSpec}
                     outputDuration={outputDuration}
                     timeLapseInterval={timeLapseInterval}
+                    recordingStatus={props.recordingStatus}
                   />
                 ) : null}
                 <div>
@@ -778,6 +781,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     outputSpec={outputSpec}
                     outputDuration={outputDuration}
                     timeLapseInterval={timeLapseInterval}
+                    recordingStatus={props.recordingStatus}
                   />
                 ) : null}
                 <div>
@@ -821,6 +825,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     outputDuration={outputDuration}
                     timeLapseInterval={timeLapseInterval}
                     captureQueue={captureQueue}
+                    location={location}
+                    recordingStatus={props.recordingStatus}
                   />
                 ) : null}
                 <div>
