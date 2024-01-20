@@ -72,13 +72,14 @@ export const compileVideo = async (
 };
 
 const METADATA_PREFIX = "metadata_";
+const BLOB_PREFIX = "blob_";
 
 function getMetadataKey(keyUuid: string) {
   return METADATA_PREFIX + keyUuid;
 }
 
 function getBlobKey(keyUuid: string) {
-  return "blob_" + keyUuid;
+  return BLOB_PREFIX + keyUuid;
 }
 
 export const downloadVideo = async (videoBlob: Blob) => {
@@ -138,15 +139,11 @@ export const deleteVideo = async (keyUuid: string) => {
 
 export const getAllSavedVideosMetadata = async () => {
   const allStoredPromises: Promise<SavedVideoMetadata | null>[] = [];
-  const length = await localforage.length();
 
-  for (let i = 0; i < length; i++) {
-    const key = await localforage.key(i);
-    if (key.startsWith(METADATA_PREFIX)) {
-      allStoredPromises.push(
-        localforage.getItem<SavedVideoMetadata | null>(key)
-      );
-    }
+  const keys = await localforage.keys();
+  const filteredKeys = keys.filter((k) => k.startsWith(METADATA_PREFIX));
+  for (let key of filteredKeys) {
+    allStoredPromises.push(localforage.getItem<SavedVideoMetadata | null>(key));
   }
 
   const resolvedPromises = await Promise.all(allStoredPromises);

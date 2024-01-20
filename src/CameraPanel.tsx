@@ -13,7 +13,6 @@ import React, { useRef, useState, useEffect, useMemo } from "react";
 import {
   Time,
   Stopwatch,
-  Clean,
   Camera,
   MobileVideo,
   Flash,
@@ -31,7 +30,13 @@ import { StopMotionParameters } from "./StopMotionParameters";
 import { SolarParameters } from "./SolarParameters";
 import { CaptureTime, getTimes, millisecondsUntilDate } from "./SolarTimeUtil";
 import { SolarRecordingStats } from "./SolarRecordingStats";
-import localforage from "localforage";
+import {
+  setSetting,
+  getSetting,
+  getSavedFrames,
+  saveFrame,
+  clearFrames,
+} from "./SettingsStorageUtils";
 
 export type RecordingMode = "Timelapse" | "StopMotion" | "Solar";
 export type OutputSpec = "FPS" | "Duration";
@@ -42,6 +47,8 @@ interface CameraPanelProps {
   reloadSavedVideos: () => void;
   setVideoToShow: (video: Blob) => void;
   setInfoDialogContent: (value: React.ReactNode) => void;
+  initializing: boolean;
+  setInitializing: (value: boolean) => void;
 }
 
 export type CapturedFrame = {
@@ -130,7 +137,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         setCameraPermission(permissionObj.state);
         if (permissionObj.state === "granted") {
           // Init process will set camera permission status to granted if successful
-          setIsInitializing();
+          setIsCameraInitializing();
           return;
         }
         console.log("Set camera permission", permissionObj.state);
@@ -149,15 +156,64 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   }, []);
 
   // Persist select fields on change
-  /*
+  useEffect(() => {
+    if (!props.initializing) {
+      const storeRecordingMode = async () => {
+        await setSetting("recordingMode", recordingMode);
+      };
+      storeRecordingMode();
+    }
+  }, [recordingMode]);
+
+  useEffect(() => {
+    if (!props.initializing) {
+      const saveFrameAsync = async () => {
+        if (capturedFrames.length === 0) {
+          await clearFrames();
+        } else {
+          await saveFrame(capturedFrames[capturedFrames.length - 1]);
+        }
+      };
+      saveFrameAsync();
+    }
+  }, [capturedFrames]);
+
+  // Load saved fields if available
+  // All the loading takes place here (which works for now but will need to
+  // be refactored if we need to load state for which we don't have the access to the setters for)
   useEffect(() => {
     const storeStateCameraPanel = async () => {
-      localforage.setItem("recordingMode", JSON.stringify(recordingMode));
-      localforage.setItem("capturedFrames", JSON.stringify(capturedFrames));
+      const mode = await getSetting<RecordingMode>("recordingMode");
+      setRecordingMode(mode);
+
+      const status = await getSetting<RecordingStatus>("recordingStatus");
+      if (status !== "Recording") {
+        props.setRecordingStatus(status);
+        return;
+      }
+
+      // If we are in recording mode we need to also start taking frames
+      switch (mode as RecordingMode) {
+        case "Timelapse":
+          startTimelapse();
+          break;
+        case "StopMotion":
+          props.setRecordingStatus("Paused");
+          break;
+        case "Solar":
+          scheduleSolarTimelapse();
+          break;
+        default:
+          assertNever(mode);
+      }
+      const frames = await getSavedFrames();
+      if (frames !== undefined) {
+        setCapturedFrames(frames);
+      }
+      props.setInitializing(false);
     };
     storeStateCameraPanel();
-  }, [capturedFrames, recordingMode]);
-  */
+  }, []);
 
   // Use useRef to store the interval ID so it persists across renders
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
@@ -354,7 +410,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     captureA: CapturedFrame,
     captureB: CapturedFrame
   ) => {
-    // We dont support mixed capture frames now so not sute what his behavior should be if we did
+    // We don't support mixed capture frames now so not sure what his behavior should be if we did
     if (captureA.type.mode !== "Solar" || captureB.type.mode !== "Solar") {
       return 0;
     }
@@ -465,7 +521,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     );
   };
 
-  const setIsInitializing = () => {
+  const setIsCameraInitializing = () => {
     setCameraStatus("initializing");
   };
 
@@ -522,7 +578,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
               >
                 This app requires access to your camera to function.
               </div>
-              <Button onClick={setIsInitializing} icon={<Camera />}>
+              <Button onClick={setIsCameraInitializing} icon={<Camera />}>
                 Grant Camera Permission
               </Button>
             </div>
@@ -634,7 +690,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
               onChange={(v: React.ChangeEvent<HTMLInputElement>) => {
                 console.log("Selected a camera", v.target.value);
                 setActiveCamera(v.target.value);
-                setIsInitializing();
+                setIsCameraInitializing();
               }}
               selectedValue={activeCamera}
             >
@@ -858,4 +914,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       {cameraStatus === "initialized" && !savingVideo ? getControls() : null}
     </div>
   );
+}
+function assertNever(mode: string) {
+  throw new Error("Function not implemented.");
 }
