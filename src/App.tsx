@@ -3,8 +3,7 @@ import { Main } from "./Main";
 import { HotkeysProvider } from "@blueprintjs/core";
 
 import "./App.scss";
-import { InfoDialog } from "./InfoDialog";
-import { getSetting, setSetting } from "./SettingsStorageUtils";
+import { setSetting } from "./SettingsStorageUtils";
 
 export type RecordingStatus = "Stopped" | "Recording" | "Paused";
 

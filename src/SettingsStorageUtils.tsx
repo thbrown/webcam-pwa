@@ -14,13 +14,18 @@ function getFramesKey(keyUuid: string) {
 export const getSetting = async <T,>(
   settingName: string
 ): Promise<T | null> => {
-  return await localforage.getItem<T | null>(getSettingsKey(settingName));
+  const result = await localforage.getItem<T | null>(
+    getSettingsKey(settingName)
+  );
+  console.log("Getting ", getSettingsKey(settingName), result);
+  return result ?? null;
 };
 
 export const setSetting = async <T,>(
   settingName: string,
   settingValue: T
 ): Promise<void> => {
+  console.log("Setting ", getSettingsKey(settingName), settingValue);
   await localforage.setItem<T | null>(
     getSettingsKey(settingName),
     settingValue
@@ -35,8 +40,8 @@ export const getSavedFrames = async () => {
   const filteredKeys = keys.filter((k) => k.startsWith(FRAMES_PREFIX));
 
   filteredKeys.sort((a, b) => {
-    const numA = parseInt(a.match(/\d*/)[0]);
-    const numB = parseInt(b.match(/\d*/)[0]);
+    const numA = parseInt(a.match(/\d+/)[0]);
+    const numB = parseInt(b.match(/\d+/)[0]);
 
     if (numA < numB) {
       return -1;
@@ -50,37 +55,27 @@ export const getSavedFrames = async () => {
 
   console.log("Getting saved frames", filteredKeys);
   for (let key of filteredKeys) {
-    console.log("sorted key", key);
     allStoredPromises.push(localforage.getItem<any | null>(key));
   }
   return await Promise.all(allStoredPromises);
 };
 
-export const saveFrame = async (frame: any) => {
-  const length = await localforage.length();
-  console.log("Getting saved frames", length);
-  let counter = 0;
-  for (let i = 0; i < length; i++) {
-    const key = await localforage.key(i);
-    if (key && key.startsWith(FRAMES_PREFIX)) {
-      counter++;
-    }
-  }
-  return await localforage.setItem<any | null>(
-    getFramesKey(String(counter)),
-    frame
-  );
+export const saveFrame = async (frame: any, index: number) => {
+  console.log("Save frame");
+  console.log("Setting frames pre", index);
+  await localforage.setItem<any | null>(getFramesKey(String(index)), frame);
+  console.log("Setting frames post", index);
+  return;
 };
 
 export const clearFrames = async () => {
   const allStoredPromises: Promise<void>[] = [];
   const keys = await localforage.keys();
-  console.log("Getting saved frames", keys);
   for (let key of keys) {
-    console.log("clear key", key);
     if (key && key.startsWith(FRAMES_PREFIX)) {
       allStoredPromises.push(localforage.removeItem(key));
     }
   }
-  return await Promise.all(allStoredPromises);
+  await Promise.all(allStoredPromises);
+  return;
 };

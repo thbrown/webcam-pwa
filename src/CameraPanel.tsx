@@ -112,7 +112,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [outputFPS, setOutputFPS] = useState<number>(30);
 
   // Timelapse State
-  const [timeLapseInterval, setTimeLapseInterval] = useState<number>(1000);
+  const [timelapseInterval, setTimelapseInterval] = useState<number>(1000);
 
   // Solar State
   const [captureTimes, setCaptureTimes] = useState<string[]>([]);
@@ -157,65 +157,87 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     checkCameraPermission();
   }, []);
 
-  // Persist select fields on change
-  useEffect(() => {
-    if (!props.initializing) {
-      const storeRecordingMode = async () => {
-        await setSetting("recordingMode", recordingMode);
-      };
-      storeRecordingMode();
-    }
-  }, [recordingMode]);
+  const usePersistOnChange = (value: any, key: string) => {
+    useEffect(() => {
+      if (!props.initializing) {
+        const intermediate = async () => {
+          await setSetting(key, value);
+        };
+        intermediate();
+      }
+    }, [value]);
+  };
 
+  usePersistOnChange(recordingMode, "recordingMode");
+  usePersistOnChange(location, "location");
+  usePersistOnChange(captureTimes, "captureTimes");
+  usePersistOnChange(timelapseInterval, "timelapseInterval");
+
+  // Special case the frame re-loading (save frames one at a time for perf reasons)
   useEffect(() => {
     if (!props.initializing) {
-      const saveFrameAsync = async () => {
+      const intermediate = async () => {
         if (capturedFrames.length === 0) {
           await clearFrames();
         } else {
-          await saveFrame(capturedFrames[capturedFrames.length - 1]);
+          await saveFrame(
+            capturedFrames[capturedFrames.length - 1],
+            capturedFrames.length - 1
+          );
         }
       };
-      saveFrameAsync();
+      intermediate();
     }
   }, [capturedFrames]);
 
-  // Load saved fields if available
-  // All the loading takes place here (which works for now but will need to
-  // be refactored if we need to load state for which we don't have the access to the setters for)
+  // Load saved fields from localforage, if any
   useEffect(() => {
     const storeStateCameraPanel = async () => {
-      const mode = await getSetting<RecordingMode>("recordingMode");
-      setRecordingMode(mode);
+      if (cameraStatus !== "initialized") return;
 
-      const status = await getSetting<RecordingStatus>("recordingStatus");
-      if (status !== "Recording") {
-        props.setRecordingStatus(status);
-        return;
-      }
+      console.log("Camera initialized! Loading saved state (if available)");
 
-      // If we are in recording mode we need to also start taking frames
-      switch (mode as RecordingMode) {
-        case "Timelapse":
-          startTimelapse();
-          break;
-        case "StopMotion":
-          props.setRecordingStatus("Paused");
-          break;
-        case "Solar":
-          scheduleSolarTimelapse();
-          break;
-        default:
-          assertNever(mode);
-      }
+      const updateSetting = async (key: string, setter: any) => {
+        const value = await getSetting(key);
+        if (value !== null) setter(value);
+      };
+
+      await updateSetting("recordingMode", setRecordingMode);
+      await updateSetting("recordingStatus", props.setRecordingStatus);
+      await updateSetting("timelapseInterval", setTimelapseInterval);
+      await updateSetting("location", setLocation);
+      await updateSetting("captureTimes", setCaptureTimes);
+
       const frames = await getSavedFrames();
-      if (frames !== undefined) {
-        setCapturedFrames(frames);
-      }
+      if (frames !== undefined) setCapturedFrames(frames);
+
       props.setInitializing(false);
     };
+
     storeStateCameraPanel();
-  }, []);
+  }, [cameraStatus]);
+
+  // As part of initialization, if we are in recording mode we need to start taking frames
+  useEffect(() => {
+    if (props.recordingStatus !== "Recording") {
+      return;
+    }
+    console.log("Status was 'Recording' resuming...", recordingMode);
+
+    switch (recordingMode) {
+      case "Timelapse":
+        startTimelapse();
+        break;
+      case "StopMotion":
+        props.setRecordingStatus("Paused");
+        break;
+      case "Solar":
+        scheduleSolarTimelapse();
+        break;
+      default:
+        assertNever(recordingMode);
+    }
+  }, [props.initializing]);
 
   // Use useRef to store the interval ID so it persists across renders
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
@@ -395,16 +417,12 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
 
   // Start time-lapse recording
   const startTimelapse = async (): Promise<void> => {
-    if (
-      props.recordingStatus === "Stopped" ||
-      props.recordingStatus === "Paused"
-    ) {
-      props.setRecordingStatus("Recording");
-      await captureFrame();
-      // Store the interval ID in the ref
-      intervalIdRef.current = setInterval(captureFrame, timeLapseInterval);
-      console.log("Start recording!!", intervalIdRef.current);
-    }
+    props.setRecordingStatus("Recording");
+    await captureFrame();
+    // Store the interval ID in the ref
+    console.log("starting with timelapse interval", timelapseInterval);
+    intervalIdRef.current = setInterval(captureFrame, timelapseInterval);
+    console.log("Start recording!!", intervalIdRef.current);
   };
 
   const solarCapturesComparator = (
@@ -449,33 +467,36 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
 
       // Wait for the last frames to be captured before compiling the video
       setTimeout(async () => {
-        console.log(
-          "Number of frames before compiling:",
-          processedCaptures.length
-        );
-        if (processedCaptures.length > 0) {
-          const calculatedFPS =
-            outputSpec === "FPS"
-              ? outputFPS
-              : (processedCaptures.length / outputDuration) * 1000;
-          const videoBlob = await compileVideo(
-            processedCaptures.map((v) => v.image),
-            calculatedFPS
+        try {
+          console.log(
+            "Number of frames before compiling:",
+            processedCaptures.length,
+            processedCaptures
           );
-          await saveVideo(
-            videoBlob.blob,
-            videoBlob.previewImage,
-            recordingMode,
-            props.reloadSavedVideos
-          );
-          props.setVideoToShow(videoBlob.blob);
-        } else {
-          props.setInfoDialogContent(<div>No frames were captured!</div>);
+          if (processedCaptures.length > 0) {
+            const calculatedFPS =
+              outputSpec === "FPS"
+                ? outputFPS
+                : (processedCaptures.length / outputDuration) * 1000;
+            const videoBlob = await compileVideo(
+              processedCaptures.map((v) => v.image),
+              calculatedFPS
+            );
+            await saveVideo(
+              videoBlob.blob,
+              videoBlob.previewImage,
+              recordingMode,
+              props.reloadSavedVideos
+            );
+            props.setVideoToShow(videoBlob.blob);
+          } else {
+            props.setInfoDialogContent(<div>No frames were captured!</div>);
+          }
+        } finally {
+          setCapturedFrames([]);
+          setSavingVideo(false);
         }
-
-        setCapturedFrames([]);
-        setSavingVideo(false);
-      }, /*timeLapseInterval +*/ 100); // Wait slightly longer than the capture interval (I don't think this is necessary?)
+      }, /*timelapseInterval +*/ 100); // Wait slightly longer than the capture interval (I don't think this is necessary?)
     }
   };
 
@@ -790,17 +811,17 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     outputFPS={outputFPS}
                     outputSpec={outputSpec}
                     outputDuration={outputDuration}
-                    timeLapseInterval={timeLapseInterval}
+                    timelapseInterval={timelapseInterval}
                     recordingStatus={props.recordingStatus}
                   />
                 ) : null}
                 <div>
                   <TimelapseParameters
-                    timeLapseInterval={timeLapseInterval}
+                    timelapseInterval={timelapseInterval}
                     outputFPS={outputFPS}
                     outputDuration={outputDuration}
                     outputSpec={outputSpec}
-                    setTimeLapseInterval={setTimeLapseInterval}
+                    setTimelapseInterval={setTimelapseInterval}
                     setOutputFPS={setOutputFPS}
                     setOutputDuration={setOutputDuration}
                     setOutputSpec={setOutputSpec}
@@ -836,7 +857,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     outputFPS={outputFPS}
                     outputSpec={outputSpec}
                     outputDuration={outputDuration}
-                    timeLapseInterval={timeLapseInterval}
+                    timelapseInterval={timelapseInterval}
                     recordingStatus={props.recordingStatus}
                   />
                 ) : null}
@@ -879,7 +900,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     outputFPS={outputFPS}
                     outputSpec={outputSpec}
                     outputDuration={outputDuration}
-                    timeLapseInterval={timeLapseInterval}
+                    timelapseInterval={timelapseInterval}
                     captureQueue={captureQueue}
                     location={location}
                     recordingStatus={props.recordingStatus}
