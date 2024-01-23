@@ -1,26 +1,16 @@
-import {
-  Classes,
-  Divider,
-  Label,
-  Radio,
-  RadioGroup,
-  Tab,
-  Tabs,
-} from "@blueprintjs/core";
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import { Classes, Divider, Label } from "@blueprintjs/core";
+import React from "react";
 import { OutputSpec } from "./CameraPanel";
-import { RecordingsPanel } from "./RecordingsPanel";
-import { FolderOpen, Camera } from "@blueprintjs/icons";
 import "./Main.scss";
 import { OutputSpecProps } from "./OutputSpec";
 import { RecordingStatus } from "./App";
 
 interface TimelapseParametersProps {
-  timeLapseInterval: number;
+  timelapseInterval: number;
   outputFPS: number;
   outputDuration: number;
   outputSpec: OutputSpec;
-  setTimeLapseInterval: (interval: number) => void;
+  setTimelapseInterval: (interval: number) => void;
   setOutputFPS: (fps: number) => void;
   setOutputDuration: (duration: number) => void;
   setOutputSpec: (spec: OutputSpec) => void;
@@ -30,8 +20,6 @@ interface TimelapseParametersProps {
 export function TimelapseParameters(
   props: TimelapseParametersProps
 ): JSX.Element {
-  const initialTimeLapseInterval = useMemo(() => props.timeLapseInterval, []);
-
   return (
     <div>
       {props.recordingStatus === "Stopped" ? (
@@ -59,12 +47,13 @@ export function TimelapseParameters(
                 type="number"
                 id="time-between-frames"
                 className={Classes.INPUT}
-                placeholder={String(initialTimeLapseInterval)}
+                value={props.timelapseInterval}
+                placeholder={String(props.timelapseInterval)}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const newValue = Number(e.target.value);
-                  props.setTimeLapseInterval(
+                  props.setTimelapseInterval(
                     isNaN(newValue) || newValue <= 0
-                      ? initialTimeLapseInterval
+                      ? props.timelapseInterval
                       : newValue
                   );
                 }}
@@ -85,4 +74,3 @@ export function TimelapseParameters(
     </div>
   );
 }
-// https://gml.noaa.gov/grad/solcalc/table.php?lat=39.74&lon=-104.99&year=2024

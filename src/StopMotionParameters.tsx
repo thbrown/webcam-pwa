@@ -52,4 +52,3 @@ export function StopMotionParameters(
     </>
   );
 }
-// https://gml.noaa.gov/grad/solcalc/table.php?lat=39.74&lon=-104.99&year=2024

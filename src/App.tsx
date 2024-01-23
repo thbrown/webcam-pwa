@@ -1,15 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Main } from "./Main";
 import { HotkeysProvider } from "@blueprintjs/core";
 
 import "./App.scss";
-import { InfoDialog } from "./InfoDialog";
+import { setSetting } from "./SettingsStorageUtils";
 
 export type RecordingStatus = "Stopped" | "Recording" | "Paused";
 
 export const App: React.FC = () => {
   const [recordingStatus, setRecordingStatus] =
     useState<RecordingStatus>("Stopped");
+  const [initializing, setInitializing] = useState<boolean>(true);
+
+  // Persist select fields on change
+  useEffect(() => {
+    if (!initializing) {
+      const storeRecordingMode = async () => {
+        await setSetting("recordingStatus", recordingStatus);
+      };
+      storeRecordingMode();
+    }
+  }, [recordingStatus]);
 
   let backgroundColor;
 
@@ -24,7 +35,6 @@ export const App: React.FC = () => {
       backgroundColor = "#fffa7e";
       break;
     default:
-      // Default case if recordingStatus is neither true nor false
       backgroundColor = "white";
       break;
   }
@@ -47,6 +57,8 @@ export const App: React.FC = () => {
             <Main
               recordingStatus={recordingStatus}
               setRecordingStatus={setRecordingStatus}
+              initializing={initializing}
+              setInitializing={setInitializing}
             ></Main>
           </div>
         </div>

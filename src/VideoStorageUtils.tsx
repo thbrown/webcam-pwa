@@ -5,6 +5,9 @@ import localforage from "localforage";
 import FileSaver from "file-saver";
 import React from "react";
 import { convertToWebP } from "./WebpConversionUtil";
+import { sideEffectLink } from "./tsWhammyPatch";
+
+console.warn("whammy patch", sideEffectLink);
 
 export type SavedVideoMetadata = {
   type: RecordingMode;
@@ -48,7 +51,38 @@ export const compileVideo = async (
       inputFrames = await convertToWebP(inputFrames);
     }
 
-    const videoBlob = tsWhammy.fromImageArray(inputFrames, outputFPS);
+    let videoBlob = undefined;
+    while (inputFrames.length > 0) {
+      try {
+        videoBlob = tsWhammy.fromImageArray(inputFrames, outputFPS);
+        break;
+      } catch (err) {
+        // Sometimes we can get an error on a partial frame. I think this happens when the browser
+        // tab is closed before a complete write to localforage can happen.
+        // e.g. "Before toWebM Error, Image Index 31
+        if (err.message.includes("Before toWebM Error, Image Index")) {
+          const errorMessageParts = err.message.split(" ");
+          const lastIndex = errorMessageParts.length - 1;
+          const imageIndex = parseInt(errorMessageParts[lastIndex], 10);
+          console.warn("Corrupted frame dropped", errorMessageParts);
+
+          if (!isNaN(imageIndex)) {
+            // Remove the problematic frame and try again!
+            console.warn("Corrupted frame dropped", imageIndex, inputFrames);
+            inputFrames.splice(imageIndex, 1);
+          } else {
+            throw err;
+          }
+        } else {
+          // Re-throw the error if the condition is not met.
+          throw err;
+        }
+      }
+    }
+
+    if (inputFrames.length === 0) {
+      throw new Error("No valid frames available for compilation");
+    }
 
     // This is to satisfy type checking, I'm not sure it actually can happen
     if (videoBlob instanceof Uint8Array) {
@@ -61,7 +95,6 @@ export const compileVideo = async (
       };
     }
 
-    console.log("COMPILED VIDEO", videoBlob);
     return {
       blob: videoBlob,
       previewImage: await resizeBase64Image(inputFrames[0], 50, 41),
@@ -138,10 +171,9 @@ export const deleteVideo = async (keyUuid: string) => {
 
 export const getAllSavedVideosMetadata = async () => {
   const allStoredPromises: Promise<SavedVideoMetadata | null>[] = [];
-  const length = await localforage.length();
+  const keys = await localforage.keys();
 
-  for (let i = 0; i < length; i++) {
-    const key = await localforage.key(i);
+  for (let key of keys) {
     if (key.startsWith(METADATA_PREFIX)) {
       allStoredPromises.push(
         localforage.getItem<SavedVideoMetadata | null>(key)

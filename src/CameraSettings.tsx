@@ -431,8 +431,7 @@ export const CameraSettings = React.memo(
         </>
       );
     } catch (e) {
-      console.warn("PRINT", e);
-      alert("PIZZA" + e + " - " + e.stack);
+      alert("Camera Settings Error " + e + " - " + e.stack);
     }
   }
 );

@@ -4,7 +4,6 @@ import { RecordingsPanel } from "./RecordingsPanel";
 import { FolderOpen, Camera } from "@blueprintjs/icons";
 import "./Main.scss";
 import { RecordingStatus } from "./App";
-import localforage from "localforage";
 import {
   SavedVideoMetadata,
   getAllSavedVideosMetadata,
@@ -18,6 +17,8 @@ export type MainPanel = "camera" | "recordings";
 interface MainProps {
   recordingStatus: RecordingStatus;
   setRecordingStatus: (v: RecordingStatus) => void;
+  initializing: boolean;
+  setInitializing: (value: boolean) => void;
 }
 
 export function Main(props: MainProps): JSX.Element {
@@ -66,6 +67,8 @@ export function Main(props: MainProps): JSX.Element {
               reloadSavedVideos={reloadSavedVideos}
               setVideoToShow={setVideoToShow}
               setInfoDialogContent={setInfoDialogContent}
+              initializing={props.initializing}
+              setInitializing={props.setInitializing}
             />
           }
           icon={<Camera />}
