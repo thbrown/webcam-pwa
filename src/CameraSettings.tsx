@@ -19,6 +19,9 @@ interface CameraSettingsProps {
   supportedCameraCapabilities: MediaTrackCapabilities;
 }
 
+type aspectRatio = "16:9" | "4:3" | "3:2" | "1:1";
+type resolution = "SD" | "HD" | "FHD" | "UHD" | "Max" | "Custom";
+
 export const CameraSettings = React.memo(
   (props: CameraSettingsProps): JSX.Element => {
     try {
@@ -29,8 +32,43 @@ export const CameraSettings = React.memo(
         setAreAdvancedOptionsEnabled((prev) => !prev);
       };
 
+      const resolutionHeightLookup = {
+        SD: 480,
+        HD: 720,
+        FHD: 1080,
+        UHD: 2160,
+        Max: props?.supportedCameraCapabilities?.height?.max, // TODO: exclude this if no max specified
+        Custom: null as number, // TODO: implement this
+        // TODO: all output is // 640 x 480
+      };
+
       const clamp = (value: number, min: number, max: number): number => {
         return Math.min(Math.max(value, min), max);
+      };
+
+      const parseAspectRatio = (aspectRatioString: string) => {
+        const parts = aspectRatioString.split(":");
+
+        // Invalid aspect ratio format
+        if (parts.length !== 2) {
+          alert(
+            "Invalid aspectRatio. Please enter a number followed by ':' then another number."
+          );
+        }
+
+        const numerator = parseInt(parts[0]);
+        const denominator = parseInt(parts[1]);
+
+        if (
+          isNaN(numerator) ||
+          isNaN(denominator) ||
+          denominator === 0 ||
+          numerator === 0
+        ) {
+          alert("Invalid aspectRatio. Please enter numerical non-zero values.");
+        }
+
+        return numerator / denominator;
       };
 
       const applySettingsChanges = useCallback(
@@ -76,6 +114,52 @@ export const CameraSettings = React.memo(
         const reactStateUpdate = {} as MediaTrackSettings;
         //@ts-ignore
         reactStateUpdate[settingsKey] = value;
+        props.setCameraSettings({
+          ...props.cameraSettings,
+          ...reactStateUpdate,
+        });
+      };
+
+      const handleResolutionChange = (value: resolution): void => {
+        const aspectRatio = props.cameraSettings.aspectRatio;
+        console.log("ASPECT RATIO", aspectRatio);
+        const height = resolutionHeightLookup[value];
+        const width = aspectRatio * height;
+        const patch: MediaTrackConstraintSet = {
+          width,
+          height,
+          aspectRatio,
+        };
+        const constraints: MediaTrackConstraints = {
+          advanced: [patch],
+        };
+        applySettingsChanges(constraints);
+        const reactStateUpdate = {
+          width,
+          height,
+          aspectRatio,
+        } as MediaTrackSettings;
+        props.setCameraSettings({
+          ...props.cameraSettings,
+          ...reactStateUpdate,
+        });
+      };
+
+      const handleAspectRatioChange = (value: aspectRatio): void => {
+        const aspectRatio = parseAspectRatio(value);
+        const height = props.cameraSettings.height;
+        const patch: MediaTrackConstraintSet = {
+          height,
+          aspectRatio,
+        };
+        const constraints: MediaTrackConstraints = {
+          advanced: [patch],
+        };
+        applySettingsChanges(constraints);
+        const reactStateUpdate = {
+          height,
+          aspectRatio,
+        } as MediaTrackSettings;
         props.setCameraSettings({
           ...props.cameraSettings,
           ...reactStateUpdate,
@@ -129,13 +213,22 @@ export const CameraSettings = React.memo(
             </div>,
           ];
         }
-        return Object.entries(capabilities)
+        let hasWidth = null;
+        let hasHeight = null;
+        let hasAspectRatio = null;
+        const settingsElements = Object.entries(capabilities)
           .sort(capabilitiesSort)
           .map((capability, index) => {
             const [key, value] = capability;
 
             const renderSettingUI = () => {
-              if (Array.isArray(value) && value.length > 1) {
+              if (key === "width") {
+                hasWidth = value;
+              } else if (key === "height") {
+                hasHeight = value;
+              } else if (key === "aspectRatio") {
+                hasAspectRatio = value;
+              } else if (Array.isArray(value) && value.length > 1) {
                 // Render radio buttons for arrays
                 return (
                   <Label style={{ display: "flex" }}>
@@ -247,6 +340,60 @@ export const CameraSettings = React.memo(
               </div>
             );
           });
+
+        // Add special controls for camera resolution if width, height, and aspect ratio are present
+        // All the cameras, OSs, and browsers I've test have at least these three properties.
+        if (hasWidth && hasHeight && hasAspectRatio) {
+          settingsElements.push(
+            <div
+              key={"-1"}
+              style={{
+                padding: "0px 12px",
+              }}
+            >
+              <Label style={{ display: "flex" }}>
+                <div style={{ width: "70%" }}>resolution</div>
+                <SegmentedControl
+                  className="capability-input"
+                  inline
+                  fill={true}
+                  options={["SD", "HD", "FHD", "UHD", "Max"].map((item) => ({
+                    label: item.toString(),
+                    value: item.toString(),
+                  }))}
+                  //value={} // Need to lookup
+                  onValueChange={(v) => handleResolutionChange(v as resolution)}
+                />
+              </Label>
+            </div>
+          );
+          settingsElements.push(
+            <div
+              key={"-2"}
+              style={{
+                padding: "0px 12px",
+              }}
+            >
+              <Label style={{ display: "flex" }}>
+                <div style={{ width: "70%" }}>aspectRatio</div>
+                <SegmentedControl
+                  className="capability-input"
+                  inline
+                  fill={true}
+                  options={["16:9", "4:3", "3:2", "1:1"].map((item) => ({
+                    label: item.toString(),
+                    value: item.toString(),
+                  }))}
+                  //value={}
+                  onValueChange={(v) =>
+                    handleAspectRatioChange(v as aspectRatio)
+                  }
+                />
+              </Label>
+            </div>
+          );
+        }
+        return settingsElements;
       };
 
       return (

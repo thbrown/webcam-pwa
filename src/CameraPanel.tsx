@@ -150,17 +150,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     checkCameraPermission();
   }, []);
 
-  // Persist select fields on change
-  /*
-  useEffect(() => {
-    const storeStateCameraPanel = async () => {
-      localforage.setItem("recordingMode", JSON.stringify(recordingMode));
-      localforage.setItem("capturedFrames", JSON.stringify(capturedFrames));
-    };
-    storeStateCameraPanel();
-  }, [capturedFrames, recordingMode]);
-  */
-
   // Use useRef to store the interval ID so it persists across renders
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -406,6 +395,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             processedCaptures.map((v) => v.image),
             calculatedFPS
           );
+
           await saveVideo(
             videoBlob.blob,
             videoBlob.previewImage,
@@ -703,8 +693,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       <canvas
         ref={canvasRef}
         style={{ display: "none" }}
-        width="640"
-        height="480"
+        width={cameraSettings?.width ?? "640"}
+        height={cameraSettings?.height ?? "480"}
       />
       {savingVideo ? (
         <div>
