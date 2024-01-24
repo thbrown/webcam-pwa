@@ -215,19 +215,39 @@ export const CameraSettings = React.memo(
           MediaTrackSettings[keyof MediaTrackSettings] | undefined
         ]
       ): number => {
-        const lowPriorityKeys: (keyof MediaTrackSettings)[] = [
-          "height",
-          "width",
-          "aspectRatio",
+        const groupedSettings: (keyof MediaTrackSettings)[][] = [
+          [
+            "whiteBalanceMode" as keyof MediaTrackSettings,
+            "colorTemperature" as keyof MediaTrackSettings,
+          ],
+          [
+            "exposureMode" as keyof MediaTrackSettings,
+            "exposureTime" as keyof MediaTrackSettings,
+          ],
+          [
+            "focusMode" as keyof MediaTrackSettings,
+            "focusDistance" as keyof MediaTrackSettings,
+          ],
         ];
-        const indexA = lowPriorityKeys.indexOf(keyA);
-        const indexB = lowPriorityKeys.indexOf(keyB);
 
-        // Move keys found in the low priority list to the bottom
-        if (indexA === -1) return -1;
-        if (indexB === -1) return 1;
+        // Find the custom priority group to which the keys belong
+        const groupA = groupedSettings.find((group) => group.includes(keyA));
+        const groupB = groupedSettings.find((group) => group.includes(keyB));
 
-        return indexA - indexB;
+        if (groupA && groupB && groupA === groupB) {
+          return groupA.indexOf(keyA) - groupA.indexOf(keyB);
+        } else if (groupA && groupB) {
+          return (
+            groupedSettings.indexOf(groupA) - groupedSettings.indexOf(groupB)
+          );
+        } else if (groupA && !groupB) {
+          return 1;
+        } else if (!groupA && groupB) {
+          return -1;
+        } else {
+          // Alphabetical otherwise
+          return keyA.localeCompare(keyB);
+        }
       };
 
       const getAspectRatio = (aspectRatio: number) => {
@@ -247,7 +267,6 @@ export const CameraSettings = React.memo(
 
       const roundToShortReadable = (num: number): number => {
         const absNum = Math.abs(num);
-
         if (absNum >= 1) {
           const magnitude = Math.pow(10, Math.floor(Math.log10(absNum)));
           return (Math.round((num / magnitude) * 10) / 10) * magnitude;
@@ -256,6 +275,7 @@ export const CameraSettings = React.memo(
           return Math.round(num * precision) / precision;
         }
       };
+
       const generateUIForCameraCapabilities = (
         capabilities: MediaTrackCapabilities | undefined,
         settings: MediaTrackSettings | undefined
@@ -286,7 +306,7 @@ export const CameraSettings = React.memo(
                 // Render radio buttons for arrays
                 return (
                   <Label style={{ display: "flex" }}>
-                    <div style={{ width: "70%" }}>{key}</div>
+                    <div style={{ width: "70%", overflow: "auto" }}>{key}</div>
                     <SegmentedControl
                       className="capability-input"
                       key={index}
@@ -330,7 +350,7 @@ export const CameraSettings = React.memo(
                 const shortStep = roundToShortReadable(step);
                 return (
                   <Label style={{ display: "flex" }}>
-                    <div style={{ width: "70%" }}>{key}</div>
+                    <div style={{ width: "70%", overflow: "auto" }}>{key}</div>
                     <div
                       style={{
                         width: "100%",
