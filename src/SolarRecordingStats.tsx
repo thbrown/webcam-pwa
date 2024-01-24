@@ -11,7 +11,7 @@ interface SolarRecordingStatsProps {
   mode: RecordingMode;
   framesCaptured: number;
   outputFPS: number;
-  timeLapseInterval: number;
+  timelapseInterval: number;
   outputDuration: number;
   outputSpec: OutputSpec;
   captureQueue: CaptureTime[];

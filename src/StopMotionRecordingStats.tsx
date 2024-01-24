@@ -11,7 +11,7 @@ interface StopMotionRecordingStatsProps {
   mode: RecordingMode;
   framesCaptured: number;
   outputFPS: number;
-  timeLapseInterval: number;
+  timelapseInterval: number;
   outputDuration: number;
   outputSpec: OutputSpec;
   recordingStatus: RecordingStatus;

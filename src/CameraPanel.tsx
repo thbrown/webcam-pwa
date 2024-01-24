@@ -98,6 +98,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [supportedCameraCapabilities, setSupportedCameraCapabilities] =
     useState<MediaTrackCapabilities | undefined>(undefined);
   const [cameraSettings, setCameraSettings] = useState<MediaTrackSettings>({});
+  const [cameraSettingsLoading, setCameraSettingsLoading] = useState<string[]>(
+    []
+  );
 
   const [isCameraSelectDialogOpen, setIsCameraSelectDialogOpen] =
     useState<boolean>(false);
@@ -452,7 +455,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const stopAndSave = () => {
     if (props.recordingStatus) {
       console.log("Stop recording!!", intervalIdRef.current);
-      setSavingVideo(true); // TODO: show loading overlay
+      setSavingVideo(true);
 
       if (intervalIdRef.current) {
         clearInterval(intervalIdRef.current);
@@ -749,6 +752,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             }}
           ></Button>
         ) : null}
+
         {activeTrack !== undefined ? (
           <div
             style={{
@@ -757,10 +761,19 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
               left: "10px",
               zIndex: "1",
               color: "white",
+              background: "rgba(0,0,0,.5)",
+              borderRadius: "3px",
+              paddingRight: "5px",
+              paddingLeft: "5px",
             }}
           >
-            {activeTrack.getSettings().width} x{" "}
-            {activeTrack.getSettings().height}
+            {cameraSettingsLoading.length === 0 ? (
+              (cameraSettings.width ?? "?") +
+              " x " +
+              (cameraSettings.height ?? "?")
+            ) : (
+              <Spinner size={16} />
+            )}
           </div>
         ) : null}
         <video
@@ -833,6 +846,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     cameraSettings={cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
+                    recordingStatus={props.recordingStatus}
+                    cameraSettingsLoading={cameraSettingsLoading}
+                    setCameraSettingsLoading={setCameraSettingsLoading}
                   />
                 </div>
               </>
@@ -877,6 +893,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     cameraSettings={cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
+                    recordingStatus={props.recordingStatus}
+                    cameraSettingsLoading={cameraSettingsLoading}
+                    setCameraSettingsLoading={setCameraSettingsLoading}
                   />
                 </div>
               </>
@@ -926,6 +945,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     cameraSettings={cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
+                    recordingStatus={props.recordingStatus}
+                    cameraSettingsLoading={cameraSettingsLoading}
+                    setCameraSettingsLoading={setCameraSettingsLoading}
                   />
                 </div>
               </>

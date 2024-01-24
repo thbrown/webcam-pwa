@@ -10,7 +10,7 @@ interface TimelapseRecordingStatsProps {
   mode: RecordingMode;
   framesCaptured: number;
   outputFPS: number;
-  timeLapseInterval: number;
+  timelapseInterval: number;
   outputDuration: number;
   outputSpec: OutputSpec;
   recordingStatus: RecordingStatus;
@@ -45,7 +45,7 @@ export function TimelapseRecordingStats(
       )}
       <div>
         <b>Elapsed Time:</b>{" "}
-        {humanizeDuration(props.framesCaptured * props.timeLapseInterval, {
+        {humanizeDuration(props.framesCaptured * props.timelapseInterval, {
           round: true,
         })}
       </div>

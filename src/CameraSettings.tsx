@@ -10,6 +10,7 @@ import {
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
 import { debounce } from "lodash";
 import { CameraStatus } from "./CameraPanel";
+import { RecordingStatus } from "./App";
 
 interface CameraSettingsProps {
   setCameraSettings: (value: React.SetStateAction<MediaTrackSettings>) => void;
@@ -17,10 +18,13 @@ interface CameraSettingsProps {
   cameraSettings: MediaTrackSettings;
   activeTrack: MediaStreamTrack;
   supportedCameraCapabilities: MediaTrackCapabilities;
+  recordingStatus: RecordingStatus;
+  cameraSettingsLoading: string[];
+  setCameraSettingsLoading: (value: string[]) => void;
 }
 
 type aspectRatio = "16:9" | "4:3" | "3:2" | "1:1";
-type resolution = "SD" | "HD" | "FHD" | "UHD" | "Max" | "Custom";
+type resolution = "SD" | "HD" | "FHD" | "UHD" | "*";
 
 export const CameraSettings = React.memo(
   (props: CameraSettingsProps): JSX.Element => {
@@ -32,15 +36,30 @@ export const CameraSettings = React.memo(
         setAreAdvancedOptionsEnabled((prev) => !prev);
       };
 
+      const invertObject = (
+        obj: Record<string, number | null>
+      ): Record<number | null, string> => {
+        const invertedObj: Record<number | null, string> = {};
+
+        for (const [key, value] of Object.entries(obj)) {
+          invertedObj[value] = key;
+        }
+
+        return invertedObj;
+      };
+
       const resolutionHeightLookup = {
         SD: 480,
         HD: 720,
         FHD: 1080,
-        UHD: 2160,
-        Max: props?.supportedCameraCapabilities?.height?.max, // TODO: exclude this if no max specified
-        Custom: null as number, // TODO: implement this
-        // TODO: all output is // 640 x 480
+        UHD: 2160, // TODO: exclude any of these options that are below the max rez of the frame
+        //Max: props?.supportedCameraCapabilities?.height?.max, // TODO: exclude this if no max specified
+        "*": null as number, // TODO: implement this
       };
+
+      const invertedResolutionHeightLookup = invertObject(
+        resolutionHeightLookup
+      );
 
       const clamp = (value: number, min: number, max: number): number => {
         return Math.min(Math.max(value, min), max);
@@ -73,13 +92,34 @@ export const CameraSettings = React.memo(
 
       const applySettingsChanges = useCallback(
         debounce(async (constraints: MediaTrackConstraints) => {
-          // TODO: Maybe go to loading state here for the camera?
-          console.log("Applying camera settings", constraints);
+          // TODO: We need to save camera settings to localforage and re-apply on load I think...
+          console.log("Applying camera settings", constraints.advanced[0]);
+          props.setCameraSettingsLoading(Object.keys(constraints)); // TODO: we need to make sure this isn't called concurrently
           try {
+            const originalAspectRatio =
+              props.activeTrack.getSettings()?.aspectRatio;
             await props.activeTrack.applyConstraints(constraints);
+            console.log("Constraints applied", props.activeTrack.getSettings());
+            if (constraints.advanced[0].aspectRatio) {
+              if (
+                constraints.advanced[0].aspectRatio !==
+                props.activeTrack.getSettings().aspectRatio
+              ) {
+                console.warn(
+                  "Unexpected aspect ratio change! ",
+                  originalAspectRatio,
+                  props.activeTrack.getSettings().aspectRatio
+                );
+                // Re-apply (Not sure if this works or not)
+                await props.activeTrack.applyConstraints(constraints);
+              }
+            }
             props.setCameraSettings(props.activeTrack.getSettings());
+            // TODO: sometimes the aspect ratio comes back inexplicably different... can we detect this and try to re-apply the correct constraints?
           } catch (e) {
             alert(e);
+          } finally {
+            props.setCameraSettingsLoading([]);
           }
         }, 100),
         [props.activeTrack]
@@ -122,11 +162,10 @@ export const CameraSettings = React.memo(
 
       const handleResolutionChange = (value: resolution): void => {
         const aspectRatio = props.cameraSettings.aspectRatio;
-        console.log("ASPECT RATIO", aspectRatio);
         const height = resolutionHeightLookup[value];
-        const width = aspectRatio * height;
+        const width = Math.round(aspectRatio * height);
         const patch: MediaTrackConstraintSet = {
-          width,
+          //width,
           height,
           aspectRatio,
         };
@@ -135,7 +174,7 @@ export const CameraSettings = React.memo(
         };
         applySettingsChanges(constraints);
         const reactStateUpdate = {
-          width,
+          //width,
           height,
           aspectRatio,
         } as MediaTrackSettings;
@@ -189,6 +228,21 @@ export const CameraSettings = React.memo(
         if (indexB === -1) return 1;
 
         return indexA - indexB;
+      };
+
+      const getAspectRatio = (aspectRatio: number) => {
+        const tolerance = 0.0001;
+        if (Math.abs(aspectRatio - 16 / 9) < tolerance) {
+          return "16:9";
+        } else if (Math.abs(aspectRatio - 4 / 3) < tolerance) {
+          return "4:3";
+        } else if (Math.abs(aspectRatio - 3 / 2) < tolerance) {
+          return "3:2";
+        } else if (Math.abs(aspectRatio - 1 / 1) < tolerance) {
+          return "1:1";
+        } else {
+          return undefined;
+        }
       };
 
       const roundToShortReadable = (num: number): number => {
@@ -344,54 +398,86 @@ export const CameraSettings = React.memo(
         // Add special controls for camera resolution if width, height, and aspect ratio are present
         // All the cameras, OSs, and browsers I've test have at least these three properties.
         if (hasWidth && hasHeight && hasAspectRatio) {
-          settingsElements.push(
-            <div
-              key={"-1"}
-              style={{
-                padding: "0px 12px",
-              }}
-            >
-              <Label style={{ display: "flex" }}>
-                <div style={{ width: "70%" }}>resolution</div>
-                <SegmentedControl
-                  className="capability-input"
-                  inline
-                  fill={true}
-                  options={["SD", "HD", "FHD", "UHD", "Max"].map((item) => ({
-                    label: item.toString(),
-                    value: item.toString(),
-                  }))}
-                  //value={} // Need to lookup
-                  onValueChange={(v) => handleResolutionChange(v as resolution)}
-                />
-              </Label>
-            </div>
-          );
-          settingsElements.push(
-            <div
-              key={"-2"}
-              style={{
-                padding: "0px 12px",
-              }}
-            >
-              <Label style={{ display: "flex" }}>
-                <div style={{ width: "70%" }}>aspectRatio</div>
-                <SegmentedControl
-                  className="capability-input"
-                  inline
-                  fill={true}
-                  options={["16:9", "4:3", "3:2", "1:1"].map((item) => ({
-                    label: item.toString(),
-                    value: item.toString(),
-                  }))}
-                  //value={}
-                  onValueChange={(v) =>
-                    handleAspectRatioChange(v as aspectRatio)
-                  }
-                />
-              </Label>
-            </div>
-          );
+          if (props.recordingStatus === "Stopped") {
+            settingsElements.unshift(
+              <div
+                key={"-2"}
+                style={{
+                  padding: "0px 12px",
+                }}
+              >
+                <Label style={{ display: "flex" }}>
+                  <div style={{ width: "70%" }}>aspectRatio</div>
+                  <SegmentedControl
+                    className="capability-input"
+                    inline
+                    fill={true}
+                    options={["16:9", "4:3", "3:2", "1:1"].map((item) => ({
+                      label: item.toString(),
+                      value: item.toString(),
+                      disabled: props.cameraSettingsLoading.length !== 0,
+                    }))}
+                    value={getAspectRatio(props.cameraSettings.aspectRatio)}
+                    onValueChange={(v) =>
+                      handleAspectRatioChange(v as aspectRatio)
+                    }
+                  />
+                </Label>
+              </div>
+            );
+            settingsElements.unshift(
+              <div
+                key={"-1"}
+                style={{
+                  padding: "0px 12px",
+                }}
+              >
+                <Label style={{ display: "flex" }}>
+                  <div style={{ width: "70%" }}>resolution</div>
+                  <SegmentedControl
+                    className="capability-input"
+                    inline
+                    fill={true}
+                    options={Object.keys(resolutionHeightLookup)
+                      .filter(
+                        (v) =>
+                          resolutionHeightLookup[
+                            v as keyof typeof resolutionHeightLookup
+                          ] <= props?.supportedCameraCapabilities?.height?.max
+                      )
+                      .map((item) => ({
+                        label: item.toString(),
+                        value: item.toString(),
+                        disabled: props.cameraSettingsLoading.length !== 0,
+                      }))}
+                    value={
+                      invertedResolutionHeightLookup[
+                        props.cameraSettings.height
+                      ] ?? "*"
+                    }
+                    onValueChange={(v) =>
+                      handleResolutionChange(v as resolution)
+                    }
+                  />
+                </Label>
+              </div>
+            );
+          } else {
+            settingsElements.unshift(
+              <div
+                key={"-1"}
+                style={{
+                  padding: "18px 12px",
+                  textAlign: "center",
+                }}
+              >
+                <i>
+                  The <b>resolution</b> and <b>aspectRatio</b> settings are not
+                  available while actively recording
+                </i>
+              </div>
+            );
+          }
         }
         return settingsElements;
       };
