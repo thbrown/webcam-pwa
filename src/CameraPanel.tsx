@@ -269,7 +269,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         const track = tracks[0];
         setActiveTrack(track);
 
-        // There is something wrong here causing mismatch between the active camera and the camera actually being used
         if (activeCamera !== track.getSettings().deviceId) {
           console.log("Setting active camera 1", track.getSettings().deviceId);
           setActiveCamera(track.getSettings().deviceId);

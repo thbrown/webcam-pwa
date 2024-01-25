@@ -8,7 +8,7 @@ import {
   Spinner,
 } from "@blueprintjs/core";
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
-import { debounce } from "lodash";
+import { debounce, isArray } from "lodash";
 import { CameraStatus } from "./CameraPanel";
 import { RecordingStatus } from "./App";
 
@@ -39,10 +39,7 @@ export const CameraSettings = React.memo(
         useState<number>(undefined);
 
       useEffect(() => {
-        if (
-          customResolutionWidth !== undefined ||
-          customResolutionHeight !== undefined
-        ) {
+        if (enableCustomResolution) {
           setCustomResolutionHeight(props.cameraSettings.height);
           setCustomResolutionWidth(props.cameraSettings.width);
         }
@@ -70,11 +67,40 @@ export const CameraSettings = React.memo(
         FHD: 1080,
         UHD: 2160,
         "*": null as number,
+        Max: undefined as number,
       };
+
+      // Include or exclude max depending on if it's already included in the standard resolutions
+      if (
+        props.supportedCameraCapabilities?.height?.max &&
+        !Object.values(resolutionHeightLookup).includes(
+          props.supportedCameraCapabilities?.height?.max
+        )
+      ) {
+        resolutionHeightLookup.Max =
+          props.supportedCameraCapabilities?.height?.max;
+      } else {
+        delete resolutionHeightLookup.Max;
+      }
 
       const invertedResolutionHeightLookup = invertObject(
         resolutionHeightLookup
       );
+
+      const groupedSettings: (keyof MediaTrackSettings)[][] = [
+        [
+          "whiteBalanceMode" as keyof MediaTrackSettings,
+          "colorTemperature" as keyof MediaTrackSettings,
+        ],
+        [
+          "exposureMode" as keyof MediaTrackSettings,
+          "exposureTime" as keyof MediaTrackSettings,
+        ],
+        [
+          "focusMode" as keyof MediaTrackSettings,
+          "focusDistance" as keyof MediaTrackSettings,
+        ],
+      ];
 
       const clamp = (value: number, min: number, max: number): number => {
         return Math.min(Math.max(value, min), max);
@@ -109,7 +135,7 @@ export const CameraSettings = React.memo(
         debounce(async (constraints: MediaTrackConstraints) => {
           // TODO: We need to save camera settings to localforage and re-apply on load I think...
           console.log("Applying camera settings", constraints.advanced[0]);
-          props.setCameraSettingsLoading(Object.keys(constraints)); // TODO: we need to make sure this isn't called concurrently
+          props.setCameraSettingsLoading(Object.keys(constraints)); // TODO: we probably want to make sure this isn't called concurrently somehow
           try {
             const originalAspectRatio =
               props.activeTrack.getSettings()?.aspectRatio;
@@ -121,7 +147,7 @@ export const CameraSettings = React.memo(
                 props.activeTrack.getSettings().aspectRatio
               ) {
                 console.warn(
-                  "Unexpected aspect ratio change! ",
+                  "Unexpected aspect ratio change! Attempting re-application",
                   originalAspectRatio,
                   props.activeTrack.getSettings().aspectRatio
                 );
@@ -130,7 +156,6 @@ export const CameraSettings = React.memo(
               }
             }
             props.setCameraSettings(props.activeTrack.getSettings());
-            // TODO: sometimes the aspect ratio comes back inexplicably different... can we detect this and try to re-apply the correct constraints?
           } catch (e) {
             alert(e);
           } finally {
@@ -145,6 +170,32 @@ export const CameraSettings = React.memo(
         settingsKey: keyof MediaTrackConstraintSet
       ): void => {
         const patch: MediaTrackConstraintSet = {};
+
+        // Some values have a toggle to alternate between "manual" and "continuous" (auto) modes.
+        // Selecting these wont have any effect unless we also set a value
+        if (value === "manual") {
+          // Find the custom priority group to which the keys belong
+          const otherSettingsInGroup = groupedSettings
+            .find((group) => group.includes(settingsKey))
+            .filter((v) => v !== settingsKey);
+          for (let settingKey of otherSettingsInGroup) {
+            const currentValue = props.cameraSettings[settingKey] as number;
+            const capabilities = props.supportedCameraCapabilities[
+              settingKey
+            ] as { min: number; max: number };
+            if (capabilities.min && capabilities.max) {
+              if (
+                currentValue <= capabilities.max &&
+                currentValue >= capabilities.min
+              ) {
+                patch[settingKey] = props.cameraSettings[settingKey];
+              } else {
+                patch[settingKey] =
+                  capabilities.min + (capabilities.max - capabilities.min) / 2;
+              }
+            }
+          }
+        }
         patch[settingsKey] = value;
         const constraints: MediaTrackConstraints = {
           advanced: [patch],
@@ -158,20 +209,30 @@ export const CameraSettings = React.memo(
 
       const handleAdvancedOptionNumberChange = (
         value: number,
-        settingsKey: keyof MediaTrackSettings
+        settingsKey: keyof MediaTrackConstraintSet
       ): void => {
         const patch: MediaTrackConstraintSet = {};
-        patch[settingsKey as keyof MediaTrackConstraintSet] = value;
+
+        // Toggle the manual mode if we are changing a setting with a continuous/manual distinction
+        const settingsGroup = groupedSettings
+          .find((group) => group.includes(settingsKey))
+          .filter((v) => v.endsWith("Mode"));
+        for (let settingKey of settingsGroup) {
+          const constr = props.supportedCameraCapabilities[settingKey];
+          // Idk why we need this cast "as never"
+          if (Array.isArray(constr) && constr.includes("manual" as never)) {
+            patch[settingKey] = "manual";
+          }
+        }
+
+        patch[settingsKey] = value;
         const constraints: MediaTrackConstraints = {
           advanced: [patch],
         };
         applySettingsChanges(constraints);
-        const reactStateUpdate = {} as MediaTrackSettings;
-        //@ts-ignore
-        reactStateUpdate[settingsKey] = value;
         props.setCameraSettings({
           ...props.cameraSettings,
-          ...reactStateUpdate,
+          ...(patch as Partial<MediaTrackSettings>),
         });
       };
 
@@ -259,21 +320,6 @@ export const CameraSettings = React.memo(
           MediaTrackSettings[keyof MediaTrackSettings] | undefined
         ]
       ): number => {
-        const groupedSettings: (keyof MediaTrackSettings)[][] = [
-          [
-            "whiteBalanceMode" as keyof MediaTrackSettings,
-            "colorTemperature" as keyof MediaTrackSettings,
-          ],
-          [
-            "exposureMode" as keyof MediaTrackSettings,
-            "exposureTime" as keyof MediaTrackSettings,
-          ],
-          [
-            "focusMode" as keyof MediaTrackSettings,
-            "focusDistance" as keyof MediaTrackSettings,
-          ],
-        ];
-
         // Find the custom priority group to which the keys belong
         const groupA = groupedSettings.find((group) => group.includes(keyA));
         const groupB = groupedSettings.find((group) => group.includes(keyB));
@@ -476,7 +522,7 @@ export const CameraSettings = React.memo(
                     className="capability-input"
                     inline
                     fill={true}
-                    options={["16:9", "4:3", "1:1", "3:2"].map((item) => ({
+                    options={["16:9", "3:2", "4:3", "1:1"].map((item) => ({
                       label: item.toString(),
                       value: item.toString(),
                       disabled: props.cameraSettingsLoading.length !== 0,
