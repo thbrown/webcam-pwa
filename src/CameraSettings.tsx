@@ -23,7 +23,7 @@ interface CameraSettingsProps {
   setCameraSettingsLoading: (value: string[]) => void;
 }
 
-type aspectRatio = "16:9" | "4:3" | "3:2" | "1:1";
+type aspectRatio = "16:9" | "3:2" | "4:3" | "1:1";
 type resolution = "SD" | "HD" | "FHD" | "UHD" | "*";
 
 export const CameraSettings = React.memo(
@@ -31,6 +31,22 @@ export const CameraSettings = React.memo(
     try {
       const [areAdvancedOptionsEnabled, setAreAdvancedOptionsEnabled] =
         useState<boolean>(false);
+      const [enableCustomResolution, setEnableCustomResolution] =
+        useState<boolean>(false);
+      const [customResolutionHeight, setCustomResolutionHeight] =
+        useState<number>(undefined);
+      const [customResolutionWidth, setCustomResolutionWidth] =
+        useState<number>(undefined);
+
+      useEffect(() => {
+        if (
+          customResolutionWidth !== undefined ||
+          customResolutionHeight !== undefined
+        ) {
+          setCustomResolutionHeight(props.cameraSettings.height);
+          setCustomResolutionWidth(props.cameraSettings.width);
+        }
+      }, [props.cameraSettings]);
 
       const handleToggleAdvancedOptions = () => {
         setAreAdvancedOptionsEnabled((prev) => !prev);
@@ -52,9 +68,8 @@ export const CameraSettings = React.memo(
         SD: 480,
         HD: 720,
         FHD: 1080,
-        UHD: 2160, // TODO: exclude any of these options that are below the max rez of the frame
-        //Max: props?.supportedCameraCapabilities?.height?.max, // TODO: exclude this if no max specified
-        "*": null as number, // TODO: implement this
+        UHD: 2160,
+        "*": null as number,
       };
 
       const invertedResolutionHeightLookup = invertObject(
@@ -160,7 +175,34 @@ export const CameraSettings = React.memo(
         });
       };
 
+      const applyCustomResolution = (): void => {
+        const width = customResolutionWidth;
+        const height = customResolutionHeight;
+        const patch: MediaTrackConstraintSet = {
+          width,
+          height,
+        };
+        const constraints: MediaTrackConstraints = {
+          advanced: [patch],
+        };
+        applySettingsChanges(constraints);
+        const reactStateUpdate = {
+          width,
+          height,
+        } as MediaTrackSettings;
+        props.setCameraSettings({
+          ...props.cameraSettings,
+          ...reactStateUpdate,
+        });
+      };
+
       const handleResolutionChange = (value: resolution): void => {
+        if (value === "*") {
+          setEnableCustomResolution(true);
+          return;
+        } else {
+          setEnableCustomResolution(false);
+        }
         const aspectRatio = props.cameraSettings.aspectRatio;
         const height = resolutionHeightLookup[value];
         const width = Math.round(aspectRatio * height);
@@ -182,6 +224,8 @@ export const CameraSettings = React.memo(
           ...props.cameraSettings,
           ...reactStateUpdate,
         });
+        setCustomResolutionWidth(undefined);
+        setCustomResolutionHeight(undefined);
       };
 
       const handleAspectRatioChange = (value: aspectRatio): void => {
@@ -421,7 +465,7 @@ export const CameraSettings = React.memo(
           if (props.recordingStatus === "Stopped") {
             settingsElements.unshift(
               <div
-                key={"-2"}
+                key={"-3"}
                 style={{
                   padding: "0px 12px",
                 }}
@@ -432,7 +476,7 @@ export const CameraSettings = React.memo(
                     className="capability-input"
                     inline
                     fill={true}
-                    options={["16:9", "4:3", "3:2", "1:1"].map((item) => ({
+                    options={["16:9", "4:3", "1:1", "3:2"].map((item) => ({
                       label: item.toString(),
                       value: item.toString(),
                       disabled: props.cameraSettingsLoading.length !== 0,
@@ -445,6 +489,61 @@ export const CameraSettings = React.memo(
                 </Label>
               </div>
             );
+
+            if (enableCustomResolution) {
+              settingsElements.unshift(
+                <Label key={"-2"} style={{ display: "flex" }}>
+                  <div style={{ width: "70%" }}></div>
+                  <div
+                    style={{
+                      display: "flex",
+                      width: "60%",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <input
+                      style={{
+                        minWidth: "50px",
+                        marginLeft: "3px",
+                        marginRight: "3px",
+                      }}
+                      type="number"
+                      placeholder="width"
+                      onChange={(v) => {
+                        const num = parseInt(v.target.value);
+                        setCustomResolutionWidth(isNaN(num) ? undefined : num);
+                      }}
+                      value={customResolutionWidth ?? ""}
+                    ></input>
+                    <input
+                      style={{
+                        minWidth: "50px",
+                        marginLeft: "3px",
+                        marginRight: "3px",
+                      }}
+                      type="number"
+                      placeholder="height"
+                      onChange={(v) => {
+                        const num = parseInt(v.target.value);
+                        setCustomResolutionHeight(isNaN(num) ? undefined : num);
+                      }}
+                      value={customResolutionHeight ?? ""}
+                    ></input>
+                    <Button
+                      style={{
+                        width: "75px",
+                        marginLeft: "3px",
+                        marginRight: "3px",
+                      }}
+                      onClick={applyCustomResolution}
+                      value={customResolutionHeight ?? ""}
+                    >
+                      Apply
+                    </Button>
+                  </div>
+                </Label>
+              );
+            }
             settingsElements.unshift(
               <div
                 key={"-1"}
@@ -471,9 +570,11 @@ export const CameraSettings = React.memo(
                         disabled: props.cameraSettingsLoading.length !== 0,
                       }))}
                     value={
-                      invertedResolutionHeightLookup[
-                        props.cameraSettings.height
-                      ] ?? "*"
+                      enableCustomResolution
+                        ? "*"
+                        : invertedResolutionHeightLookup[
+                            props.cameraSettings.height
+                          ] ?? "*"
                     }
                     onValueChange={(v) =>
                       handleResolutionChange(v as resolution)
