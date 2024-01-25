@@ -3,11 +3,15 @@
   "short_name": "timel.app",
   "icons": [
     {
-      "src": "google-touch-icon.png",
-      "sizes": "512x512"
+      "src": "favicon.svg",
+      "sizes": "48x48 72x72 96x96 128x128 256x256 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ],
-  "background_color": "#ffa500",
-  "theme_color": "#ffa500",
-  "display": "fullscreen"
+  "background_color": "#ffce34",
+  "theme_color": "#ffce34",
+  "display": "standalone",
+  "start_url": "/?source=applaunch",
+  "scope": "/"
 }

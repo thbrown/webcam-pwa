@@ -38,7 +38,8 @@
     "solar-calc": "^1.1.0",
     "suncalc3": "^2.0.5",
     "ts-whammy": "^1.1.4",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "workbox-webpack-plugin": "^7.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.23.6",

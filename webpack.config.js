@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
+const { GenerateSW } = require("workbox-webpack-plugin");
 const BundleAnalyzerPlugin =
   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
@@ -21,6 +22,11 @@ module.exports = {
       filename: isDevServer ? "index.html" : "../docs/index.html",
       template: "src/index.html",
     }),
+    new CopyPlugin({
+      patterns: [{ from: "src/assets", to: "" }],
+    }),
+    new GenerateSW({ maximumFileSizeToCacheInBytes: 50000000 }), // 50MB
+    // new BundleAnalyzerPlugin(),
   ],
   devServer: {
     port: 3030, // you can change the port
@@ -35,16 +41,6 @@ module.exports = {
       fs: false,
     },
   },
-  //plugins: [new BundleAnalyzerPlugin()],
-  // Adding any plugins somehow prevents the index.html file from being served on devServer
-  /*
-  plugins: [
-    new CopyPlugin({
-      patterns: [{ from: "src/assets", to: "" }],
-    }),
-    // new BundleAnalyzerPlugin(),
-  ],
-  */
   module: {
     rules: [
       {
