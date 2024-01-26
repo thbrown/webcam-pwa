@@ -175,6 +175,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   usePersistOnChange(location, "location");
   usePersistOnChange(captureTimes, "captureTimes");
   usePersistOnChange(timelapseInterval, "timelapseInterval");
+  usePersistOnChange(cameraSettings, "cameraSettings");
 
   // Special case the frame re-loading (save frames one at a time for perf reasons)
   useEffect(() => {
@@ -210,6 +211,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       await updateSetting("timelapseInterval", setTimelapseInterval);
       await updateSetting("location", setLocation);
       await updateSetting("captureTimes", setCaptureTimes);
+      await updateSetting("cameraSettings", setCameraSettings);
 
       const frames = await getSavedFrames();
       if (frames !== undefined) setCapturedFrames(frames);
@@ -247,12 +249,12 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
 
   // Access webcam stream
   const startVideo = async (): Promise<void> => {
-    // Get a particular camera
+    // Get camera based of of previous camera settings (or any camera if not available)
     const constraints: MediaStreamConstraints =
-      activeCamera === undefined
+      cameraSettings === undefined
         ? { video: true }
         : {
-            video: { deviceId: { ideal: activeCamera } },
+            video: { advanced: [cameraSettings] },
           };
 
     try {
@@ -270,7 +272,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         setActiveTrack(track);
 
         if (activeCamera !== track.getSettings().deviceId) {
-          console.log("Setting active camera 1", track.getSettings().deviceId);
+          console.log("Setting active camera", track.getSettings().deviceId);
           setActiveCamera(track.getSettings().deviceId);
         }
 
@@ -786,6 +788,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             padding: "3px",
             backgroundColor: "black",
             boxShadow: "0 3px 10px rgb(0 0 0 / 1)",
+            maxHeight: "50vh",
           }}
         />
       </div>

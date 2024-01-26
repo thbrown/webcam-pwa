@@ -16,6 +16,15 @@ interface TimelapseRecordingStatsProps {
   recordingStatus: RecordingStatus;
 }
 
+// TODO: Show a status message if we can't take frames as fast as we can save them
+// TODO: Show progress in save loading? We might need to web-worker whammy in order to make this happen.
+// TODO: Pause the recording if we don't get the exact same resolution when the camera restarts
+// TODO: Set settings to whatever comes back from when we init the camera
+// TODO: Sort recordings?
+// TODO: Disable service worker in dev
+// TODO: Don't show app tab if the web app is already installed
+// TODO: Show some animation about how to install on ios
+// TODO: Fix input to ms per frame
 export function TimelapseRecordingStats(
   props: TimelapseRecordingStatsProps
 ): JSX.Element {

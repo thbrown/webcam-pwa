@@ -61,10 +61,8 @@ export const getSavedFrames = async () => {
 };
 
 export const saveFrame = async (frame: any, index: number) => {
-  console.log("Save frame");
-  console.log("Setting frames pre", index);
   await localforage.setItem<any | null>(getFramesKey(String(index)), frame);
-  console.log("Setting frames post", index);
+  console.log("Frame saved ", index);
   return;
 };
 
