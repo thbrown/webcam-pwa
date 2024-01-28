@@ -8,6 +8,22 @@ const BundleAnalyzerPlugin =
 const isDevServer = process.argv.includes("serve");
 console.log("Is dev server", isDevServer);
 
+const plugins = [
+  new HtmlWebpackPlugin({
+    filename: isDevServer ? "index.html" : "../docs/index.html",
+    template: "src/index.html",
+  }),
+  new CopyPlugin({
+    patterns: [{ from: "src/assets", to: "" }],
+  }),
+  // new BundleAnalyzerPlugin(),
+];
+
+// Only use the service worker in production
+if (!isDevServer) {
+  plugins.push(new GenerateSW({ maximumFileSizeToCacheInBytes: 50000000 })); // 50MB
+}
+
 module.exports = {
   mode: "production",
   devtool: isDevServer ? "eval-source-map" : "source-map",
@@ -17,17 +33,7 @@ module.exports = {
       : path.resolve(__dirname, "docs"), // Because this is where github pages likes it
     filename: "bundle.js",
   },
-  plugins: [
-    new HtmlWebpackPlugin({
-      filename: isDevServer ? "index.html" : "../docs/index.html",
-      template: "src/index.html",
-    }),
-    new CopyPlugin({
-      patterns: [{ from: "src/assets", to: "" }],
-    }),
-    new GenerateSW({ maximumFileSizeToCacheInBytes: 50000000 }), // 50MB
-    // new BundleAnalyzerPlugin(),
-  ],
+  plugins,
   devServer: {
     port: 3030, // you can change the port
     devMiddleware: {

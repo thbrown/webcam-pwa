@@ -65,7 +65,7 @@ export const App: React.FC = () => {
       </HotkeysProvider>
     );
   } catch (e) {
-    console.log(e);
+    console.error(e);
     alert("Top level error" + e + " - " + e.stack);
   }
 };

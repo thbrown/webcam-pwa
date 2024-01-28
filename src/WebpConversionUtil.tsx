@@ -47,6 +47,7 @@ async function innerConvertToWebP(imageBase64: string): Promise<string> {
         };
         reader.readAsDataURL(blob);
       } catch (e) {
+        console.error(e);
         alert("There was a problem converting the image to .webp " + e);
       }
     };

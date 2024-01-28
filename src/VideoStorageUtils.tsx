@@ -68,7 +68,7 @@ export const compileVideo = async (
 
           if (!isNaN(imageIndex)) {
             // Remove the problematic frame and try again!
-            console.warn("Corrupted frame dropped", imageIndex, inputFrames);
+            console.warn("Corrupted frame dropped", imageIndex);
             inputFrames.splice(imageIndex, 1);
           } else {
             throw err;

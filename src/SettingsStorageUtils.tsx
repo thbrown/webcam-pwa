@@ -11,6 +11,11 @@ function getFramesKey(keyUuid: string) {
   return FRAMES_PREFIX + keyUuid;
 }
 
+export const updateSetting = async (key: string, setter: any) => {
+  const value = await getSetting(key);
+  if (value !== null) setter(value);
+};
+
 export const getSetting = async <T,>(
   settingName: string
 ): Promise<T | null> => {
@@ -77,3 +82,24 @@ export const clearFrames = async () => {
   await Promise.all(allStoredPromises);
   return;
 };
+
+// Order matters here (later settings will be applied later, put more important things last)
+export const groupedSettings: (keyof MediaTrackSettings)[][] = [
+  [
+    "whiteBalanceMode" as keyof MediaTrackSettings,
+    "colorTemperature" as keyof MediaTrackSettings,
+  ],
+  [
+    "focusMode" as keyof MediaTrackSettings,
+    "focusDistance" as keyof MediaTrackSettings,
+  ],
+  [
+    "exposureMode" as keyof MediaTrackSettings,
+    "exposureTime" as keyof MediaTrackSettings,
+  ],
+  [
+    "width" as keyof MediaTrackSettings,
+    "height" as keyof MediaTrackSettings,
+    "aspectRatio" as keyof MediaTrackSettings,
+  ],
+];

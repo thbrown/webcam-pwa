@@ -9,7 +9,13 @@ import {
   Tab,
   Tabs,
 } from "@blueprintjs/core";
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   Time,
   Stopwatch,
@@ -36,7 +42,10 @@ import {
   getSavedFrames,
   saveFrame,
   clearFrames,
+  updateSetting,
+  groupedSettings,
 } from "./SettingsStorageUtils";
+import { debounce } from "lodash";
 
 export type RecordingMode = "Timelapse" | "StopMotion" | "Solar";
 export type OutputSpec = "FPS" | "Duration";
@@ -106,7 +115,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     useState<boolean>(false);
 
   const [activeTrack, setActiveTrack] = useState<MediaStreamTrack>(undefined);
-  const [activeCamera, setActiveCamera] = useState<string>(undefined);
   const [availableCameras, setAvailableCameras] =
     useState<MediaDeviceInfo[]>(undefined);
 
@@ -199,19 +207,15 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     const storeStateCameraPanel = async () => {
       if (cameraStatus !== "initialized") return;
 
-      console.log("Camera initialized! Loading saved state (if available)");
-
-      const updateSetting = async (key: string, setter: any) => {
-        const value = await getSetting(key);
-        if (value !== null) setter(value);
-      };
+      console.log(
+        "Camera initialized! Loading additional saved state (if available)"
+      );
 
       await updateSetting("recordingMode", setRecordingMode);
       await updateSetting("recordingStatus", props.setRecordingStatus);
       await updateSetting("timelapseInterval", setTimelapseInterval);
       await updateSetting("location", setLocation);
       await updateSetting("captureTimes", setCaptureTimes);
-      await updateSetting("cameraSettings", setCameraSettings);
 
       const frames = await getSavedFrames();
       if (frames !== undefined) setCapturedFrames(frames);
@@ -247,6 +251,14 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   // Use useRef to store the interval ID so it persists across renders
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
+  const removeObjectProperty = <T, K extends keyof T>(
+    obj: T,
+    property: K
+  ): Omit<T, K> => {
+    const { [property]: removedProperty, ...rest } = obj;
+    return rest;
+  };
+
   // Access webcam stream
   const startVideo = async (): Promise<void> => {
     // Get camera based of of previous camera settings (or any camera if not available)
@@ -254,11 +266,22 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       cameraSettings === undefined
         ? { video: true }
         : {
-            video: { advanced: [cameraSettings] },
+            video: {
+              // TODO: figure out why some of these don't take
+              advanced: [
+                {
+                  deviceId: cameraSettings.deviceId,
+                  //width: cameraSettings.width,
+                  //height: cameraSettings.height,
+                  //exposureMode: cameraSettings.exposureMode,
+                  //exposureTime: cameraSettings.exposureTime,
+                },
+              ],
+            },
           };
 
     try {
-      console.log("Getting camera with constraints ", constraints);
+      console.log("Getting camera ", cameraSettings.deviceId);
       const mediaStream = await navigator.mediaDevices.getUserMedia(
         constraints
       );
@@ -268,13 +291,32 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         videoRef.current.srcObject = mediaStream;
 
         const tracks = mediaStream.getVideoTracks();
+        console.log(
+          "Got camera with settings: ",
+          tracks,
+          tracks[0].getSettings()
+        );
+
         const track = tracks[0];
         setActiveTrack(track);
 
-        if (activeCamera !== track.getSettings().deviceId) {
-          console.log("Setting active camera", track.getSettings().deviceId);
-          setActiveCamera(track.getSettings().deviceId);
-        }
+        // TODO: Why can't we we just do this when we get the track for the first time. Why doesn't it take?
+        const constraintsWithoutDeviceId = removeObjectProperty(
+          cameraSettings,
+          "deviceId"
+        );
+        console.log(
+          "Applying constraints from settings",
+          constraintsWithoutDeviceId
+        );
+
+        const patch: MediaTrackConstraints = {
+          advanced: [constraintsWithoutDeviceId as MediaTrackConstraintSet],
+        };
+
+        // Never set device id here - it causes re-initialization
+        delete patch.deviceId;
+        await applySettingsChanges(patch, track);
 
         // Get a list of all available video inputs (only once)
         if (availableCameras === undefined) {
@@ -284,7 +326,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           for (let i = 0; i !== allDevices.length; ++i) {
             const deviceInfo = allDevices[i];
             if (deviceInfo.kind === "videoinput") {
-              console.log("Got camera: ", deviceInfo);
+              console.log("Available camera: ", deviceInfo);
               availableCameras.push(deviceInfo);
             }
           }
@@ -500,7 +542,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           setCapturedFrames([]);
           setSavingVideo(false);
         }
-      }, /*timelapseInterval +*/ 100); // Wait slightly longer than the capture interval (I don't think this is necessary?)
+      }, 100);
     }
   };
 
@@ -516,6 +558,183 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     }
     props.setRecordingStatus("Paused");
   };
+
+  const applySettingsChanges = useCallback(
+    async (
+      constraints: MediaTrackConstraints,
+      inputActiveTrack?: MediaStreamTrack
+    ) => {
+      // Call this before debounce to maintain better ui responsiveness
+      console.log("Applying camera settings", constraints.advanced[0]);
+      setCameraSettings({
+        ...cameraSettings,
+        ...(constraints.advanced[0] as MediaTrackSettings),
+      });
+      await applySettingsChangesInner(constraints, inputActiveTrack);
+    },
+    [activeTrack, cameraSettings]
+  );
+
+  const applySettingsChangesInner = useCallback(
+    debounce(
+      async (
+        constraints: MediaTrackConstraints,
+        inputActiveTrack?: MediaStreamTrack
+      ) => {
+        const track = inputActiveTrack ?? activeTrack;
+        setCameraSettingsLoading(Object.keys(constraints)); // TODO: we probably want to make sure this isn't called concurrently somehow
+
+        // Switching cameras requires a whole different media track
+        if (constraints.advanced[0].deviceId !== undefined) {
+          // Remove
+          console.log("DeviceId has been changed");
+          setIsCameraInitializing(); // TODO in init we just need to apply settings
+          return;
+        }
+
+        if (constraints.advanced.length !== 1) {
+          throw new Error(
+            "This method only supports a single element in the advanced array"
+          );
+        }
+
+        try {
+          const allConstraints = Object.keys(
+            constraints.advanced[0]
+          ) as (keyof MediaTrackConstraintSet)[];
+
+          // TODO: don't apply aspectRatio AND width/height (We need to map aspect ratio to width/height)
+          // TODO: We are starting to capture frames on restart before the camera is ready, which breaks the video compile
+
+          // Apply the constraints one at a time (otherwise we will get an overconstrained error about mixing video and photo constraints)
+          const singularPatches = {} as {
+            [key in keyof MediaTrackConstraintSet]: MediaTrackConstraintSet;
+          };
+          const groupPatches = {} as {
+            [key in string]: MediaTrackConstraintSet;
+          };
+
+          for (let constraint of allConstraints) {
+            if (["groupId"].includes(constraint)) {
+              continue;
+            }
+
+            // Build the patch
+            const targetValue = constraints.advanced[0][constraint];
+            const patch = {};
+            //@ts-ignore
+            patch[constraint] = targetValue;
+
+            // Check if this setting belongs to a known group
+            const group = groupedSettings.findIndex((group) =>
+              group.includes(constraint)
+            );
+
+            // Remember the patch
+            if (group === -1) {
+              // This setting gets applied by itself
+              singularPatches[constraint] = patch;
+            } else {
+              const groupKey = new String(group) as string;
+              // This setting gets applied with other settings in its group (if specified)
+              if (groupPatches[groupKey] === undefined) {
+                groupPatches[groupKey] = patch;
+              } else {
+                groupPatches[groupKey] = {
+                  ...groupPatches[groupKey],
+                  ...patch,
+                };
+              }
+            }
+          }
+
+          // Apply singular patches
+          for (let patchIndex of Object.keys(singularPatches)) {
+            const patch =
+              singularPatches[patchIndex as keyof MediaTrackConstraintSet];
+            await track.applyConstraints(patch);
+
+            const targetKey = Object.keys(
+              patch
+            )[0] as keyof MediaTrackConstraintSet;
+            const targetValue = patch[targetKey];
+
+            if (track.getSettings()[targetKey] !== targetValue) {
+              console.warn(
+                "Failed to apply",
+                targetKey,
+                targetValue,
+                "value is",
+                track.getSettings()[targetKey]
+              );
+            } else {
+              console.log(
+                "Successfully applied",
+                targetKey,
+                targetValue,
+                "value is",
+                track.getSettings()[targetKey]
+              );
+            }
+          }
+
+          // Apply group patches
+          // TODO: can we still apply a value for sliders in continuous mode without issues?
+          const sortedKeys = Object.keys(groupPatches).sort(
+            (a, b) => parseInt(a) - parseInt(b)
+          );
+          console.log(sortedKeys);
+          for (let patchIndex of sortedKeys) {
+            const patch = groupPatches[patchIndex];
+            await track.applyConstraints(patch);
+
+            const keysInPatch = Object.keys(patch);
+            for (let keyInPatch of keysInPatch) {
+              const targetKey = keyInPatch as keyof MediaTrackConstraintSet;
+              const targetValue = patch[targetKey];
+
+              // TODO: aspect ratio comparisons should have some tolerance
+
+              if (track.getSettings()[targetKey] !== targetValue) {
+                console.warn(
+                  "Failed to apply (group settings)",
+                  targetKey,
+                  targetValue,
+                  "value is",
+                  track.getSettings()[targetKey]
+                );
+                // Re-apply width/height/aspectRatio changes, these are really important
+                if (targetKey === "width" || targetKey === "height") {
+                  delete patch.aspectRatio;
+                  console.log(
+                    `Re-applying ${targetKey} constraints without aspect ratio`
+                  );
+                  await track.applyConstraints(patch);
+                }
+              } else {
+                console.log(
+                  "Successfully applied (group settings)",
+                  targetKey,
+                  targetValue,
+                  "value is",
+                  track.getSettings()[targetKey]
+                );
+              }
+            }
+          }
+          console.log("Camera setting application complete");
+          setCameraSettings(track.getSettings());
+        } catch (e) {
+          console.error(e);
+          alert(e);
+        } finally {
+          setCameraSettingsLoading([]);
+        }
+      },
+      100
+    ),
+    [activeTrack]
+  );
 
   const resizeVideo = () => {
     console.log("VIDEO RESIZE ");
@@ -547,7 +766,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     );
   };
 
-  const setIsCameraInitializing = () => {
+  const setIsCameraInitializing = async () => {
+    // We need to load settings before we get the camera so we know what camera to get
+    await updateSetting("cameraSettings", setCameraSettings);
     setCameraStatus("initializing");
   };
 
@@ -630,10 +851,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           </div>
         );
       case "granted":
-        // Show spinner -  this shouldn't happen, granted should always mean initialized
-        props.setInfoDialogContent(
-          <div>Error on page involving Camera permissions. Try refreshing.</div>
-        );
       case undefined:
         // Spinner
         return (
@@ -713,12 +930,23 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         <DialogBody>
           {
             <RadioGroup
-              onChange={(v: React.ChangeEvent<HTMLInputElement>) => {
+              onChange={async (v: React.ChangeEvent<HTMLInputElement>) => {
                 console.log("Selected a camera", v.target.value);
-                setActiveCamera(v.target.value);
-                setIsCameraInitializing();
+                const patch: MediaTrackConstraintSet = {
+                  deviceId: v.target.value,
+                };
+                const constraints: MediaTrackConstraints = {
+                  advanced: [patch],
+                };
+                // This will persist and get picked up on re-init
+                //</DialogBody>setCameraSettings({
+                //  ...cameraSettings,
+                //  ...(constraints.advanced[0] as MediaTrackSettings),
+                //});
+                await applySettingsChanges(constraints);
+                console.log("Did we wait?");
               }}
-              selectedValue={activeCamera}
+              selectedValue={cameraSettings.deviceId}
             >
               {getCameraRadioOptions()}
             </RadioGroup>
@@ -851,6 +1079,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     recordingStatus={props.recordingStatus}
                     cameraSettingsLoading={cameraSettingsLoading}
                     setCameraSettingsLoading={setCameraSettingsLoading}
+                    applySettingsChanges={applySettingsChanges}
                   />
                 </div>
               </>
@@ -898,6 +1127,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     recordingStatus={props.recordingStatus}
                     cameraSettingsLoading={cameraSettingsLoading}
                     setCameraSettingsLoading={setCameraSettingsLoading}
+                    applySettingsChanges={applySettingsChanges}
                   />
                 </div>
               </>
@@ -950,6 +1180,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     recordingStatus={props.recordingStatus}
                     cameraSettingsLoading={cameraSettingsLoading}
                     setCameraSettingsLoading={setCameraSettingsLoading}
+                    applySettingsChanges={applySettingsChanges}
                   />
                 </div>
               </>
