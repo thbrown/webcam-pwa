@@ -53,7 +53,7 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
   }, []);
 
   const times = getTimes(props.location.latitude, props.location.longitude);
-  const timeEntries = getUniqueTypes(times); // TODO: we should just enumerate these but might switch to suncalc3
+  const timeEntries = getUniqueTypes(times);
 
   // TODO: what if dates are invalid???
 

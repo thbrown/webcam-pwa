@@ -267,14 +267,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         ? { video: true }
         : {
             video: {
-              // TODO: figure out why some of these don't take
               advanced: [
                 {
                   deviceId: cameraSettings.deviceId,
-                  //width: cameraSettings.width,
-                  //height: cameraSettings.height,
-                  //exposureMode: cameraSettings.exposureMode,
-                  //exposureTime: cameraSettings.exposureTime,
                 },
               ],
             },
@@ -300,7 +295,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         const track = tracks[0];
         setActiveTrack(track);
 
-        // TODO: Why can't we we just do this when we get the track for the first time. Why doesn't it take?
         const constraintsWithoutDeviceId = removeObjectProperty(
           cameraSettings,
           "deviceId"
@@ -570,7 +564,11 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         ...cameraSettings,
         ...(constraints.advanced[0] as MediaTrackSettings),
       });
-      await applySettingsChangesInner(constraints, inputActiveTrack);
+      return new Promise((resolve) => {
+        applySettingsChangesInner(constraints, inputActiveTrack, () => {
+          resolve(null);
+        });
+      });
     },
     [activeTrack, cameraSettings]
   );
@@ -579,8 +577,11 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     debounce(
       async (
         constraints: MediaTrackConstraints,
-        inputActiveTrack?: MediaStreamTrack
+        inputActiveTrack: MediaStreamTrack,
+        callback: () => void
       ) => {
+        console.log("START core apply");
+
         const track = inputActiveTrack ?? activeTrack;
         setCameraSettingsLoading(Object.keys(constraints)); // TODO: we probably want to make sure this isn't called concurrently somehow
 
@@ -602,9 +603,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           const allConstraints = Object.keys(
             constraints.advanced[0]
           ) as (keyof MediaTrackConstraintSet)[];
-
-          // TODO: don't apply aspectRatio AND width/height (We need to map aspect ratio to width/height)
-          // TODO: We are starting to capture frames on restart before the camera is ready, which breaks the video compile
 
           // Apply the constraints one at a time (otherwise we will get an overconstrained error about mixing video and photo constraints)
           const singularPatches = {} as {
@@ -729,6 +727,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           alert(e);
         } finally {
           setCameraSettingsLoading([]);
+          callback();
         }
       },
       100

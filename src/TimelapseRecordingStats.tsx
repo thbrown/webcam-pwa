@@ -25,10 +25,12 @@ interface TimelapseRecordingStatsProps {
 // TODO: Sort recordings?
 // TODO: Show some animation about how to install on ios
 // TODO: why can't I drag iso?
-// TODO: lock screen? doe this already work?
-// TODO: can't change camera
+// TODO: lock screen? does this already work?
 // TODO: save default camera values?
-// TODO: Disable service worker in dev - DONE
+// TODO: Show speed up x in status?
+// TODO: Save pictures option
+// TODO: Allow resuming video? or some kind of preview?
+// TODO: Test solar timelapse
 
 export function TimelapseRecordingStats(
   props: TimelapseRecordingStatsProps
