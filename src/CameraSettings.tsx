@@ -168,7 +168,6 @@ export const CameraSettings = React.memo(
         settingsKey: keyof MediaTrackConstraintSet
       ): void => {
         const patch: MediaTrackConstraintSet = {};
-        console.log("Number change", settingsKey, value);
 
         // Toggle the manual mode if we are changing a setting with a continuous/manual distinction
         const settingsGroup = groupedSettings

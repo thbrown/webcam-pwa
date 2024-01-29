@@ -86,7 +86,7 @@ export function SavedVideoPanel(
         return <Flash />;
       default:
         // Never
-        return "default-icon";
+        return type;
     }
   };
 

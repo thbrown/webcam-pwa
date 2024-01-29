@@ -559,7 +559,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       inputActiveTrack?: MediaStreamTrack
     ) => {
       // Call this before debounce to maintain better ui responsiveness
-      console.log("Applying camera settings", constraints.advanced[0]);
       setCameraSettings({
         ...cameraSettings,
         ...(constraints.advanced[0] as MediaTrackSettings),
@@ -580,7 +579,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         inputActiveTrack: MediaStreamTrack,
         callback: () => void
       ) => {
-        console.log("START core apply");
+        console.log("Applying camera settings", constraints.advanced[0]);
 
         const track = inputActiveTrack ?? activeTrack;
         setCameraSettingsLoading(Object.keys(constraints)); // TODO: we probably want to make sure this isn't called concurrently somehow
@@ -681,7 +680,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           const sortedKeys = Object.keys(groupPatches).sort(
             (a, b) => parseInt(a) - parseInt(b)
           );
-          console.log(sortedKeys);
           for (let patchIndex of sortedKeys) {
             const patch = groupPatches[patchIndex];
             await track.applyConstraints(patch);
