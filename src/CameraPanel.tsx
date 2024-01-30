@@ -8,6 +8,7 @@ import {
   Spinner,
   Tab,
   Tabs,
+  Tooltip,
 } from "@blueprintjs/core";
 import React, {
   useRef,
@@ -22,6 +23,7 @@ import {
   Camera,
   MobileVideo,
   Flash,
+  Refresh,
 } from "@blueprintjs/icons";
 import { RecordingStatus } from "./App";
 import { compileVideo, saveVideo } from "./VideoStorageUtils";
@@ -935,13 +937,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                 const constraints: MediaTrackConstraints = {
                   advanced: [patch],
                 };
-                // This will persist and get picked up on re-init
-                //</DialogBody>setCameraSettings({
-                //  ...cameraSettings,
-                //  ...(constraints.advanced[0] as MediaTrackSettings),
-                //});
                 await applySettingsChanges(constraints);
-                console.log("Did we wait?");
               }}
               selectedValue={cameraSettings.deviceId}
             >
@@ -964,19 +960,44 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       <div className="parent">
         {cameraOverlay}
         {cameraStatus === "initialized" ? (
-          <Button
+          <div
             style={{
               position: "absolute",
               top: "10px",
               right: "10px",
               zIndex: "1",
             }}
-            large={true}
-            icon={<MobileVideo />}
-            onClick={() => {
-              setIsCameraSelectDialogOpen(true);
+          >
+            <Tooltip content="Select camera">
+              <Button
+                large={true}
+                icon={<MobileVideo />}
+                onClick={() => {
+                  setIsCameraSelectDialogOpen(true);
+                }}
+              ></Button>
+            </Tooltip>
+          </div>
+        ) : null}
+        {cameraStatus === "initialized" ? (
+          <div
+            style={{
+              position: "absolute",
+              top: "60px",
+              right: "10px",
+              zIndex: "1",
             }}
-          ></Button>
+          >
+            <Tooltip content="Refresh camera">
+              <Button
+                large={true}
+                icon={<Refresh />}
+                onClick={() => {
+                  window.location.reload();
+                }}
+              ></Button>
+            </Tooltip>
+          </div>
         ) : null}
 
         {activeTrack !== undefined ? (

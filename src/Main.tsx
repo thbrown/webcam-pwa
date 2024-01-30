@@ -54,6 +54,7 @@ export function Main(props: MainProps): JSX.Element {
       preventDefault: () => void;
     }) => {
       event.preventDefault();
+      console.log("Deferring PWA install prompt");
       setDeferredPrompt(event);
     };
 
@@ -78,6 +79,11 @@ export function Main(props: MainProps): JSX.Element {
       deferredPrompt.userChoice.then((choiceResult: { outcome: string }) => {
         if (choiceResult.outcome === "accepted") {
           console.log("User accepted the install prompt");
+
+          // TODO: I think we need to resize the videoElement here
+          setTimeout(() => {
+            console.log("INSTALLED!");
+          }, 1000);
         } else {
           console.log("User dismissed the install prompt");
         }
@@ -143,7 +149,7 @@ export function Main(props: MainProps): JSX.Element {
             savedVideos === undefined ? undefined : savedVideos.length
           }
         />
-        {deferredPrompt === undefined ? null : (
+        {deferredPrompt === null ? null : (
           <Tab
             className="no-highlight minimal-top-margin"
             id="app"

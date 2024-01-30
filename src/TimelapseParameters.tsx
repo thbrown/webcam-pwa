@@ -1,5 +1,5 @@
 import { Classes, Divider, Label } from "@blueprintjs/core";
-import React from "react";
+import React, { useState } from "react";
 import { OutputSpec } from "./CameraPanel";
 import "./Main.scss";
 import { OutputSpecProps } from "./OutputSpec";
@@ -47,7 +47,6 @@ export function TimelapseParameters(
                 type="number"
                 id="time-between-frames"
                 className={Classes.INPUT}
-                value={props.timelapseInterval}
                 placeholder={String(props.timelapseInterval)}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const newValue = Number(e.target.value);
