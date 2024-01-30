@@ -30,16 +30,27 @@ interface SolarParametersProps {
 }
 
 export function SolarParameters(props: SolarParametersProps): JSX.Element {
-  const initialLong = useMemo(() => props.location.longitude, []);
-  const initialLat = useMemo(() => props.location.latitude, []);
-
   const [areSolarPositionsEnabled, setAreSolarPositionsEnabled] =
     useState<boolean>(true);
   const [time, setTime] = useState<number>(new Date().getTime());
+  const [localLongitude, setLocalLongitude] = useState<number | "">(
+    props.location.longitude
+  );
+  const [localLatitude, setLocalLatitude] = useState<number | "">(
+    props.location.latitude
+  );
 
   const handleToggleSolarPositions = () => {
     setAreSolarPositionsEnabled(!areSolarPositionsEnabled);
   };
+
+  useEffect(() => {
+    setLocalLongitude(props.location.longitude);
+  }, [props.location.longitude]);
+
+  useEffect(() => {
+    setLocalLatitude(props.location.latitude);
+  }, [props.location.latitude]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -120,15 +131,29 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
               <input
                 type="number"
                 className={Classes.INPUT}
-                placeholder={String(initialLat)}
-                value={props.location.latitude}
+                placeholder={String(props.location.latitude)}
+                value={localLatitude}
+                style={{
+                  backgroundColor:
+                    props.location.latitude !== localLatitude
+                      ? "pink"
+                      : undefined,
+                }}
                 onChange={(v) => {
-                  const newValue = Number(v.target.value);
-                  props.setLocation({
-                    ...props.location,
-                    latitude:
-                      isNaN(newValue) || newValue <= 0 ? initialLat : newValue,
-                  });
+                  const newValue = parseFloat(v.target.value);
+                  if (
+                    isNaN(newValue) ||
+                    newValue < -90 ||
+                    newValue > 90 ||
+                    props.location.latitude === newValue
+                  ) {
+                    setLocalLatitude(isNaN(newValue) ? "" : newValue);
+                  } else {
+                    props.setLocation({
+                      ...props.location,
+                      latitude: newValue,
+                    });
+                  }
                 }}
               />
             </div>
@@ -137,15 +162,29 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
               <input
                 type="number"
                 className={Classes.INPUT}
-                placeholder={String(initialLong)}
-                value={props.location.longitude}
+                placeholder={String(props.location.longitude)}
+                value={localLongitude}
+                style={{
+                  backgroundColor:
+                    props.location.longitude !== localLongitude
+                      ? "pink"
+                      : undefined,
+                }}
                 onChange={(v) => {
-                  const newValue = Number(v.target.value);
-                  props.setLocation({
-                    ...props.location,
-                    longitude:
-                      isNaN(newValue) || newValue <= 0 ? initialLong : newValue,
-                  });
+                  const newValue = parseFloat(v.target.value);
+                  if (
+                    isNaN(newValue) ||
+                    newValue < -180 ||
+                    newValue > 180 ||
+                    props.location.longitude === newValue
+                  ) {
+                    setLocalLongitude(isNaN(newValue) ? "" : newValue);
+                  } else {
+                    props.setLocation({
+                      ...props.location,
+                      longitude: newValue,
+                    });
+                  }
                 }}
               />
             </div>
@@ -156,7 +195,6 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
                 const success = (position: {
                   coords: { latitude: any; longitude: any };
                 }) => {
-                  console.log("LOCATION IS", position);
                   props.setLocation({
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude,
@@ -179,7 +217,7 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
                       break;
                   }
                 };
-                navigator.geolocation.getCurrentPosition(success);
+                navigator.geolocation.getCurrentPosition(success, showError);
               }}
             >
               Get My Location

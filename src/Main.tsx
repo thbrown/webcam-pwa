@@ -163,8 +163,7 @@ export function Main(props: MainProps): JSX.Element {
                 }}
               >
                 <div style={{ padding: "20px", textAlign: "center" }}>
-                  timel.app is available as a PWA for installation on your
-                  device.
+                  timel.app is available for installation on your device.
                 </div>
                 <div style={{ padding: "20px", textAlign: "center" }}>
                   <img
