@@ -112,6 +112,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [cameraSettingsLoading, setCameraSettingsLoading] = useState<string[]>(
     []
   );
+  const [statusMessages, setStatusMessages] = useState<{}>({});
 
   const [isCameraSelectDialogOpen, setIsCameraSelectDialogOpen] =
     useState<boolean>(false);

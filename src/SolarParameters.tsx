@@ -40,15 +40,24 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
     props.location.latitude
   );
 
+  const initialLong = useMemo(() => props.location.longitude, []);
+  const initialLat = useMemo(() => props.location.latitude, []);
+
   const handleToggleSolarPositions = () => {
     setAreSolarPositionsEnabled(!areSolarPositionsEnabled);
   };
 
   useEffect(() => {
+    if (props.location.longitude === initialLong && localLongitude === "") {
+      return;
+    }
     setLocalLongitude(props.location.longitude);
   }, [props.location.longitude]);
 
   useEffect(() => {
+    if (props.location.latitude === initialLat && localLatitude === "") {
+      return;
+    }
     setLocalLatitude(props.location.latitude);
   }, [props.location.latitude]);
 
@@ -57,7 +66,6 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
       setTime(new Date().getTime());
     }, 1000);
 
-    // Clear the interval when the component is unmounted
     return () => {
       clearInterval(intervalId);
     };
@@ -65,8 +73,6 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
 
   const times = getTimes(props.location.latitude, props.location.longitude);
   const timeEntries = getUniqueTypes(times);
-
-  // TODO: what if dates are invalid???
 
   const timeCheckboxes = [];
   for (let entry of timeEntries) {
@@ -131,7 +137,7 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
               <input
                 type="number"
                 className={Classes.INPUT}
-                placeholder={String(props.location.latitude)}
+                placeholder={String(initialLat)}
                 value={localLatitude}
                 style={{
                   backgroundColor:
@@ -148,6 +154,12 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
                     props.location.latitude === newValue
                   ) {
                     setLocalLatitude(isNaN(newValue) ? "" : newValue);
+                    if (isNaN(newValue)) {
+                      props.setLocation({
+                        ...props.location,
+                        latitude: initialLat,
+                      });
+                    }
                   } else {
                     props.setLocation({
                       ...props.location,
@@ -162,7 +174,7 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
               <input
                 type="number"
                 className={Classes.INPUT}
-                placeholder={String(props.location.longitude)}
+                placeholder={String(initialLong)}
                 value={localLongitude}
                 style={{
                   backgroundColor:
@@ -179,6 +191,12 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
                     props.location.longitude === newValue
                   ) {
                     setLocalLongitude(isNaN(newValue) ? "" : newValue);
+                    if (isNaN(newValue)) {
+                      props.setLocation({
+                        ...props.location,
+                        longitude: initialLong,
+                      });
+                    }
                   } else {
                     props.setLocation({
                       ...props.location,
