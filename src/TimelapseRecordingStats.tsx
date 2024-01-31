@@ -14,6 +14,7 @@ interface TimelapseRecordingStatsProps {
   outputDuration: number;
   outputSpec: OutputSpec;
   recordingStatus: RecordingStatus;
+  statusMessages: { [key: string]: string };
 }
 
 // TODO: Don't show app tab if the web app is already installed
@@ -37,6 +38,12 @@ export function TimelapseRecordingStats(
 ): JSX.Element {
   return (
     <div style={{ padding: "10px" }}>
+      {Object.keys(props.statusMessages).length !== 0 ? (
+        <div>
+          <b>Status Message: </b>
+          {Object.values(props.statusMessages).join(", ")}
+        </div>
+      ) : null}
       <div>
         <b>Status:</b> {props.recordingStatus}
       </div>

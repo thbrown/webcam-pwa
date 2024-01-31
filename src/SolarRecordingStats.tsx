@@ -17,6 +17,7 @@ interface SolarRecordingStatsProps {
   captureQueue: CaptureTime[];
   location: Location;
   recordingStatus: RecordingStatus;
+  statusMessages: { [key: string]: string };
 }
 
 export function SolarRecordingStats(
@@ -56,6 +57,12 @@ export function SolarRecordingStats(
   }
   return (
     <div style={{ padding: "10px" }}>
+      {Object.keys(props.statusMessages).length !== 0 ? (
+        <div>
+          <b>Status Message: </b>
+          {Object.values(props.statusMessages).join(", ")}
+        </div>
+      ) : null}
       <div>
         <b>Status:</b> {props.recordingStatus}
       </div>

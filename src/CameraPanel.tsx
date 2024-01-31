@@ -112,7 +112,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [cameraSettingsLoading, setCameraSettingsLoading] = useState<string[]>(
     []
   );
-  const [statusMessages, setStatusMessages] = useState<{}>({});
+  const [statusMessages, setStatusMessages] = useState<{
+    [key: string]: string;
+  }>({});
 
   const [isCameraSelectDialogOpen, setIsCameraSelectDialogOpen] =
     useState<boolean>(false);
@@ -253,6 +255,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
 
   // Use useRef to store the interval ID so it persists across renders
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
+  const lastFrameTimestamp = useRef<number | null>(null);
+  const framesCapturedInSession = useRef<number | null>(null);
 
   const removeObjectProperty = <T, K extends keyof T>(
     obj: T,
@@ -380,6 +384,35 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const captureFrame = async (
     captureQueue?: CaptureTime[] // Just used for solar capture
   ): Promise<CapturedFrame> => {
+    // Detect slow recording (if more than 10% too slow)
+    framesCapturedInSession.current =
+      (framesCapturedInSession.current ?? 0) + 1;
+    if (recordingMode === "Timelapse") {
+      if (
+        lastFrameTimestamp.current &&
+        Date.now() - lastFrameTimestamp.current >
+          timelapseInterval + timelapseInterval * 0.15 &&
+        framesCapturedInSession.current > 2 // Might take a couple frames to reach steady state
+      ) {
+        console.warn(
+          "Slow frame detected",
+          lastFrameTimestamp.current,
+          Date.now() - lastFrameTimestamp.current,
+          timelapseInterval + timelapseInterval * 0.1,
+          framesCapturedInSession.current
+        );
+        setStatusMessages({
+          ...statusMessages,
+          slow: "WARNING - this device's hardware isn't powerful enough to capture frames at the set rate! Frames will be captured a the fastest rate possible for your selected settings.",
+        });
+      } else {
+        const copy = { ...statusMessages };
+        delete copy.slow;
+        setStatusMessages(copy);
+      }
+      lastFrameTimestamp.current = Date.now();
+    }
+
     if (canvasRef.current && videoRef.current) {
       const context = canvasRef.current.getContext("2d");
       if (context) {
@@ -392,10 +425,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         );
         const frameImageData = canvasRef.current.toDataURL("image/webp");
 
-        // TODO: it's a fun idea to color resolution text based of the background, but it's hard because the video element has a letterbox usually
-        // Plus this isn't really the right place for it, we want to do it even when we aren't capturing frames
-        // console.log("COLOR", context.getImageData(10, 10, 1, 1).data);
-
         const newFrame = getCapturedFrameObject(frameImageData, captureQueue);
         setCapturedFrames((prevFrames) => {
           const newFrames = [...prevFrames, newFrame];
@@ -406,6 +435,15 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       }
     }
   };
+
+  /*
+  if (window.matchMedia("(orientation: portrait)").matches) {
+   // you're in PORTRAIT mode
+}
+
+if (window.matchMedia("(orientation: landscape)").matches) {
+   // you're in LANDSCAPE mode
+}*/
 
   const captureStopMotionFrame = async (): Promise<void> => {
     props.setRecordingStatus("Recording");
@@ -442,7 +480,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       filteredTimes
     );
 
-    // We need to pass the updated queue here, if we try to get it from the state?
     intervalIdRef.current = setTimeout(() => {
       captureSolarFrame(filteredTimes);
     }, nextCapture);
@@ -497,6 +534,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       console.log("Stop recording!!", intervalIdRef.current);
       setSavingVideo(true);
 
+      framesCapturedInSession.current = 0;
       if (intervalIdRef.current) {
         clearInterval(intervalIdRef.current);
         intervalIdRef.current = null; // Clear the stored interval ID
@@ -553,6 +591,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       clearInterval(intervalIdRef.current);
       intervalIdRef.current = null; // Clear the stored interval ID
     }
+    framesCapturedInSession.current = 0;
     props.setRecordingStatus("Paused");
   };
 
@@ -566,7 +605,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         ...cameraSettings,
         ...(constraints.advanced[0] as MediaTrackSettings),
       });
-      return new Promise((resolve) => {
+      return new Promise<void>((resolve) => {
         applySettingsChangesInner(constraints, inputActiveTrack, () => {
           resolve(null);
         });
@@ -1036,6 +1075,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             backgroundColor: "black",
             boxShadow: "0 3px 10px rgb(0 0 0 / 1)",
             maxHeight: "50vh",
+            minHeight: "110px",
           }}
         />
       </div>
@@ -1075,6 +1115,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     outputDuration={outputDuration}
                     timelapseInterval={timelapseInterval}
                     recordingStatus={props.recordingStatus}
+                    statusMessages={statusMessages}
                   />
                 ) : null}
                 <div>
@@ -1125,6 +1166,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     outputDuration={outputDuration}
                     timelapseInterval={timelapseInterval}
                     recordingStatus={props.recordingStatus}
+                    statusMessages={statusMessages}
                   />
                 ) : null}
                 <div>
@@ -1174,6 +1216,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     captureQueue={captureQueue}
                     location={location}
                     recordingStatus={props.recordingStatus}
+                    statusMessages={statusMessages}
                   />
                 ) : null}
                 <div>

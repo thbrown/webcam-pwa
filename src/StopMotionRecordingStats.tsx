@@ -15,6 +15,7 @@ interface StopMotionRecordingStatsProps {
   outputDuration: number;
   outputSpec: OutputSpec;
   recordingStatus: RecordingStatus;
+  statusMessages: { [key: string]: string };
 }
 
 export function StopMotionRecordingStats(
@@ -22,6 +23,12 @@ export function StopMotionRecordingStats(
 ): JSX.Element {
   return (
     <div style={{ padding: "10px" }}>
+      {Object.keys(props.statusMessages).length !== 0 ? (
+        <div>
+          <b>Status Message: </b>
+          {Object.values(props.statusMessages).join(", ")}
+        </div>
+      ) : null}
       <div>
         <b>Status:</b> {props.recordingStatus}
       </div>
