@@ -192,8 +192,14 @@ export const CameraSettings = React.memo(
       };
 
       const applyCustomResolution = (): void => {
-        const width = customResolutionWidth;
-        const height = customResolutionHeight;
+        const width =
+          props.screenOrientation === "portrait"
+            ? customResolutionHeight
+            : customResolutionWidth;
+        const height =
+          props.screenOrientation === "portrait"
+            ? customResolutionWidth
+            : customResolutionHeight;
         const patch: MediaTrackConstraintSet = {
           width,
           height,
@@ -212,12 +218,8 @@ export const CameraSettings = React.memo(
           setEnableCustomResolution(false);
         }
         const aspectRatio = props.cameraSettings.aspectRatio;
-        const preHeight = resolutionHeightLookup[value];
-        const preWidth = Math.round(aspectRatio * preHeight);
-        const height =
-          props.screenOrientation === "landscape" ? preHeight : preWidth;
-        const width =
-          props.screenOrientation === "landscape" ? preWidth : preHeight;
+        const height = resolutionHeightLookup[value];
+        const width = Math.round(aspectRatio * height);
         // TODO: Is this the desired behavior? Ignore the aspect ratio if max is selected?
         const specifiedAspectRatio = value === "Max" ? undefined : aspectRatio;
         const patch: MediaTrackConstraintSet = {

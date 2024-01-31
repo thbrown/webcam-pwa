@@ -146,11 +146,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     screen.orientation.addEventListener("change", (event: any) => {
       const type: string = event.target.type;
       const angle: number = event.target.angle;
-      console.log(
-        `ScreenOrientation change: ${type}, ${angle} degrees.`,
-        window.matchMedia("(orientation: portrait)").matches,
-        window.matchMedia("(orientation: landscape)").matches
-      );
+      console.log(`ScreenOrientation change: ${type}, ${angle} degrees.`);
       if (type.includes("portrait")) {
         setScreenOrientation("portrait");
       } else if (type.includes("landscape")) {
@@ -449,6 +445,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           canvasRef.current.width,
           canvasRef.current.height
         );
+
         const frameImageData = canvasRef.current.toDataURL("image/webp");
 
         const newFrame = getCapturedFrameObject(frameImageData, captureQueue);
@@ -1105,9 +1102,17 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       </div>
       <canvas
         ref={canvasRef}
-        style={{ display: "none" }}
-        width={cameraSettings?.width ?? "640"}
-        height={cameraSettings?.height ?? "480"}
+        //style={{ display: "none" }}
+        width={
+          screenOrientation === "portrait"
+            ? cameraSettings?.height ?? "480"
+            : cameraSettings?.width ?? "640"
+        }
+        height={
+          screenOrientation === "portrait"
+            ? cameraSettings?.width ?? "640"
+            : cameraSettings?.height ?? "480"
+        }
       />
       {savingVideo ? (
         <div>
