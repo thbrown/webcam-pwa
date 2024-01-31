@@ -5,7 +5,7 @@ import parseRIFF from "ts-whammy/src/libs/utils/parseRIFF2";
 import parseWebP from "ts-whammy/src/libs/utils/parseWebP";
 import toWebM from "ts-whammy/src/libs/utils/toWebM";
 
-console.warn("Applying patch");
+console.warn("Applying whammy patch");
 
 // An export that I can import to prevent tree shaking from eliminating this file.
 // Idk why specifying it in package.json as a sideEffect isn't working.
@@ -17,7 +17,6 @@ tsWhammy.fromImageArray = function (
   fps: number,
   outputAsArray?: boolean
 ): Blob | Uint8Array {
-  console.warn("In whammy monkey patch!");
   const curOutputAsArray = typeof Blob !== "undefined" ? outputAsArray : true;
   const curFps = fps || 1;
   return toWebM(

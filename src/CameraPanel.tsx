@@ -362,7 +362,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           const capabilities = track.getCapabilities();
           setSupportedCameraCapabilities(capabilities);
         } else {
-          console.warn("Capabilities not supported in this browser");
+          console.warn("Camera capabilities are not supported in this browser");
           setSupportedCameraCapabilities({} as MediaTrackCapabilities);
         }
 
@@ -1069,15 +1069,15 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             }}
           >
             {cameraSettingsLoading.length === 0 ? (
-              screenOrientation === "landscape" ? (
-                (cameraSettings.width ?? "?") +
-                " x " +
-                (cameraSettings.height ?? "?")
-              ) : (
+              screenOrientation === "portrait" ? (
                 (cameraSettings.height ?? "?") +
                 " x " +
                 (cameraSettings.width ?? "?") +
                 " (portrait)"
+              ) : (
+                (cameraSettings.width ?? "?") +
+                " x " +
+                (cameraSettings.height ?? "?")
               )
             ) : (
               <Spinner size={16} />
@@ -1102,7 +1102,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       </div>
       <canvas
         ref={canvasRef}
-        //style={{ display: "none" }}
+        style={{ display: "none" }}
         width={
           screenOrientation === "portrait"
             ? cameraSettings?.height ?? "480"
