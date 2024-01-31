@@ -115,6 +115,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [statusMessages, setStatusMessages] = useState<{
     [key: string]: string;
   }>({});
+  const [screenOrientation, setScreenOrientation] = useState<
+    "portrait" | "landscape"
+  >();
 
   const [isCameraSelectDialogOpen, setIsCameraSelectDialogOpen] =
     useState<boolean>(false);
@@ -138,6 +141,29 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     latitude: 39.742043,
   });
   const [captureQueue, setCaptureQueue] = useState<CaptureTime[]>([]);
+
+  useEffect(() => {
+    screen.orientation.addEventListener("change", (event: any) => {
+      const type: string = event.target.type;
+      const angle: number = event.target.angle;
+      console.log(
+        `ScreenOrientation change: ${type}, ${angle} degrees.`,
+        window.matchMedia("(orientation: portrait)").matches,
+        window.matchMedia("(orientation: landscape)").matches
+      );
+      if (type.includes("portrait")) {
+        setScreenOrientation("portrait");
+      } else if (type.includes("landscape")) {
+        setScreenOrientation("landscape");
+      }
+    });
+
+    if (window.matchMedia("(orientation: portrait)").matches) {
+      setScreenOrientation("portrait");
+    } else if (window.matchMedia("(orientation: landscape)").matches) {
+      setScreenOrientation("landscape");
+    }
+  }, []);
 
   useEffect(() => {
     if (cameraStatus === "initializing") {
@@ -435,15 +461,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       }
     }
   };
-
-  /*
-  if (window.matchMedia("(orientation: portrait)").matches) {
-   // you're in PORTRAIT mode
-}
-
-if (window.matchMedia("(orientation: landscape)").matches) {
-   // you're in LANDSCAPE mode
-}*/
 
   const captureStopMotionFrame = async (): Promise<void> => {
     props.setRecordingStatus("Recording");
@@ -1055,9 +1072,16 @@ if (window.matchMedia("(orientation: landscape)").matches) {
             }}
           >
             {cameraSettingsLoading.length === 0 ? (
-              (cameraSettings.width ?? "?") +
-              " x " +
-              (cameraSettings.height ?? "?")
+              screenOrientation === "landscape" ? (
+                (cameraSettings.width ?? "?") +
+                " x " +
+                (cameraSettings.height ?? "?")
+              ) : (
+                (cameraSettings.height ?? "?") +
+                " x " +
+                (cameraSettings.width ?? "?") +
+                " (portrait)"
+              )
             ) : (
               <Spinner size={16} />
             )}
@@ -1189,6 +1213,7 @@ if (window.matchMedia("(orientation: landscape)").matches) {
                     cameraSettingsLoading={cameraSettingsLoading}
                     setCameraSettingsLoading={setCameraSettingsLoading}
                     applySettingsChanges={applySettingsChanges}
+                    screenOrientation={screenOrientation}
                   />
                 </div>
               </>
