@@ -1164,6 +1164,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     cameraSettingsLoading={cameraSettingsLoading}
                     setCameraSettingsLoading={setCameraSettingsLoading}
                     applySettingsChanges={applySettingsChanges}
+                    screenOrientation={screenOrientation}
                   />
                 </div>
               </>
@@ -1268,6 +1269,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     cameraSettingsLoading={cameraSettingsLoading}
                     setCameraSettingsLoading={setCameraSettingsLoading}
                     applySettingsChanges={applySettingsChanges}
+                    screenOrientation={screenOrientation}
                   />
                 </div>
               </>
