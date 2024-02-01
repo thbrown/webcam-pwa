@@ -1,12 +1,23 @@
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { Spinner } from "@blueprintjs/core";
 import { SavedImages } from "./SavedImages";
-import { SaveImageMetadata } from "../Types";
+import {
+  CapturedFrame,
+  MainPanel,
+  RecordingMode,
+  RecordingStatus,
+  SaveImageMetadata,
+} from "../Types";
 
 interface RecordingPanelProps {
   savedImages: SaveImageMetadata[];
   reloadSavedMedia: () => void;
   setVideoToShow: (video: Blob) => void;
+  setCameraSettings: (value: MediaTrackSettings) => void;
+  setRecordingMode: (value: RecordingMode) => void;
+  setCapturedFrames: (value: CapturedFrame[]) => void;
+  setRecordingStatus: (value: RecordingStatus) => void;
+  setMainPanel: (value: MainPanel) => void;
 }
 
 export function SavedImagesPanel(props: RecordingPanelProps): JSX.Element {
@@ -39,6 +50,11 @@ export function SavedImagesPanel(props: RecordingPanelProps): JSX.Element {
       setVideoToShow={props.setVideoToShow}
       width={video.width}
       height={video.height}
+      setCameraSettings={props.setCameraSettings}
+      setRecordingMode={props.setRecordingMode}
+      setCapturedFrames={props.setCapturedFrames}
+      setRecordingStatus={props.setRecordingStatus}
+      setMainPanel={props.setMainPanel}
     />
   ));
 
@@ -52,11 +68,11 @@ export function SavedImagesPanel(props: RecordingPanelProps): JSX.Element {
           justifyContent: "space-between",
         }}
       >
-        <div>Type</div>
         <div>Img</div>
         <div>Date/Time</div>
         <div>Size</div>
         <div>Play</div>
+        <div>Restore</div>
         <div>Download</div>
         <div>Delete</div>
       </div>

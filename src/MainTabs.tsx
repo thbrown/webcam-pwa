@@ -44,7 +44,6 @@ export function Main(props: MainProps): JSX.Element {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [installedApps, setInstalledApps] = useState(null);
 
-  // Hoist
   const [cameraSettings, setCameraSettings] = useState<MediaTrackSettings>({});
   const [recordingMode, setRecordingMode] =
     useState<RecordingMode>("Timelapse");
@@ -190,6 +189,11 @@ export function Main(props: MainProps): JSX.Element {
               savedImages={savedImages}
               reloadSavedMedia={reloadSavedMedia}
               setVideoToShow={setVideoToShow}
+              setCameraSettings={setCameraSettings}
+              setRecordingMode={setRecordingMode}
+              setCapturedFrames={setCapturedFrames}
+              setRecordingStatus={props.setRecordingStatus}
+              setMainPanel={setMainPanel}
             />
           }
           icon={<Media />}

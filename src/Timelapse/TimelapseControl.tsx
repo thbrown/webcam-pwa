@@ -2,6 +2,7 @@ import { Button, Tab, Tabs } from "@blueprintjs/core";
 import React, { useRef, useState, useEffect } from "react";
 
 import { Record, Stop, Pause } from "@blueprintjs/icons";
+import { RecordingStatus } from "../Types";
 
 interface TimelapseControlProps {
   recordingStatus: RecordingStatus;
