@@ -39,7 +39,7 @@ export function Main(props: MainProps): JSX.Element {
   const [videoToShow, setVideoToShow] = useState<Blob | undefined>(undefined);
   const [infoDialogContent, setInfoDialogContent] =
     useState<React.ReactNode>(undefined);
-  const [tabStyle, setTabStyle] = useState<string>(null);
+  const [imagesToShow, setImagesToShow] = useState<CapturedFrame[]>(undefined);
 
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [installedApps, setInstalledApps] = useState(null);
@@ -116,6 +116,10 @@ export function Main(props: MainProps): JSX.Element {
     setVideoToShow(undefined);
   };
 
+  const handleShowImagesClose = () => {
+    setImagesToShow(undefined);
+  };
+
   const reloadSavedMedia = async (): Promise<SavedVideoMetadata[]> => {
     const allSavedVideoMetadata = await getAllSavedVideosMetadata();
     setSavedVideos(allSavedVideoMetadata);
@@ -131,6 +135,20 @@ export function Main(props: MainProps): JSX.Element {
   const getTabClass = (element: MainPanel) => {
     const term = props.screenWidth < 410 && mainPanel !== element ? "gone" : "";
     return `spacer ${term}`;
+  };
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const handleBackwardClick = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  const handleForwardClick = () => {
+    if (currentIndex < imagesToShow.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
   };
 
   return (
@@ -188,7 +206,7 @@ export function Main(props: MainProps): JSX.Element {
             <SavedImagesPanel
               savedImages={savedImages}
               reloadSavedMedia={reloadSavedMedia}
-              setVideoToShow={setVideoToShow}
+              setImagesToShow={setImagesToShow}
               setCameraSettings={setCameraSettings}
               setRecordingMode={setRecordingMode}
               setCapturedFrames={setCapturedFrames}
@@ -249,6 +267,78 @@ export function Main(props: MainProps): JSX.Element {
             maxHeight: "82vh",
             backgroundColor: "black",
           })}
+        </Dialog>
+      ) : null}
+      {imagesToShow !== undefined ? (
+        <Dialog
+          title="Saved Images"
+          isOpen={true}
+          isCloseButtonShown={true}
+          onClose={handleShowImagesClose}
+          style={{ width: "90vw" }}
+          icon={<FolderOpen />}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+            className="parent"
+          >
+            <Button
+              style={{
+                position: "absolute",
+                bottom: "10px",
+                left: "10px",
+                zIndex: "1",
+                opacity: ".7",
+                height: "48px",
+              }}
+              onClick={handleBackwardClick}
+              disabled={currentIndex === 0}
+            >
+              {"<<"}
+            </Button>
+
+            <img
+              src={imagesToShow[currentIndex].image}
+              alt={`Image ${currentIndex + 1}`}
+              style={{ maxWidth: "100%", maxHeight: "80vh", margin: "0 auto" }}
+            />
+
+            <div
+              style={{
+                position: "absolute",
+                bottom: "10px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                zIndex: "1",
+                opacity: ".7",
+                padding: "10px",
+                backgroundColor: "black",
+                borderRadius: "3px",
+                color: "white",
+              }}
+            >
+              {currentIndex + " of " + imagesToShow.length}
+            </div>
+
+            <Button
+              style={{
+                position: "absolute",
+                bottom: "10px",
+                right: "10px",
+                zIndex: "1",
+                opacity: ".7",
+                height: "48px",
+              }}
+              onClick={handleForwardClick}
+              disabled={currentIndex === imagesToShow.length - 1}
+            >
+              {">>"}
+            </Button>
+          </div>
         </Dialog>
       ) : null}
       <InfoDialog

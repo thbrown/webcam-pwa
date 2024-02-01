@@ -21,7 +21,7 @@ import { uniqueId } from "lodash";
 export function SavedImages(
   props: SaveImageMetadata & {
     reloadSavedMedia: () => void;
-    setVideoToShow: (video: Blob) => void;
+    setImagesToShow: (images: CapturedFrame[]) => void;
     setCameraSettings: (value: MediaTrackSettings) => void;
     setRecordingMode: (value: RecordingMode) => void;
     setCapturedFrames: (value: CapturedFrame[]) => void;
@@ -56,7 +56,8 @@ export function SavedImages(
   };
 
   const handlePlay = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    // TODO
+    const images = await getImageArray(props.saveUuid);
+    props.setImagesToShow(images);
   };
 
   const handleRestore = async () => {
@@ -120,7 +121,7 @@ export function SavedImages(
         <div>{time}</div>
       </div>
       <div>{humanFileSize(props.size)}</div>
-      <Button large={true} icon={<Play />} onClick={handlePlay} />
+      <Button large={true} icon={<Media />} onClick={handlePlay} />
       <Button large={true} icon={<Redo />} onClick={handleRestore} />
       <Button large={true} icon={<Download />} onClick={handleDownload} />
       <Button large={true} icon={<Trash />} onClick={handleDelete} />

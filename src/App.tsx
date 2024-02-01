@@ -17,11 +17,7 @@ export const App: React.FC = () => {
   );
 
   const handleResize = () => {
-    setScreenWidth(
-      window.innerWidth ||
-        document.documentElement.clientWidth ||
-        document.body.clientWidth
-    );
+    setScreenWidth(screen.availWidth);
   };
 
   // Screen width state

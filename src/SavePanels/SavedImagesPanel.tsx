@@ -12,7 +12,7 @@ import {
 interface RecordingPanelProps {
   savedImages: SaveImageMetadata[];
   reloadSavedMedia: () => void;
-  setVideoToShow: (video: Blob) => void;
+  setImagesToShow: (images: CapturedFrame[]) => void;
   setCameraSettings: (value: MediaTrackSettings) => void;
   setRecordingMode: (value: RecordingMode) => void;
   setCapturedFrames: (value: CapturedFrame[]) => void;
@@ -47,7 +47,7 @@ export function SavedImagesPanel(props: RecordingPanelProps): JSX.Element {
       previewImage={video.previewImage}
       key={video.saveUuid}
       reloadSavedMedia={props.reloadSavedMedia}
-      setVideoToShow={props.setVideoToShow}
+      setImagesToShow={props.setImagesToShow}
       width={video.width}
       height={video.height}
       setCameraSettings={props.setCameraSettings}
@@ -71,7 +71,7 @@ export function SavedImagesPanel(props: RecordingPanelProps): JSX.Element {
         <div>Img</div>
         <div>Date/Time</div>
         <div>Size</div>
-        <div>Play</div>
+        <div>View</div>
         <div>Restore</div>
         <div>Download</div>
         <div>Delete</div>
