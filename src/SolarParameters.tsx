@@ -27,6 +27,8 @@ interface SolarParametersProps {
   setOutputDuration: (duration: number) => void;
   setOutputSpec: (spec: OutputSpec) => void;
   recordingStatus: RecordingStatus;
+  enableSavePictures: boolean;
+  setEnableSavePictures: (value: boolean) => void;
 }
 
 export function SolarParameters(props: SolarParametersProps): JSX.Element {
@@ -298,6 +300,8 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
         setOutputFPS={props.setOutputFPS}
         setOutputDuration={props.setOutputDuration}
         setOutputSpec={props.setOutputSpec}
+        savePictures={props.savePictures}
+        setSavePictures={props.setSavePictures}
       />
     </div>
   );

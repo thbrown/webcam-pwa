@@ -15,6 +15,8 @@ interface TimelapseParametersProps {
   setOutputDuration: (duration: number) => void;
   setOutputSpec: (spec: OutputSpec) => void;
   recordingStatus: RecordingStatus;
+  enableSavePictures: boolean;
+  setEnableSavePictures: (value: boolean) => void;
 }
 
 export function TimelapseParameters(
@@ -69,6 +71,8 @@ export function TimelapseParameters(
         setOutputFPS={props.setOutputFPS}
         setOutputDuration={props.setOutputDuration}
         setOutputSpec={props.setOutputSpec}
+        enableSavePictures={props.enableSavePictures}
+        setEnableSavePictures={props.setEnableSavePictures}
       />
     </div>
   );

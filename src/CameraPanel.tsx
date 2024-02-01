@@ -26,7 +26,7 @@ import {
   Refresh,
 } from "@blueprintjs/icons";
 import { RecordingStatus } from "./App";
-import { compileVideo, saveVideo } from "./VideoStorageUtils";
+import { compileVideo, savePictures, saveVideo } from "./VideoStorageUtils";
 import { TimelapseRecordingStats } from "./TimelapseRecordingStats";
 import { StopMotionRecordingStats } from "./StopMotionRecordingStats";
 import { TimelapseControl } from "./TimelapseControl";
@@ -55,7 +55,7 @@ export type OutputSpec = "FPS" | "Duration";
 interface CameraPanelProps {
   recordingStatus: RecordingStatus;
   setRecordingStatus: (v: RecordingStatus) => void;
-  reloadSavedVideos: () => void;
+  reloadSavedMedia: () => void;
   setVideoToShow: (video: Blob) => void;
   setInfoDialogContent: (value: React.ReactNode) => void;
   initializing: boolean;
@@ -129,6 +129,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [outputSpec, setOutputSpec] = useState<OutputSpec>("FPS");
   const [outputDuration, setOutputDuration] = useState<number>(1000);
   const [outputFPS, setOutputFPS] = useState<number>(30);
+  const [enableSavePictures, setEnableSavePictures] = useState<boolean>(false);
 
   // Timelapse State
   const [timelapseInterval, setTimelapseInterval] = useState<number>(1000);
@@ -211,6 +212,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   usePersistOnChange(captureTimes, "captureTimes");
   usePersistOnChange(timelapseInterval, "timelapseInterval");
   usePersistOnChange(cameraSettings, "cameraSettings");
+  usePersistOnChange(enableSavePictures, "enableSavePictures");
 
   // Special case the frame re-loading (save frames one at a time for perf reasons)
   useEffect(() => {
@@ -243,6 +245,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       await updateSetting("timelapseInterval", setTimelapseInterval);
       await updateSetting("location", setLocation);
       await updateSetting("captureTimes", setCaptureTimes);
+      await updateSetting("enableSavePictures", setEnableSavePictures);
 
       const frames = await getSavedFrames();
       if (frames !== undefined) setCapturedFrames(frames);
@@ -461,10 +464,13 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
 
   const captureStopMotionFrame = async (): Promise<void> => {
     props.setRecordingStatus("Recording");
-    await captureFrame();
-    setTimeout(() => {
-      props.setRecordingStatus("Paused");
-    }, 100);
+    // Set timeout for button perf
+    setTimeout(async () => {
+      await captureFrame();
+      setTimeout(() => {
+        props.setRecordingStatus("Paused");
+      }, 100);
+    }, 1);
   };
 
   useEffect(() => {
@@ -512,10 +518,15 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   // Start time-lapse recording
   const startTimelapse = async (): Promise<void> => {
     props.setRecordingStatus("Recording");
-    await captureFrame();
-    // Store the interval ID in the ref
-    console.log("starting with timelapse interval", timelapseInterval);
-    intervalIdRef.current = setInterval(captureFrame, timelapseInterval);
+
+    // captureFrame can take a while for larger resolutions, setTimeout to make the start button more responsive
+    setTimeout(async () => {
+      await captureFrame();
+      // Store the interval ID in the ref
+      console.log("starting with timelapse interval", timelapseInterval);
+      intervalIdRef.current = setInterval(captureFrame, timelapseInterval);
+    }, 1);
+
     console.log("Start recording!!", intervalIdRef.current);
   };
 
@@ -558,6 +569,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       let processedCaptures = capturedFrames;
       if (recordingMode === "Solar") {
         processedCaptures = capturedFrames.sort(solarCapturesComparator);
+        console.log("Sorted captures", processedCaptures);
       }
 
       // Wait for the last frames to be captured before compiling the video
@@ -581,8 +593,15 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
               videoBlob.blob,
               videoBlob.previewImage,
               recordingMode,
-              props.reloadSavedVideos
+              props.reloadSavedMedia
             );
+            if (enableSavePictures) {
+              await savePictures(
+                processedCaptures,
+                videoBlob.previewImage,
+                props.reloadSavedMedia
+              );
+            }
             props.setVideoToShow(videoBlob.blob);
           } else {
             props.setInfoDialogContent(<div>No frames were captured!</div>);
@@ -1158,6 +1177,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     setOutputDuration={setOutputDuration}
                     setOutputSpec={setOutputSpec}
                     recordingStatus={props.recordingStatus}
+                    enableSavePictures={enableSavePictures}
+                    setEnableSavePictures={setEnableSavePictures}
                   />
                   <CameraSettings
                     setCameraSettings={setCameraSettings}
@@ -1208,6 +1229,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     setOutputDuration={setOutputDuration}
                     setOutputSpec={setOutputSpec}
                     recordingStatus={props.recordingStatus}
+                    enableSavePictures={enableSavePictures}
+                    setEnableSavePictures={setEnableSavePictures}
                   />
                   <CameraSettings
                     setCameraSettings={setCameraSettings}
@@ -1263,6 +1286,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     setOutputDuration={setOutputDuration}
                     setOutputSpec={setOutputSpec}
                     recordingStatus={props.recordingStatus}
+                    enableSavePictures={enableSavePictures}
+                    setEnableSavePictures={setEnableSavePictures}
                   />
                   <CameraSettings
                     setCameraSettings={setCameraSettings}

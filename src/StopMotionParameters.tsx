@@ -9,7 +9,6 @@ import {
 } from "@blueprintjs/core";
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { OutputSpec } from "./CameraPanel";
-import { RecordingsPanel } from "./RecordingsPanel";
 import { FolderOpen, Camera } from "@blueprintjs/icons";
 import "./Main.scss";
 import { OutputSpecProps } from "./OutputSpec";
@@ -23,6 +22,8 @@ interface StopMotionParametersProps {
   setOutputDuration: (duration: number) => void;
   setOutputSpec: (spec: OutputSpec) => void;
   recordingStatus: RecordingStatus;
+  enableSavePictures: boolean;
+  setEnableSavePictures: (value: boolean) => void;
 }
 
 export function StopMotionParameters(
@@ -47,6 +48,8 @@ export function StopMotionParameters(
           setOutputFPS={props.setOutputFPS}
           setOutputDuration={props.setOutputDuration}
           setOutputSpec={props.setOutputSpec}
+          enableSavePictures={props.enableSavePictures}
+          setEnableSavePictures={props.setEnableSavePictures}
         />
       </div>
     </>

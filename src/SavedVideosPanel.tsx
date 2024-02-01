@@ -1,15 +1,15 @@
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { Spinner } from "@blueprintjs/core";
-import { SavedVideoPanel } from "./SavedVideo";
+import { SavedVideo } from "./SavedVideo";
 import { SavedVideoMetadata } from "./VideoStorageUtils";
 
-interface RecordingPanelProps {
+interface SavedVideosPanelProps {
   savedVideos: SavedVideoMetadata[];
-  reloadSavedVideos: () => void;
+  reloadSavedMedia: () => void;
   setVideoToShow: (video: Blob) => void;
 }
 
-export function RecordingsPanel(props: RecordingPanelProps): JSX.Element {
+export function SavedVideosPanel(props: SavedVideosPanelProps): JSX.Element {
   // Loading...
   if (props.savedVideos === undefined) {
     return (
@@ -29,14 +29,14 @@ export function RecordingsPanel(props: RecordingPanelProps): JSX.Element {
 
   const panels: JSX.Element[] = props.savedVideos.map((video) => (
     // TODO: use spread op here somehow if it's possible?
-    <SavedVideoPanel
+    <SavedVideo
       type={video.type}
       size={video.size}
       timestamp={video.timestamp}
       saveUuid={video.saveUuid}
       previewImage={video.previewImage}
       key={video.saveUuid}
-      reloadSavedVideos={props.reloadSavedVideos}
+      reloadSavedMedia={props.reloadSavedMedia}
       setVideoToShow={props.setVideoToShow}
     />
   ));

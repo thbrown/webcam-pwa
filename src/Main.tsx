@@ -1,11 +1,14 @@
 import { Button, Dialog, Tab, Tabs } from "@blueprintjs/core";
 import React, { useState, useEffect } from "react";
-import { RecordingsPanel } from "./RecordingsPanel";
+import { SavedVideosPanel } from "./SavedVideosPanel";
+import { SavedImagesPanel } from "./SavedImagesPanel";
 import { FolderOpen, Camera, Import } from "@blueprintjs/icons";
 import "./Main.scss";
 import { RecordingStatus } from "./App";
 import {
+  SaveImageMetadata,
   SavedVideoMetadata,
+  getAllSavedImageMetadata,
   getAllSavedVideosMetadata,
   getVideoElement,
 } from "./VideoStorageUtils";
@@ -26,6 +29,9 @@ export function Main(props: MainProps): JSX.Element {
   const [savedVideos, setSavedVideos] = useState<
     SavedVideoMetadata[] | undefined
   >(undefined);
+  const [savedImages, setSavedImages] = useState<
+    SaveImageMetadata[] | undefined
+  >(undefined);
   const [videoToShow, setVideoToShow] = useState<Blob | undefined>(undefined);
   const [infoDialogContent, setInfoDialogContent] =
     useState<React.ReactNode>(undefined);
@@ -34,7 +40,7 @@ export function Main(props: MainProps): JSX.Element {
   const [installedApps, setInstalledApps] = useState(null);
 
   useEffect(() => {
-    reloadSavedVideos();
+    reloadSavedMedia();
   }, []);
 
   useEffect(() => {
@@ -98,9 +104,11 @@ export function Main(props: MainProps): JSX.Element {
     setVideoToShow(undefined);
   };
 
-  const reloadSavedVideos = async (): Promise<SavedVideoMetadata[]> => {
+  const reloadSavedMedia = async (): Promise<SavedVideoMetadata[]> => {
     const allSavedVideoMetadata = await getAllSavedVideosMetadata();
     setSavedVideos(allSavedVideoMetadata);
+    const allSavedImageMetadata = await getAllSavedImageMetadata();
+    setSavedImages(allSavedImageMetadata);
     return allSavedVideoMetadata;
   };
 
@@ -124,7 +132,7 @@ export function Main(props: MainProps): JSX.Element {
             <CameraPanel
               recordingStatus={props.recordingStatus}
               setRecordingStatus={props.setRecordingStatus}
-              reloadSavedVideos={reloadSavedVideos}
+              reloadSavedMedia={reloadSavedMedia}
               setVideoToShow={setVideoToShow}
               setInfoDialogContent={setInfoDialogContent}
               initializing={props.initializing}
@@ -135,18 +143,34 @@ export function Main(props: MainProps): JSX.Element {
         />
         <Tab
           className="no-highlight minimal-top-margin"
-          id="recordings"
-          title={<div className="spacer">Recordings</div>}
+          id="savedVideos"
+          title={<div className="spacer">Videos</div>}
           panel={
-            <RecordingsPanel
+            <SavedVideosPanel
               savedVideos={savedVideos}
-              reloadSavedVideos={reloadSavedVideos}
+              reloadSavedMedia={reloadSavedMedia}
               setVideoToShow={setVideoToShow}
             />
           }
           icon={<FolderOpen />}
           tagContent={
             savedVideos === undefined ? undefined : savedVideos.length
+          }
+        />
+        <Tab
+          className="no-highlight minimal-top-margin"
+          id="savedImages"
+          title={<div className="spacer">Images</div>}
+          panel={
+            <SavedImagesPanel
+              savedImages={savedImages}
+              reloadSavedMedia={reloadSavedMedia}
+              setVideoToShow={setVideoToShow}
+            />
+          }
+          icon={<FolderOpen />}
+          tagContent={
+            savedImages === undefined ? undefined : savedImages.length
           }
         />
         {deferredPrompt === null ? null : (

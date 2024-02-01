@@ -9,17 +9,19 @@ import {
   Download,
   Trash,
   Play,
+  Media,
 } from "@blueprintjs/icons";
 import {
+  SaveImageMetadata,
   SavedVideoMetadata,
-  deleteVideo,
+  deleteImages,
   downloadVideo,
   getVideoBlob,
   humanFileSize,
 } from "./VideoStorageUtils";
 
-export function SavedVideo(
-  props: SavedVideoMetadata & {
+export function SavedImages(
+  props: SaveImageMetadata & {
     reloadSavedMedia: () => void;
     setVideoToShow: (video: Blob) => void;
   }
@@ -27,33 +29,25 @@ export function SavedVideo(
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const handleDownload = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    console.log("DOWNLOAD", event.target);
-    downloadVideo(await getVideoBlob(props.saveUuid));
+    //console.log("DOWNLOAD", event.target);
+    //downloadVideo(await getVideoBlob(props.saveUuid));
+    // PIZZA
   };
 
   const handleDelete = async (event: React.MouseEvent<HTMLButtonElement>) => {
     setIsDeleting(true);
-    await deleteVideo(props.saveUuid);
+    await deleteImages(props.saveUuid);
     setIsDeleting(false);
     props.reloadSavedMedia();
   };
 
-  const handlePlayVideo = async () => {
-    props.setVideoToShow(await getVideoBlob(props.saveUuid));
+  const handleREstore = async () => {
+    // PIZZA
   };
 
-  const getIconForType = (type: RecordingMode) => {
-    switch (type) {
-      case "Timelapse":
-        return <Time />;
-      case "StopMotion":
-        return <Stopwatch />;
-      case "Solar":
-        return <Flash />;
-      default:
-        // Never
-        return type;
-    }
+  const handlePlayVideo = async () => {
+    // PIZZA
+    //props.setVideoToShow(await getVideoBlob(props.saveUuid));
   };
 
   const date = new Date(props.timestamp).toLocaleDateString("en-US");
@@ -91,7 +85,7 @@ export function SavedVideo(
         borderRadius: "3px",
       }}
     >
-      <div style={{ marginLeft: "10px" }}>{getIconForType(props.type)}</div>
+      <div style={{ marginLeft: "10px" }}>{<Media></Media>}</div>
       <div>
         <img
           style={{ borderRadius: "3px" }}

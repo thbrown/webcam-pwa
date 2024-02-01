@@ -1,4 +1,4 @@
-import { RecordingMode } from "./CameraPanel";
+import { CapturedFrame, RecordingMode } from "./CameraPanel";
 import { v4 as uuidv4 } from "uuid";
 import tsWhammy from "ts-whammy/src/libs";
 import localforage from "localforage";
@@ -7,10 +7,18 @@ import React from "react";
 import { convertToWebP } from "./WebpConversionUtil";
 import { sideEffectLink } from "./tsWhammyPatch";
 
+// If you remove this the whammy monkey patch will not run (since this makes it a dependency and prevents tree shaking from removing it)
 console.warn("whammy patch", sideEffectLink);
 
 export type SavedVideoMetadata = {
   type: RecordingMode;
+  timestamp: number;
+  size: number;
+  saveUuid: string;
+  previewImage: string;
+};
+
+export type SaveImageMetadata = {
   timestamp: number;
   size: number;
   saveUuid: string;
@@ -32,6 +40,45 @@ export type CompiledVideo = {
 
 const isWebP = (base64String: string) => {
   return base64String.startsWith("data:image/webp;base64,");
+};
+
+const getSizeInBytes = (input: string[]): number => {
+  // Initialize total size
+  let totalSize = 0;
+
+  // Iterate through each string in the array
+  input.forEach((str) => {
+    // Encode the string using TextEncoder and add its length to totalSize
+    totalSize += new TextEncoder().encode(str).length;
+  });
+
+  // Return the total size in bytes
+  return totalSize;
+};
+
+export const savePictures = async (
+  input: CapturedFrame[],
+  previewImage: string,
+  reloadSavedImages: () => void
+) => {
+  const keyUuid = uuidv4();
+
+  const imageMetadata: SaveImageMetadata = {
+    size: getSizeInBytes(input.map((v) => v.image)),
+    timestamp: Date.now(),
+    previewImage: previewImage,
+    saveUuid: keyUuid,
+  };
+
+  try {
+    console.log("SAVING IMAGES", keyUuid, input);
+    await localforage.setItem(getImageMetadataKey(keyUuid), imageMetadata);
+    await localforage.setItem(getImageKey(keyUuid), input);
+  } catch (err) {
+    console.error(err);
+  }
+  reloadSavedImages();
+  return imageMetadata;
 };
 
 export const compileVideo = async (
@@ -105,6 +152,7 @@ export const compileVideo = async (
 };
 
 const METADATA_PREFIX = "metadata_";
+const IMAGE_METADATA_PREFIX = "img_metadata_";
 
 function getMetadataKey(keyUuid: string) {
   return METADATA_PREFIX + keyUuid;
@@ -112,6 +160,14 @@ function getMetadataKey(keyUuid: string) {
 
 function getBlobKey(keyUuid: string) {
   return "blob_" + keyUuid;
+}
+
+function getImageMetadataKey(keyUuid: string) {
+  return IMAGE_METADATA_PREFIX + keyUuid;
+}
+
+function getImageKey(keyUuid: string) {
+  return "img_blob_" + keyUuid;
 }
 
 export const downloadVideo = async (videoBlob: Blob) => {
@@ -133,7 +189,7 @@ export const saveVideo = async (
   inputBlob: Blob,
   previewImage: string,
   recordingMode: RecordingMode,
-  reloadSavedVideos: () => void
+  reloadSavedMedia: () => void
 ): Promise<SavedVideoMetadata> => {
   const keyUuid = uuidv4();
 
@@ -152,7 +208,7 @@ export const saveVideo = async (
   } catch (err) {
     console.error(err);
   }
-  reloadSavedVideos();
+  reloadSavedMedia();
   return videoMetadata;
 };
 
@@ -165,8 +221,13 @@ export const getVideoMetadata = async (keyUuid: string) => {
 };
 
 export const deleteVideo = async (keyUuid: string) => {
-  await localforage.removeItem(getMetadataKey(keyUuid));
   await localforage.removeItem(getBlobKey(keyUuid));
+  await localforage.removeItem(getMetadataKey(keyUuid));
+};
+
+export const deleteImages = async (keyUuid: string) => {
+  await localforage.removeItem(getImageKey(keyUuid));
+  await localforage.removeItem(getImageMetadataKey(keyUuid));
 };
 
 export const getAllSavedVideosMetadata = async () => {
@@ -189,6 +250,28 @@ export const getAllSavedVideosMetadata = async () => {
   ) as SavedVideoMetadata[];
 
   return filteredVideos.sort((a, b) => b.timestamp - a.timestamp);
+};
+
+export const getAllSavedImageMetadata = async () => {
+  const allStoredPromises: Promise<SaveImageMetadata | null>[] = [];
+  const keys = await localforage.keys();
+
+  for (let key of keys) {
+    if (key.startsWith(IMAGE_METADATA_PREFIX)) {
+      allStoredPromises.push(
+        localforage.getItem<SavedVideoMetadata | null>(key)
+      );
+    }
+  }
+
+  const resolvedPromises = await Promise.all(allStoredPromises);
+
+  // Filter out null values and ensure type safety
+  const filteredImages: SavedVideoMetadata[] = resolvedPromises.filter(
+    (image) => image !== null
+  ) as SavedVideoMetadata[];
+
+  return filteredImages.sort((a, b) => b.timestamp - a.timestamp);
 };
 
 async function resizeBase64Image(
@@ -218,3 +301,38 @@ async function resizeBase64Image(
     img.src = base64;
   });
 }
+
+/**
+ * Format bytes as human-readable text.
+ * https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string
+ *
+ * @param bytes Number of bytes.
+ * @param si True to use metric (SI) units, aka powers of 1000. False to use
+ *           binary (IEC), aka powers of 1024.
+ * @param dp Number of decimal places to display.
+ *
+ * @return Formatted string.
+ */
+export const humanFileSize = (bytes: number, si = false, dp = 1) => {
+  const thresh = si ? 1000 : 1024;
+
+  if (Math.abs(bytes) < thresh) {
+    return bytes + " B";
+  }
+
+  const units = si
+    ? ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+    : ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
+  let u = -1;
+  const r = 10 ** dp;
+
+  do {
+    bytes /= thresh;
+    ++u;
+  } while (
+    Math.round(Math.abs(bytes) * r) / r >= thresh &&
+    u < units.length - 1
+  );
+
+  return bytes.toFixed(dp) + " " + units[u];
+};
