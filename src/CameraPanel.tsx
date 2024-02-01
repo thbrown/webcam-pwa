@@ -25,18 +25,26 @@ import {
   Flash,
   Refresh,
 } from "@blueprintjs/icons";
-import { compileVideo, savePictures, saveVideo } from "./VideoStorageUtils";
-import { TimelapseRecordingStats } from "./TimelapseRecordingStats";
-import { StopMotionRecordingStats } from "./StopMotionRecordingStats";
-import { TimelapseControl } from "./TimelapseControl";
-import { StopMotionControl } from "./StopMotionControl";
-import { SolarControl } from "./SolarControl";
+import {
+  compileVideo,
+  savePictures,
+  saveVideo,
+} from "./Utils/VideoStorageUtils";
+import { TimelapseRecordingStats } from "./Timelapse/TimelapseRecordingStats";
+import { StopMotionRecordingStats } from "./StopMotion/StopMotionRecordingStats";
+import { TimelapseControl } from "./Timelapse/TimelapseControl";
+import { StopMotionControl } from "./StopMotion/StopMotionControl";
+import { SolarControl } from "./Solar/SolarControl";
 import { CameraSettings } from "./CameraSettings";
-import { TimelapseParameters } from "./TimelapseParameters";
-import { StopMotionParameters } from "./StopMotionParameters";
-import { SolarParameters } from "./SolarParameters";
-import { CaptureTime, getTimes, millisecondsUntilDate } from "./SolarTimeUtil";
-import { SolarRecordingStats } from "./SolarRecordingStats";
+import { TimelapseParameters } from "./Timelapse/TimelapseParameters";
+import { StopMotionParameters } from "./StopMotion/StopMotionParameters";
+import { SolarParameters } from "./Solar/SolarParameters";
+import {
+  CaptureTime,
+  getTimes,
+  millisecondsUntilDate,
+} from "./Utils/SolarTimeUtil";
+import { SolarRecordingStats } from "./Solar/SolarRecordingStats";
 import {
   setSetting,
   getSetting,
@@ -45,7 +53,7 @@ import {
   clearFrames,
   updateSetting,
   groupedSettings,
-} from "./SettingsStorageUtils";
+} from "./Utils/SettingsStorageUtils";
 import { debounce } from "lodash";
 import {
   CameraStatus,
@@ -55,6 +63,7 @@ import {
   CapturedFrame,
   RecordingMode,
 } from "./Types";
+import { assertNever } from "./Utils/GenericUtils";
 
 interface CameraPanelProps {
   recordingStatus: RecordingStatus;
@@ -1297,7 +1306,3 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     </div>
   );
 }
-function assertNever(mode: string) {
-  throw new Error("Function not implemented.");
-}
-export { OutputSpec };

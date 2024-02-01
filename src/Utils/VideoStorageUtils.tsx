@@ -4,14 +4,14 @@ import localforage from "localforage";
 import FileSaver from "file-saver";
 import React from "react";
 import { convertToWebP } from "./WebpConversionUtil";
-import { sideEffectLink } from "./tsWhammyPatch";
+import { sideEffectLink } from "../tsWhammyPatch";
 import {
   CapturedFrame,
   CompiledVideo,
   RecordingMode,
   SaveImageMetadata,
   SavedVideoMetadata,
-} from "./Types";
+} from "../Types";
 
 // If you remove this the whammy monkey patch will not run (since this makes it a dependency and prevents tree shaking from removing it)
 console.warn("whammy patch", sideEffectLink);

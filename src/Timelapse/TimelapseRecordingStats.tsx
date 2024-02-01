@@ -1,9 +1,7 @@
-import { Button, Tab, Tabs } from "@blueprintjs/core";
-import React, { useRef, useState, useEffect } from "react";
+import React from "react";
 
-import { RecordingStatus } from "./App";
 import humanizeDuration from "humanize-duration";
-import { OutputSpec, RecordingMode } from "./Types";
+import { OutputSpec, RecordingMode, RecordingStatus } from "../Types";
 
 interface TimelapseRecordingStatsProps {
   mode: RecordingMode;

@@ -3,7 +3,7 @@ import { Main } from "./MainTabs";
 import { HotkeysProvider } from "@blueprintjs/core";
 
 import "./App.scss";
-import { setSetting } from "./SettingsStorageUtils";
+import { setSetting } from "./Utils/SettingsStorageUtils";
 import { RecordingStatus } from "./Types";
 
 export const App: React.FC = () => {

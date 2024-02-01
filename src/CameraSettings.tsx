@@ -8,7 +8,7 @@ import {
   Spinner,
 } from "@blueprintjs/core";
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
-import { groupedSettings } from "./SettingsStorageUtils";
+import { groupedSettings } from "./Utils/SettingsStorageUtils";
 import { CameraStatus, RecordingStatus } from "./Types";
 
 interface CameraSettingsProps {

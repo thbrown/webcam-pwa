@@ -8,11 +8,9 @@ import {
   Tabs,
 } from "@blueprintjs/core";
 import React, { useRef, useState, useEffect, useMemo } from "react";
-import { OutputSpec } from "./CameraPanel";
 import { FolderOpen, Camera } from "@blueprintjs/icons";
-import "./Main.scss";
-import { OutputSpecProps } from "./OutputSpec";
-import { RecordingStatus } from "./App";
+import { OutputSpecProps } from "../OutputSpec";
+import { OutputSpec, RecordingStatus } from "../Types";
 
 interface StopMotionParametersProps {
   outputFPS: number;

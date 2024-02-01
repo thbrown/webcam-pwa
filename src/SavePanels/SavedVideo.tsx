@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import localforage from "localforage";
 import { Button, Checkbox, Spinner } from "@blueprintjs/core";
-import { RecordingMode } from "./CameraPanel";
 import {
   Time,
   Stopwatch,
@@ -11,12 +10,12 @@ import {
   Play,
 } from "@blueprintjs/icons";
 import {
-  SavedVideoMetadata,
   deleteVideo,
   downloadVideo,
   getVideoBlob,
   humanFileSize,
-} from "./VideoStorageUtils";
+} from "../Utils/VideoStorageUtils";
+import { RecordingMode, SavedVideoMetadata } from "../Types";
 
 export function SavedVideo(
   props: SavedVideoMetadata & {

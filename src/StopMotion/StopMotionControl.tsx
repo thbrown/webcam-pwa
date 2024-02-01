@@ -2,7 +2,7 @@ import { Button, Spinner, Tab, Tabs, useHotkeys } from "@blueprintjs/core";
 import React, { useRef, useState, useEffect, useMemo } from "react";
 
 import { Record, Stop, Flash } from "@blueprintjs/icons";
-import { RecordingStatus } from "./App";
+import { RecordingStatus } from "../Types";
 
 interface StopMotionControlProps {
   recordingStatus: RecordingStatus;

@@ -1,14 +1,14 @@
 import { Button, Dialog, Tab, Tabs } from "@blueprintjs/core";
 import React, { useState, useEffect } from "react";
-import { SavedVideosPanel } from "./SavedVideosPanel";
-import { SavedImagesPanel } from "./SavedImagesPanel";
+import { SavedVideosPanel } from "./SavePanels/SavedVideosPanel";
+import { SavedImagesPanel } from "./SavePanels/SavedImagesPanel";
 import { FolderOpen, Camera, Import, Film, Media } from "@blueprintjs/icons";
 import "./Main.scss";
 import {
   getAllSavedImageMetadata,
   getAllSavedVideosMetadata,
   getVideoElement,
-} from "./VideoStorageUtils";
+} from "./Utils/VideoStorageUtils";
 import {
   SaveImageMetadata,
   SavedVideoMetadata,

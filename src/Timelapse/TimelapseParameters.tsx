@@ -1,9 +1,7 @@
 import { Classes, Divider, Label } from "@blueprintjs/core";
 import React, { useState } from "react";
-import { OutputSpec } from "./CameraPanel";
-import "./Main.scss";
-import { OutputSpecProps } from "./OutputSpec";
-import { RecordingStatus } from "./App";
+import { OutputSpecProps } from "../OutputSpec";
+import { OutputSpec, RecordingStatus } from "../Types";
 
 interface TimelapseParametersProps {
   timelapseInterval: number;

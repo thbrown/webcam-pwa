@@ -2,16 +2,15 @@ import React, { useRef, useState, useEffect, useMemo } from "react";
 import { Button, Checkbox, Spinner } from "@blueprintjs/core";
 import { Download, Trash, Play, Media, Record } from "@blueprintjs/icons";
 import {
-  SaveImageMetadata,
-  SavedVideoMetadata,
   deleteImages,
   downloadVideo,
   getImageArray,
   getVideoBlob,
   humanFileSize,
-} from "./VideoStorageUtils";
+} from "../Utils/VideoStorageUtils";
 import JSZip from "jszip";
 import FileSaver from "file-saver";
+import { SaveImageMetadata } from "../Types";
 export function SavedImages(
   props: SaveImageMetadata & {
     reloadSavedMedia: () => void;

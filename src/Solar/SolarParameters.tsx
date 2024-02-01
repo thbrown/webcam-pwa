@@ -1,15 +1,14 @@
 import { Button, Checkbox, Classes, Divider } from "@blueprintjs/core";
 import React, { useState, useEffect, useMemo } from "react";
-import "./Main.scss";
-import { OutputSpecProps } from "./OutputSpec";
+import { OutputSpecProps } from "../OutputSpec";
 import {
   getTimes,
   getUniqueTypes,
   millisecondsUntilDate,
-} from "./SolarTimeUtil";
+} from "../Utils/SolarTimeUtil";
 import humanizeDuration from "humanize-duration";
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
-import { OutputSpec, RecordingStatus } from "./Types";
+import { OutputSpec, RecordingStatus } from "../Types";
 
 interface SolarParametersProps {
   location: {
