@@ -300,8 +300,8 @@ export function SolarParameters(props: SolarParametersProps): JSX.Element {
         setOutputFPS={props.setOutputFPS}
         setOutputDuration={props.setOutputDuration}
         setOutputSpec={props.setOutputSpec}
-        savePictures={props.savePictures}
-        setSavePictures={props.setSavePictures}
+        enableSavePictures={props.enableSavePictures}
+        setEnableSavePictures={props.setEnableSavePictures}
       />
     </div>
   );

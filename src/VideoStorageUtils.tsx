@@ -16,6 +16,8 @@ export type SavedVideoMetadata = {
   size: number;
   saveUuid: string;
   previewImage: string;
+  width: number;
+  height: number;
 };
 
 export type SaveImageMetadata = {
@@ -23,6 +25,8 @@ export type SaveImageMetadata = {
   size: number;
   saveUuid: string;
   previewImage: string;
+  width: number;
+  height: number;
 };
 
 function uint8ArrayToBlob(
@@ -59,7 +63,9 @@ const getSizeInBytes = (input: string[]): number => {
 export const savePictures = async (
   input: CapturedFrame[],
   previewImage: string,
-  reloadSavedImages: () => void
+  reloadSavedImages: () => void,
+  width: number,
+  height: number
 ) => {
   const keyUuid = uuidv4();
 
@@ -68,6 +74,8 @@ export const savePictures = async (
     timestamp: Date.now(),
     previewImage: previewImage,
     saveUuid: keyUuid,
+    width,
+    height,
   };
 
   try {
@@ -189,7 +197,9 @@ export const saveVideo = async (
   inputBlob: Blob,
   previewImage: string,
   recordingMode: RecordingMode,
-  reloadSavedMedia: () => void
+  reloadSavedMedia: () => void,
+  width: number,
+  height: number
 ): Promise<SavedVideoMetadata> => {
   const keyUuid = uuidv4();
 
@@ -199,6 +209,8 @@ export const saveVideo = async (
     timestamp: Date.now(),
     previewImage: previewImage,
     saveUuid: keyUuid,
+    width,
+    height,
   };
 
   try {

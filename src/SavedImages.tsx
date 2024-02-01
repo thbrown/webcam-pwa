@@ -1,16 +1,6 @@
 import React, { useRef, useState, useEffect, useMemo } from "react";
-import localforage from "localforage";
 import { Button, Checkbox, Spinner } from "@blueprintjs/core";
-import { RecordingMode } from "./CameraPanel";
-import {
-  Time,
-  Stopwatch,
-  Flash,
-  Download,
-  Trash,
-  Play,
-  Media,
-} from "@blueprintjs/icons";
+import { Download, Trash, Play, Media, Record } from "@blueprintjs/icons";
 import {
   SaveImageMetadata,
   SavedVideoMetadata,
@@ -31,10 +21,6 @@ export function SavedImages(
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const handleDownload = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    //console.log("DOWNLOAD", event.target);
-    //downloadVideo();
-    // PIZZA
-
     const images = await getImageArray(props.saveUuid);
     const zip = new JSZip();
 
@@ -59,12 +45,9 @@ export function SavedImages(
   };
 
   const handleRestore = async () => {
-    // PIZZA
-  };
-
-  const handlePlayVideo = async () => {
-    // PIZZA
-    //props.setVideoToShow(await getVideoBlob(props.saveUuid));
+    setRecordingStatus("paused");
+    setCapturedFrames();
+    setResolution();
   };
 
   const date = new Date(props.timestamp).toLocaleDateString("en-US");
@@ -116,7 +99,7 @@ export function SavedImages(
         <div>{time}</div>
       </div>
       <div>{humanFileSize(props.size)}</div>
-      <Button large={true} icon={<Play />} onClick={handlePlayVideo} />
+      <Button large={true} icon={<Record />} onClick={handleRestore} />
       <Button large={true} icon={<Download />} onClick={handleDownload} />
       <Button large={true} icon={<Trash />} onClick={handleDelete} />
     </div>

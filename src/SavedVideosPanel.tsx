@@ -38,6 +38,8 @@ export function SavedVideosPanel(props: SavedVideosPanelProps): JSX.Element {
       key={video.saveUuid}
       reloadSavedMedia={props.reloadSavedMedia}
       setVideoToShow={props.setVideoToShow}
+      width={video.width}
+      height={video.height}
     />
   ));
 

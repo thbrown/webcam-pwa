@@ -61,7 +61,8 @@ async function innerConvertToWebP(imageBase64: string): Promise<string> {
 export async function convertToWebP(
   imageBase64Array: string[]
 ): Promise<string[]> {
-  const batchSize = 50; // Define the batch size
+  const batchSize = 10; // Define the batch size
+  // TODO: make this dynamic based on image size?
 
   const batches: string[][] = [];
   for (let i = 0; i < imageBase64Array.length; i += batchSize) {

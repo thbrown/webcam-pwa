@@ -593,13 +593,17 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
               videoBlob.blob,
               videoBlob.previewImage,
               recordingMode,
-              props.reloadSavedMedia
+              props.reloadSavedMedia,
+              cameraSettings.width,
+              cameraSettings.height
             );
             if (enableSavePictures) {
               await savePictures(
                 processedCaptures,
                 videoBlob.previewImage,
-                props.reloadSavedMedia
+                props.reloadSavedMedia,
+                cameraSettings.width,
+                cameraSettings.height
               );
             }
             props.setVideoToShow(videoBlob.blob);
