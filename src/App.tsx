@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Main } from "./Main";
+import { Main } from "./MainTabs";
 import { HotkeysProvider } from "@blueprintjs/core";
 
 import "./App.scss";
 import { setSetting } from "./SettingsStorageUtils";
-
-export type RecordingStatus = "Stopped" | "Recording" | "Paused";
+import { RecordingStatus } from "./Types";
 
 export const App: React.FC = () => {
   const [recordingStatus, setRecordingStatus] =

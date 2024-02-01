@@ -8,10 +8,8 @@ import {
   Spinner,
 } from "@blueprintjs/core";
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
-import { debounce, isArray } from "lodash";
-import { CameraStatus } from "./CameraPanel";
-import { RecordingStatus } from "./App";
 import { groupedSettings } from "./SettingsStorageUtils";
+import { CameraStatus, RecordingStatus } from "./Types";
 
 interface CameraSettingsProps {
   setCameraSettings: (value: React.SetStateAction<MediaTrackSettings>) => void;

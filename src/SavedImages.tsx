@@ -45,9 +45,9 @@ export function SavedImages(
   };
 
   const handleRestore = async () => {
-    setRecordingStatus("paused");
-    setCapturedFrames();
-    setResolution();
+    //setRecordingStatus("paused");
+    //setCapturedFrames();
+    //setResolution();
   };
 
   const date = new Date(props.timestamp).toLocaleDateString("en-US");

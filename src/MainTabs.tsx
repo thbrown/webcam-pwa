@@ -4,18 +4,21 @@ import { SavedVideosPanel } from "./SavedVideosPanel";
 import { SavedImagesPanel } from "./SavedImagesPanel";
 import { FolderOpen, Camera, Import, Film, Media } from "@blueprintjs/icons";
 import "./Main.scss";
-import { RecordingStatus } from "./App";
 import {
-  SaveImageMetadata,
-  SavedVideoMetadata,
   getAllSavedImageMetadata,
   getAllSavedVideosMetadata,
   getVideoElement,
 } from "./VideoStorageUtils";
+import {
+  SaveImageMetadata,
+  SavedVideoMetadata,
+  RecordingStatus,
+  MainPanel,
+  RecordingMode,
+  CapturedFrame,
+} from "./Types";
 import { CameraPanel } from "./CameraPanel";
 import { InfoDialog } from "./InfoDialog";
-
-export type MainPanel = "camera" | "videos" | "images" | "app";
 
 interface MainProps {
   recordingStatus: RecordingStatus;
@@ -40,6 +43,12 @@ export function Main(props: MainProps): JSX.Element {
 
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [installedApps, setInstalledApps] = useState(null);
+
+  // Hoist
+  const [cameraSettings, setCameraSettings] = useState<MediaTrackSettings>({});
+  const [recordingMode, setRecordingMode] =
+    useState<RecordingMode>("Timelapse");
+  const [capturedFrames, setCapturedFrames] = useState<CapturedFrame[]>([]);
 
   useEffect(() => {
     reloadSavedMedia();
@@ -146,6 +155,12 @@ export function Main(props: MainProps): JSX.Element {
               setInfoDialogContent={setInfoDialogContent}
               initializing={props.initializing}
               setInitializing={props.setInitializing}
+              cameraSettings={cameraSettings}
+              setCameraSettings={setCameraSettings}
+              recordingMode={recordingMode}
+              setRecordingMode={setRecordingMode}
+              capturedFrames={capturedFrames}
+              setCapturedFrames={setCapturedFrames}
             />
           }
           icon={<Camera />}

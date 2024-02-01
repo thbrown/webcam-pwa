@@ -1,6 +1,5 @@
 import { Button, Checkbox, Classes, Divider } from "@blueprintjs/core";
 import React, { useState, useEffect, useMemo } from "react";
-import { OutputSpec } from "./CameraPanel";
 import "./Main.scss";
 import { OutputSpecProps } from "./OutputSpec";
 import {
@@ -10,7 +9,7 @@ import {
 } from "./SolarTimeUtil";
 import humanizeDuration from "humanize-duration";
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
-import { RecordingStatus } from "./App";
+import { OutputSpec, RecordingStatus } from "./Types";
 
 interface SolarParametersProps {
   location: {

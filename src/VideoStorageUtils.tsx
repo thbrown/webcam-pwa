@@ -1,4 +1,3 @@
-import { CapturedFrame, RecordingMode } from "./CameraPanel";
 import { v4 as uuidv4 } from "uuid";
 import tsWhammy from "ts-whammy/src/libs";
 import localforage from "localforage";
@@ -6,28 +5,16 @@ import FileSaver from "file-saver";
 import React from "react";
 import { convertToWebP } from "./WebpConversionUtil";
 import { sideEffectLink } from "./tsWhammyPatch";
+import {
+  CapturedFrame,
+  CompiledVideo,
+  RecordingMode,
+  SaveImageMetadata,
+  SavedVideoMetadata,
+} from "./Types";
 
 // If you remove this the whammy monkey patch will not run (since this makes it a dependency and prevents tree shaking from removing it)
 console.warn("whammy patch", sideEffectLink);
-
-export type SavedVideoMetadata = {
-  type: RecordingMode;
-  timestamp: number;
-  size: number;
-  saveUuid: string;
-  previewImage: string;
-  width: number;
-  height: number;
-};
-
-export type SaveImageMetadata = {
-  timestamp: number;
-  size: number;
-  saveUuid: string;
-  previewImage: string;
-  width: number;
-  height: number;
-};
 
 function uint8ArrayToBlob(
   uint8Array: Uint8Array,
@@ -36,11 +23,6 @@ function uint8ArrayToBlob(
   // Create a new Blob from the Uint8Array
   return new Blob([uint8Array], { type: mimeType });
 }
-
-export type CompiledVideo = {
-  blob: Blob;
-  previewImage: string;
-};
 
 const isWebP = (base64String: string) => {
   return base64String.startsWith("data:image/webp;base64,");
@@ -179,7 +161,7 @@ function getImageKey(keyUuid: string) {
 }
 
 export const downloadVideo = async (videoBlob: Blob) => {
-  // TODO: Prompt here for file name?
+  // TODO: Date here?
   FileSaver.saveAs(videoBlob, "timelapse.webm");
 };
 

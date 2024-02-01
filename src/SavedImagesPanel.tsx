@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { Spinner } from "@blueprintjs/core";
 import { SavedImages } from "./SavedImages";
-import { SaveImageMetadata } from "./VideoStorageUtils";
+import { SaveImageMetadata } from "./Types";
 
 interface RecordingPanelProps {
   savedImages: SaveImageMetadata[];

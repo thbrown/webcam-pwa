@@ -25,7 +25,6 @@ import {
   Flash,
   Refresh,
 } from "@blueprintjs/icons";
-import { RecordingStatus } from "./App";
 import { compileVideo, savePictures, saveVideo } from "./VideoStorageUtils";
 import { TimelapseRecordingStats } from "./TimelapseRecordingStats";
 import { StopMotionRecordingStats } from "./StopMotionRecordingStats";
@@ -48,9 +47,14 @@ import {
   groupedSettings,
 } from "./SettingsStorageUtils";
 import { debounce } from "lodash";
-
-export type RecordingMode = "Timelapse" | "StopMotion" | "Solar";
-export type OutputSpec = "FPS" | "Duration";
+import {
+  CameraStatus,
+  OutputSpec,
+  RecordingStatus,
+  Location,
+  CapturedFrame,
+  RecordingMode,
+} from "./Types";
 
 interface CameraPanelProps {
   recordingStatus: RecordingStatus;
@@ -60,47 +64,21 @@ interface CameraPanelProps {
   setInfoDialogContent: (value: React.ReactNode) => void;
   initializing: boolean;
   setInitializing: (value: boolean) => void;
+  cameraSettings: MediaTrackSettings;
+  setCameraSettings: (value: MediaTrackSettings) => void;
+  recordingMode: RecordingMode;
+  setRecordingMode: (value: RecordingMode) => void;
+  capturedFrames: CapturedFrame[];
+  setCapturedFrames: (
+    value: CapturedFrame[] | ((prevFrames: CapturedFrame[]) => CapturedFrame[])
+  ) => void;
 }
-
-export type CapturedFrame = {
-  image: string;
-  type: CaptureType;
-};
-
-export type CaptureType = TimelapseCapture | StopMotionCapture | SolarCapture;
-
-export interface BaseCapture {
-  mode: RecordingMode;
-}
-
-export type TimelapseCapture = BaseCapture & {
-  mode: "Timelapse";
-};
-
-export type StopMotionCapture = BaseCapture & {
-  mode: "StopMotion";
-};
-
-export type SolarCapture = BaseCapture & {
-  mode: "Solar";
-  solarEvent: string;
-};
-
-export type CameraStatus = "idle" | "initializing" | "initialized";
-
-export type Location = {
-  longitude: number;
-  latitude: number;
-};
 
 export function CameraPanel(props: CameraPanelProps): JSX.Element {
   // Common state
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoPlaceholderRef = useRef<HTMLDivElement>(null);
-  const [recordingMode, setRecordingMode] =
-    useState<RecordingMode>("Timelapse");
-  const [capturedFrames, setCapturedFrames] = useState<CapturedFrame[]>([]);
   const [cameraPermission, setCameraPermission] = useState<
     PermissionState | undefined
   >(undefined);
@@ -108,7 +86,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [savingVideo, setSavingVideo] = useState<boolean>(false);
   const [supportedCameraCapabilities, setSupportedCameraCapabilities] =
     useState<MediaTrackCapabilities | undefined>(undefined);
-  const [cameraSettings, setCameraSettings] = useState<MediaTrackSettings>({});
   const [cameraSettingsLoading, setCameraSettingsLoading] = useState<string[]>(
     []
   );
@@ -207,29 +184,29 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     }, [value]);
   };
 
-  usePersistOnChange(recordingMode, "recordingMode");
+  usePersistOnChange(props.recordingMode, "recordingMode");
   usePersistOnChange(location, "location");
   usePersistOnChange(captureTimes, "captureTimes");
   usePersistOnChange(timelapseInterval, "timelapseInterval");
-  usePersistOnChange(cameraSettings, "cameraSettings");
+  usePersistOnChange(props.cameraSettings, "cameraSettings");
   usePersistOnChange(enableSavePictures, "enableSavePictures");
 
   // Special case the frame re-loading (save frames one at a time for perf reasons)
   useEffect(() => {
     if (!props.initializing) {
       const intermediate = async () => {
-        if (capturedFrames.length === 0) {
+        if (props.capturedFrames.length === 0) {
           await clearFrames();
         } else {
           await saveFrame(
-            capturedFrames[capturedFrames.length - 1],
-            capturedFrames.length - 1
+            props.capturedFrames[props.capturedFrames.length - 1],
+            props.capturedFrames.length - 1
           );
         }
       };
       intermediate();
     }
-  }, [capturedFrames]);
+  }, [props.capturedFrames]);
 
   // Load saved fields from localforage, if any
   useEffect(() => {
@@ -240,7 +217,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         "Camera initialized! Loading additional saved state (if available)"
       );
 
-      await updateSetting("recordingMode", setRecordingMode);
+      await updateSetting("recordingMode", props.setRecordingMode);
       await updateSetting("recordingStatus", props.setRecordingStatus);
       await updateSetting("timelapseInterval", setTimelapseInterval);
       await updateSetting("location", setLocation);
@@ -248,7 +225,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       await updateSetting("enableSavePictures", setEnableSavePictures);
 
       const frames = await getSavedFrames();
-      if (frames !== undefined) setCapturedFrames(frames);
+      if (frames !== undefined) props.setCapturedFrames(frames);
 
       props.setInitializing(false);
     };
@@ -261,9 +238,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     if (props.recordingStatus !== "Recording") {
       return;
     }
-    console.log("Status was 'Recording' resuming...", recordingMode);
+    console.log("Status was 'Recording' resuming...", props.recordingMode);
 
-    switch (recordingMode) {
+    switch (props.recordingMode) {
       case "Timelapse":
         startTimelapse();
         break;
@@ -274,7 +251,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         scheduleSolarTimelapse();
         break;
       default:
-        assertNever(recordingMode);
+        assertNever(props.recordingMode);
     }
   }, [props.initializing]);
 
@@ -295,20 +272,20 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const startVideo = async (): Promise<void> => {
     // Get camera based of of previous camera settings (or any camera if not available)
     const constraints: MediaStreamConstraints =
-      cameraSettings === undefined
+      props.cameraSettings === undefined
         ? { video: true }
         : {
             video: {
               advanced: [
                 {
-                  deviceId: cameraSettings.deviceId,
+                  deviceId: props.cameraSettings.deviceId,
                 },
               ],
             },
           };
 
     try {
-      console.log("Getting camera ", cameraSettings.deviceId);
+      console.log("Getting camera ", props.cameraSettings.deviceId);
       const mediaStream = await navigator.mediaDevices.getUserMedia(
         constraints
       );
@@ -328,7 +305,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         setActiveTrack(track);
 
         const constraintsWithoutDeviceId = removeObjectProperty(
-          cameraSettings,
+          props.cameraSettings,
           "deviceId"
         );
         console.log(
@@ -371,7 +348,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
 
         // TODO: Idk if this copy is necessary
         const settings = JSON.parse(JSON.stringify(track.getSettings()));
-        setCameraSettings(settings);
+        props.setCameraSettings(settings);
         setCameraStatus("initialized");
       } else {
         console.error("No video ref!");
@@ -395,13 +372,13 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     image: string,
     captureQueue: CaptureTime[]
   ): CapturedFrame => {
-    if (recordingMode === "Solar") {
+    if (props.recordingMode === "Solar") {
       return {
         image,
-        type: { mode: recordingMode, solarEvent: captureQueue[0].type },
+        type: { mode: props.recordingMode, solarEvent: captureQueue[0].type },
       };
     } else {
-      return { image, type: { mode: recordingMode } };
+      return { image, type: { mode: props.recordingMode } };
     }
   };
 
@@ -412,7 +389,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     // Detect slow recording (if more than 10% too slow)
     framesCapturedInSession.current =
       (framesCapturedInSession.current ?? 0) + 1;
-    if (recordingMode === "Timelapse") {
+    if (props.recordingMode === "Timelapse") {
       if (
         lastFrameTimestamp.current &&
         Date.now() - lastFrameTimestamp.current >
@@ -452,7 +429,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         const frameImageData = canvasRef.current.toDataURL("image/webp");
 
         const newFrame = getCapturedFrameObject(frameImageData, captureQueue);
-        setCapturedFrames((prevFrames) => {
+        props.setCapturedFrames((prevFrames) => {
           const newFrames = [...prevFrames, newFrame];
           console.log("Capturing frame!", newFrames.length); // Log the number of frames captured
           return newFrames;
@@ -566,9 +543,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       }
       props.setRecordingStatus("Stopped");
 
-      let processedCaptures = capturedFrames;
-      if (recordingMode === "Solar") {
-        processedCaptures = capturedFrames.sort(solarCapturesComparator);
+      let processedCaptures = props.capturedFrames;
+      if (props.recordingMode === "Solar") {
+        processedCaptures = props.capturedFrames.sort(solarCapturesComparator);
         console.log("Sorted captures", processedCaptures);
       }
 
@@ -589,29 +566,29 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
               processedCaptures.map((v) => v.image),
               calculatedFPS
             );
-            await saveVideo(
-              videoBlob.blob,
-              videoBlob.previewImage,
-              recordingMode,
-              props.reloadSavedMedia,
-              cameraSettings.width,
-              cameraSettings.height
-            );
             if (enableSavePictures) {
               await savePictures(
                 processedCaptures,
                 videoBlob.previewImage,
                 props.reloadSavedMedia,
-                cameraSettings.width,
-                cameraSettings.height
+                props.cameraSettings.width,
+                props.cameraSettings.height
               );
             }
+            await saveVideo(
+              videoBlob.blob,
+              videoBlob.previewImage,
+              props.recordingMode,
+              props.reloadSavedMedia,
+              props.cameraSettings.width,
+              props.cameraSettings.height
+            );
             props.setVideoToShow(videoBlob.blob);
           } else {
             props.setInfoDialogContent(<div>No frames were captured!</div>);
           }
         } finally {
-          setCapturedFrames([]);
+          props.setCapturedFrames([]);
           setSavingVideo(false);
         }
       }, 100);
@@ -638,8 +615,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       inputActiveTrack?: MediaStreamTrack
     ) => {
       // Call this before debounce to maintain better ui responsiveness
-      setCameraSettings({
-        ...cameraSettings,
+      props.setCameraSettings({
+        ...props.cameraSettings,
         ...(constraints.advanced[0] as MediaTrackSettings),
       });
       return new Promise<void>((resolve) => {
@@ -648,7 +625,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         });
       });
     },
-    [activeTrack, cameraSettings]
+    [activeTrack, props.cameraSettings]
   );
 
   const applySettingsChangesInner = useCallback(
@@ -798,7 +775,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             }
           }
           console.log("Camera setting application complete");
-          setCameraSettings(track.getSettings());
+          props.setCameraSettings(track.getSettings());
         } catch (e) {
           console.error(e);
           alert(e);
@@ -844,7 +821,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
 
   const setIsCameraInitializing = async () => {
     // We need to load settings before we get the camera so we know what camera to get
-    await updateSetting("cameraSettings", setCameraSettings);
+    await updateSetting("cameraSettings", props.setCameraSettings);
     setCameraStatus("initializing");
   };
 
@@ -944,11 +921,11 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   }, [cameraPermission, cameraStatus]);
 
   function handelRecordModeChange(targetPanel: RecordingMode): void {
-    setRecordingMode(targetPanel);
+    props.setRecordingMode(targetPanel);
   }
 
   const getControls = () => {
-    switch (recordingMode) {
+    switch (props.recordingMode) {
       case "StopMotion":
         return (
           <StopMotionControl
@@ -1016,7 +993,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                 };
                 await applySettingsChanges(constraints);
               }}
-              selectedValue={cameraSettings.deviceId}
+              selectedValue={props.cameraSettings.deviceId}
             >
               {getCameraRadioOptions()}
             </RadioGroup>
@@ -1093,14 +1070,14 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           >
             {cameraSettingsLoading.length === 0 ? (
               screenOrientation === "portrait" ? (
-                (cameraSettings.height ?? "?") +
+                (props.cameraSettings.height ?? "?") +
                 " x " +
-                (cameraSettings.width ?? "?") +
+                (props.cameraSettings.width ?? "?") +
                 " (portrait)"
               ) : (
-                (cameraSettings.width ?? "?") +
+                (props.cameraSettings.width ?? "?") +
                 " x " +
-                (cameraSettings.height ?? "?")
+                (props.cameraSettings.height ?? "?")
               )
             ) : (
               <Spinner size={16} />
@@ -1128,13 +1105,13 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         style={{ display: "none" }}
         width={
           screenOrientation === "portrait"
-            ? cameraSettings?.height ?? "480"
-            : cameraSettings?.width ?? "640"
+            ? props.cameraSettings?.height ?? "480"
+            : props.cameraSettings?.width ?? "640"
         }
         height={
           screenOrientation === "portrait"
-            ? cameraSettings?.width ?? "640"
-            : cameraSettings?.height ?? "480"
+            ? props.cameraSettings?.width ?? "640"
+            : props.cameraSettings?.height ?? "480"
         }
       />
       {savingVideo ? (
@@ -1149,7 +1126,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           fill={true}
           large={true}
           onChange={handelRecordModeChange}
-          selectedTabId={recordingMode}
+          selectedTabId={props.recordingMode}
         >
           <Tab
             className="no-highlight minimal-top-margin"
@@ -1160,8 +1137,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                 {props.recordingStatus === "Recording" ||
                 props.recordingStatus === "Paused" ? (
                   <TimelapseRecordingStats
-                    mode={recordingMode}
-                    framesCaptured={capturedFrames.length}
+                    mode={props.recordingMode}
+                    framesCaptured={props.capturedFrames.length}
                     outputFPS={outputFPS}
                     outputSpec={outputSpec}
                     outputDuration={outputDuration}
@@ -1185,9 +1162,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     setEnableSavePictures={setEnableSavePictures}
                   />
                   <CameraSettings
-                    setCameraSettings={setCameraSettings}
+                    setCameraSettings={props.setCameraSettings}
                     cameraStatus={cameraStatus}
-                    cameraSettings={cameraSettings}
+                    cameraSettings={props.cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
                     recordingStatus={props.recordingStatus}
@@ -1214,8 +1191,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                 {props.recordingStatus === "Recording" ||
                 props.recordingStatus === "Paused" ? (
                   <StopMotionRecordingStats
-                    mode={recordingMode}
-                    framesCaptured={capturedFrames.length}
+                    mode={props.recordingMode}
+                    framesCaptured={props.capturedFrames.length}
                     outputFPS={outputFPS}
                     outputSpec={outputSpec}
                     outputDuration={outputDuration}
@@ -1237,9 +1214,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     setEnableSavePictures={setEnableSavePictures}
                   />
                   <CameraSettings
-                    setCameraSettings={setCameraSettings}
+                    setCameraSettings={props.setCameraSettings}
                     cameraStatus={cameraStatus}
-                    cameraSettings={cameraSettings}
+                    cameraSettings={props.cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
                     recordingStatus={props.recordingStatus}
@@ -1265,8 +1242,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
               <>
                 {props.recordingStatus === "Recording" ? (
                   <SolarRecordingStats
-                    mode={recordingMode}
-                    framesCaptured={capturedFrames.length}
+                    mode={props.recordingMode}
+                    framesCaptured={props.capturedFrames.length}
                     outputFPS={outputFPS}
                     outputSpec={outputSpec}
                     outputDuration={outputDuration}
@@ -1294,9 +1271,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                     setEnableSavePictures={setEnableSavePictures}
                   />
                   <CameraSettings
-                    setCameraSettings={setCameraSettings}
+                    setCameraSettings={props.setCameraSettings}
                     cameraStatus={cameraStatus}
-                    cameraSettings={cameraSettings}
+                    cameraSettings={props.cameraSettings}
                     activeTrack={activeTrack}
                     supportedCameraCapabilities={supportedCameraCapabilities}
                     recordingStatus={props.recordingStatus}
@@ -1323,3 +1300,4 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
 function assertNever(mode: string) {
   throw new Error("Function not implemented.");
 }
+export { OutputSpec };
