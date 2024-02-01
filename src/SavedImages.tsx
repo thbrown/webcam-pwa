@@ -16,10 +16,12 @@ import {
   SavedVideoMetadata,
   deleteImages,
   downloadVideo,
+  getImageArray,
   getVideoBlob,
   humanFileSize,
 } from "./VideoStorageUtils";
-
+import JSZip from "jszip";
+import FileSaver from "file-saver";
 export function SavedImages(
   props: SaveImageMetadata & {
     reloadSavedMedia: () => void;
@@ -30,8 +32,23 @@ export function SavedImages(
 
   const handleDownload = async (event: React.MouseEvent<HTMLButtonElement>) => {
     //console.log("DOWNLOAD", event.target);
-    //downloadVideo(await getVideoBlob(props.saveUuid));
+    //downloadVideo();
     // PIZZA
+
+    const images = await getImageArray(props.saveUuid);
+    const zip = new JSZip();
+
+    const imageZip = zip.folder("images");
+    let index = 0;
+    for (let img of images) {
+      const idx = img.image.indexOf("base64,") + "base64,".length; // or = 28 if you're sure about the prefix
+      const content = img.image.substring(idx);
+      imageZip.file(`frame${index}.webp`, content, { base64: true });
+      index++;
+    }
+
+    const content = await zip.generateAsync({ type: "blob" });
+    FileSaver.saveAs(content, "images.zip");
   };
 
   const handleDelete = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -41,7 +58,7 @@ export function SavedImages(
     props.reloadSavedMedia();
   };
 
-  const handleREstore = async () => {
+  const handleRestore = async () => {
     // PIZZA
   };
 

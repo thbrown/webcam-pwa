@@ -96,3 +96,14 @@ $max-width: 760px;
     border-radius: 3px;
     padding: 7px;
 }
+
+.gone {
+    display: none
+}
+
+/* Media query to hide tab text when screen width is less than 448 pixels */
+@media screen and (max-width: 410px) {
+    .vanishing {
+      display: none;
+    }
+  }

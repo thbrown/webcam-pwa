@@ -2,7 +2,7 @@ import { Button, Dialog, Tab, Tabs } from "@blueprintjs/core";
 import React, { useState, useEffect } from "react";
 import { SavedVideosPanel } from "./SavedVideosPanel";
 import { SavedImagesPanel } from "./SavedImagesPanel";
-import { FolderOpen, Camera, Import } from "@blueprintjs/icons";
+import { FolderOpen, Camera, Import, Film, Media } from "@blueprintjs/icons";
 import "./Main.scss";
 import { RecordingStatus } from "./App";
 import {
@@ -15,13 +15,14 @@ import {
 import { CameraPanel } from "./CameraPanel";
 import { InfoDialog } from "./InfoDialog";
 
-export type MainPanel = "camera" | "recordings" | "app";
+export type MainPanel = "camera" | "videos" | "images" | "app";
 
 interface MainProps {
   recordingStatus: RecordingStatus;
   setRecordingStatus: (v: RecordingStatus) => void;
   initializing: boolean;
   setInitializing: (value: boolean) => void;
+  screenWidth: number;
 }
 
 export function Main(props: MainProps): JSX.Element {
@@ -35,6 +36,7 @@ export function Main(props: MainProps): JSX.Element {
   const [videoToShow, setVideoToShow] = useState<Blob | undefined>(undefined);
   const [infoDialogContent, setInfoDialogContent] =
     useState<React.ReactNode>(undefined);
+  const [tabStyle, setTabStyle] = useState<string>(null);
 
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [installedApps, setInstalledApps] = useState(null);
@@ -43,6 +45,7 @@ export function Main(props: MainProps): JSX.Element {
     reloadSavedMedia();
   }, []);
 
+  /*
   useEffect(() => {
     const toRun = async () => {
       if ("getInstalledRelatedApps" in navigator) {
@@ -54,6 +57,7 @@ export function Main(props: MainProps): JSX.Element {
     };
     toRun();
   }, []);
+  */
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (event: {
@@ -116,6 +120,11 @@ export function Main(props: MainProps): JSX.Element {
     setMainPanel(targetPanel);
   };
 
+  const getTabClass = (element: MainPanel) => {
+    const term = props.screenWidth < 410 && mainPanel !== element ? "gone" : "";
+    return `spacer ${term}`;
+  };
+
   return (
     <>
       <Tabs
@@ -127,7 +136,7 @@ export function Main(props: MainProps): JSX.Element {
         <Tab
           className="no-highlight minimal-top-margin"
           id="camera"
-          title={<div className="spacer">Camera</div>}
+          title={<div className={getTabClass("camera")}>Camera</div>}
           panel={
             <CameraPanel
               recordingStatus={props.recordingStatus}
@@ -143,8 +152,8 @@ export function Main(props: MainProps): JSX.Element {
         />
         <Tab
           className="no-highlight minimal-top-margin"
-          id="savedVideos"
-          title={<div className="spacer">Videos</div>}
+          id="videos"
+          title={<div className={getTabClass("videos")}>Videos</div>}
           panel={
             <SavedVideosPanel
               savedVideos={savedVideos}
@@ -152,15 +161,15 @@ export function Main(props: MainProps): JSX.Element {
               setVideoToShow={setVideoToShow}
             />
           }
-          icon={<FolderOpen />}
+          icon={<Film />}
           tagContent={
             savedVideos === undefined ? undefined : savedVideos.length
           }
         />
         <Tab
           className="no-highlight minimal-top-margin"
-          id="savedImages"
-          title={<div className="spacer">Images</div>}
+          id="images"
+          title={<div className={getTabClass("images")}>Images</div>}
           panel={
             <SavedImagesPanel
               savedImages={savedImages}
@@ -168,7 +177,7 @@ export function Main(props: MainProps): JSX.Element {
               setVideoToShow={setVideoToShow}
             />
           }
-          icon={<FolderOpen />}
+          icon={<Media />}
           tagContent={
             savedImages === undefined ? undefined : savedImages.length
           }
@@ -177,7 +186,7 @@ export function Main(props: MainProps): JSX.Element {
           <Tab
             className="no-highlight minimal-top-margin"
             id="app"
-            title={<div className="spacer">App</div>}
+            title={<div className={getTabClass("app")}>App</div>}
             panel={
               <div
                 style={{

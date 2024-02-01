@@ -212,6 +212,12 @@ export const saveVideo = async (
   return videoMetadata;
 };
 
+export const getImageArray = async (keyUuid: string) => {
+  return await localforage.getItem<CapturedFrame[] | null>(
+    getImageKey(keyUuid)
+  );
+};
+
 export const getVideoBlob = async (keyUuid: string) => {
   return await localforage.getItem<Blob | null>(getBlobKey(keyUuid));
 };

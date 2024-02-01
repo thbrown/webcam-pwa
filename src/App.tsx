@@ -11,6 +11,28 @@ export const App: React.FC = () => {
   const [recordingStatus, setRecordingStatus] =
     useState<RecordingStatus>("Stopped");
   const [initializing, setInitializing] = useState<boolean>(true);
+  const [screenWidth, setScreenWidth] = useState(
+    window.innerWidth ||
+      document.documentElement.clientWidth ||
+      document.body.clientWidth
+  );
+
+  const handleResize = () => {
+    setScreenWidth(
+      window.innerWidth ||
+        document.documentElement.clientWidth ||
+        document.body.clientWidth
+    );
+  };
+
+  // Screen width state
+  useEffect(() => {
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   // Persist select fields on change
   useEffect(() => {
@@ -59,6 +81,7 @@ export const App: React.FC = () => {
               setRecordingStatus={setRecordingStatus}
               initializing={initializing}
               setInitializing={setInitializing}
+              screenWidth={screenWidth}
             ></Main>
           </div>
         </div>
