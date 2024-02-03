@@ -89,7 +89,10 @@ export async function convertToWebP(
   for (const batch of batches) {
     counter++;
     updateProgress(
-      `Paying iOS PWA tax ${counter * batchSize} of ${imageBase64Array.length}`
+      `Paying iOS PWA tax ${Math.min(
+        counter * batchSize,
+        imageBase64Array.length
+      )} of ${imageBase64Array.length}`
     );
     const batchResults = await Promise.all(batch.map(innerConvertToWebP));
     results.push(...batchResults);

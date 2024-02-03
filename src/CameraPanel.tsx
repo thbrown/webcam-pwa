@@ -800,7 +800,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           props.setCameraSettings(track.getSettings());
         } catch (e) {
           console.error(e);
-          alert(e);
+          alert("ERROR applying settings " + e);
         } finally {
           setCameraSettingsLoading([]);
           callback();
@@ -1130,15 +1130,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
       <canvas
         ref={canvasRef}
         style={{ display: "none" }}
-        width={
-          screenOrientation === "portrait"
-            ? props.cameraSettings?.height ?? "480"
-            : props.cameraSettings?.width ?? "640"
-        }
+        width={videoRef.current ? videoRef.current.videoWidth : "100"}
         height={
-          screenOrientation === "portrait"
-            ? props.cameraSettings?.width ?? "640"
-            : props.cameraSettings?.height ?? "480"
+          videoRef.current ? videoRef.current.videoHeight : "100" // TODO: this ya be zero before init, is that okay?
         }
       />
       {savingVideo ? (
