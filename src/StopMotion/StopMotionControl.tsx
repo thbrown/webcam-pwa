@@ -1,7 +1,14 @@
-import { Button, Spinner, Tab, Tabs, useHotkeys } from "@blueprintjs/core";
+import {
+  Button,
+  Spinner,
+  Tab,
+  Tabs,
+  Tooltip,
+  useHotkeys,
+} from "@blueprintjs/core";
 import React, { useRef, useState, useEffect, useMemo } from "react";
 
-import { Record, Stop, Flash } from "@blueprintjs/icons";
+import { Record, Stop, Flash, Trash } from "@blueprintjs/icons";
 import { RecordingStatus } from "../Types";
 
 interface StopMotionControlProps {
@@ -9,6 +16,7 @@ interface StopMotionControlProps {
   onStart: () => void;
   onSnapshot: () => void;
   onStop: () => void;
+  onDiscard: () => void;
 }
 
 export function StopMotionControl(props: StopMotionControlProps): JSX.Element {
@@ -26,50 +34,93 @@ export function StopMotionControl(props: StopMotionControlProps): JSX.Element {
   );
 
   const { handleKeyDown, handleKeyUp } = useHotkeys(hotkeys);
-  if (props.recordingStatus === "Paused") {
+
+  if (props.recordingStatus === "Recording") {
     return (
-      <div className="footer" style={{ display: "flex" }}>
-        <Button
-          className={"big-button simple-label"}
-          icon={<Flash />}
-          large={true}
-          fill={true}
-          onClick={props.onSnapshot}
-          style={{ paddingRight: "2px" }}
-        >
-          Take Frame
-        </Button>
-        <Button
-          className={"big-button simple-label"}
-          icon={<Stop />}
-          large={true}
-          fill={true}
-          onClick={props.onStop}
-          style={{ paddingLeft: "2px" }}
-        >
-          Stop
-        </Button>
+      <div
+        className={"overlay-button"}
+        style={{
+          bottom: "15px",
+          right: "15px",
+        }}
+      >
+        <Spinner size={32} />
       </div>
     );
   } else if (props.recordingStatus === "Stopped") {
     return (
-      <div className="footer">
-        <Button
-          className={"big-button simple-label"}
-          icon={<Record />}
-          large={true}
-          fill={true}
-          onClick={props.onStart}
-        >
-          Start Recording Stop Motion
-        </Button>
+      <div
+        className={"overlay-button"}
+        style={{
+          bottom: "10px",
+          right: "10px",
+        }}
+      >
+        <Tooltip content="Start recording">
+          <Button
+            icon={<Record color="red" />}
+            large={true}
+            fill={true}
+            onClick={props.onStart}
+          ></Button>
+        </Tooltip>
       </div>
     );
-  } else if (props.recordingStatus === "Recording") {
+  } else if (props.recordingStatus === "Paused") {
     return (
-      <div className="footer" style={{ display: "flex" }}>
-        <Spinner size={16} />
-      </div>
+      <>
+        <div
+          className={"overlay-button"}
+          style={{
+            bottom: "10px",
+            right: "10px",
+          }}
+        >
+          <Tooltip content="Record a frame">
+            <Button
+              className={"big-button simple-label"}
+              icon={<Flash color="red" />}
+              large={true}
+              fill={true}
+              onClick={props.onSnapshot}
+            ></Button>
+          </Tooltip>
+        </div>
+        <div
+          className={"overlay-button"}
+          style={{
+            bottom: "60px",
+            right: "10px",
+          }}
+        >
+          <Tooltip content="Stop and save recording">
+            <Button
+              className={"big-button simple-label"}
+              icon={<Stop />}
+              large={true}
+              fill={true}
+              onClick={props.onStop}
+            ></Button>
+          </Tooltip>
+        </div>
+        <div
+          className={"overlay-button"}
+          style={{
+            bottom: "10px",
+            left: "10px",
+          }}
+        >
+          <Tooltip content="Stop and discard recording">
+            <Button
+              className={"big-button simple-label"}
+              icon={<Trash />}
+              large={true}
+              fill={true}
+              onClick={props.onDiscard}
+            ></Button>
+          </Tooltip>
+        </div>
+      </>
     );
   }
 }

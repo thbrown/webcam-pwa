@@ -49,6 +49,8 @@ export function Main(props: MainProps): JSX.Element {
     useState<RecordingMode>("Timelapse");
   const [capturedFrames, setCapturedFrames] = useState<CapturedFrame[]>([]);
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+
   useEffect(() => {
     reloadSavedMedia();
   }, []);
@@ -117,6 +119,7 @@ export function Main(props: MainProps): JSX.Element {
   };
 
   const handleShowImagesClose = () => {
+    setCurrentIndex(0);
     setImagesToShow(undefined);
   };
 
@@ -136,8 +139,6 @@ export function Main(props: MainProps): JSX.Element {
     const term = props.screenWidth < 410 && mainPanel !== element ? "gone" : "";
     return `spacer ${term}`;
   };
-
-  const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleBackwardClick = () => {
     if (currentIndex > 0) {
@@ -287,13 +288,13 @@ export function Main(props: MainProps): JSX.Element {
             className="parent"
           >
             <Button
+              className={"overlay-button"}
               style={{
-                position: "absolute",
                 bottom: "10px",
                 left: "10px",
-                zIndex: "1",
                 opacity: ".7",
                 height: "48px",
+                width: "48px",
               }}
               onClick={handleBackwardClick}
               disabled={currentIndex === 0}
@@ -308,12 +309,11 @@ export function Main(props: MainProps): JSX.Element {
             />
 
             <div
+              className={"overlay-button"}
               style={{
-                position: "absolute",
-                bottom: "10px",
+                top: "10px",
                 left: "50%",
                 transform: "translateX(-50%)",
-                zIndex: "1",
                 opacity: ".7",
                 padding: "10px",
                 backgroundColor: "black",
@@ -321,17 +321,33 @@ export function Main(props: MainProps): JSX.Element {
                 color: "white",
               }}
             >
-              {currentIndex + " of " + imagesToShow.length}
+              {imagesToShow[0].type.mode}
+            </div>
+
+            <div
+              className={"overlay-button"}
+              style={{
+                bottom: "10px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                opacity: ".7",
+                padding: "10px",
+                backgroundColor: "black",
+                borderRadius: "3px",
+                color: "white",
+              }}
+            >
+              {currentIndex + 1 + " of " + imagesToShow.length}
             </div>
 
             <Button
+              className={"overlay-button"}
               style={{
-                position: "absolute",
                 bottom: "10px",
                 right: "10px",
-                zIndex: "1",
                 opacity: ".7",
                 height: "48px",
+                width: "48px",
               }}
               onClick={handleForwardClick}
               disabled={currentIndex === imagesToShow.length - 1}

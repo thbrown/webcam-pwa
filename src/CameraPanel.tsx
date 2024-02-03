@@ -516,6 +516,16 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
     console.log("Start recording!!", intervalIdRef.current);
   };
 
+  const discardFrames = async (): Promise<void> => {
+    props.setRecordingStatus("Stopped");
+    framesCapturedInSession.current = 0;
+    if (intervalIdRef.current) {
+      clearInterval(intervalIdRef.current);
+      intervalIdRef.current = null;
+    }
+    props.setCapturedFrames([]);
+  };
+
   const solarCapturesComparator = (
     captureA: CapturedFrame,
     captureB: CapturedFrame
@@ -942,6 +952,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             onStart={captureStopMotionFrame}
             onSnapshot={captureStopMotionFrame}
             onStop={stopAndSave}
+            onDiscard={discardFrames}
           />
         );
       case "Timelapse":
@@ -951,6 +962,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             onStart={startTimelapse}
             onStop={stopAndSave}
             onPause={pauseTimelapse}
+            onDiscard={discardFrames}
           />
         );
       default:
@@ -1024,11 +1036,11 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         {cameraOverlay}
         {cameraStatus === "initialized" ? (
           <div
+            className={"overlay-button"}
             style={{
-              position: "absolute",
               top: "10px",
               right: "10px",
-              zIndex: "1",
+              opacity: ".8",
             }}
           >
             <Tooltip content="Select camera">
@@ -1042,13 +1054,15 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             </Tooltip>
           </div>
         ) : null}
-        {cameraStatus === "initialized" ? (
+
+        {cameraStatus === "initialized"
+          ? /*(
+            This looks too much like a camera swap button
           <div
+            className={"overlay-button"}
             style={{
-              position: "absolute",
-              top: "60px",
-              right: "10px",
-              zIndex: "1",
+              bottom: "10px",
+              left: "10px",
             }}
           >
             <Tooltip content="Refresh camera">
@@ -1061,8 +1075,9 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
               ></Button>
             </Tooltip>
           </div>
-        ) : null}
-
+              ) : null */ null
+          : null}
+        {cameraStatus === "initialized" && !savingVideo ? getControls() : null}
         {activeTrack !== undefined ? (
           <div
             style={{
@@ -1105,7 +1120,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             backgroundColor: "black",
             boxShadow: "0 3px 10px rgb(0 0 0 / 1)",
             maxHeight: "50vh",
-            minHeight: "110px",
+            minHeight: "160px",
           }}
         />
       </div>
@@ -1131,178 +1146,179 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           <Spinner size={64} />
         </div>
       ) : (
-        <Tabs
-          fill={true}
-          large={true}
-          onChange={handelRecordModeChange}
-          selectedTabId={props.recordingMode}
-        >
-          <Tab
-            className="no-highlight minimal-top-margin"
-            id="Timelapse"
-            title={<div className="spacer">Timelapse</div>}
-            panel={
-              <>
-                {props.recordingStatus === "Recording" ||
-                props.recordingStatus === "Paused" ? (
-                  <TimelapseRecordingStats
-                    mode={props.recordingMode}
-                    framesCaptured={props.capturedFrames.length}
-                    outputFPS={outputFPS}
-                    outputSpec={outputSpec}
-                    outputDuration={outputDuration}
-                    timelapseInterval={timelapseInterval}
-                    recordingStatus={props.recordingStatus}
-                    statusMessages={statusMessages}
-                  />
-                ) : null}
-                <div>
-                  <TimelapseParameters
-                    timelapseInterval={timelapseInterval}
-                    outputFPS={outputFPS}
-                    outputDuration={outputDuration}
-                    outputSpec={outputSpec}
-                    setTimelapseInterval={setTimelapseInterval}
-                    setOutputFPS={setOutputFPS}
-                    setOutputDuration={setOutputDuration}
-                    setOutputSpec={setOutputSpec}
-                    recordingStatus={props.recordingStatus}
-                    enableSavePictures={enableSavePictures}
-                    setEnableSavePictures={setEnableSavePictures}
-                  />
-                  <CameraSettings
-                    setCameraSettings={props.setCameraSettings}
-                    cameraStatus={cameraStatus}
-                    cameraSettings={props.cameraSettings}
-                    activeTrack={activeTrack}
-                    supportedCameraCapabilities={supportedCameraCapabilities}
-                    recordingStatus={props.recordingStatus}
-                    cameraSettingsLoading={cameraSettingsLoading}
-                    setCameraSettingsLoading={setCameraSettingsLoading}
-                    applySettingsChanges={applySettingsChanges}
-                    screenOrientation={screenOrientation}
-                  />
-                </div>
-              </>
-            }
-            icon={<Time />}
-            disabled={
-              props.recordingStatus === "Recording" ||
-              props.recordingStatus === "Paused"
-            }
-          />
-          <Tab
-            className="no-highlight minimal-top-margin"
-            id="StopMotion"
-            title={<div className="spacer">Stop Motion</div>}
-            panel={
-              <>
-                {props.recordingStatus === "Recording" ||
-                props.recordingStatus === "Paused" ? (
-                  <StopMotionRecordingStats
-                    mode={props.recordingMode}
-                    framesCaptured={props.capturedFrames.length}
-                    outputFPS={outputFPS}
-                    outputSpec={outputSpec}
-                    outputDuration={outputDuration}
-                    timelapseInterval={timelapseInterval}
-                    recordingStatus={props.recordingStatus}
-                    statusMessages={statusMessages}
-                  />
-                ) : null}
-                <div>
-                  <StopMotionParameters
-                    outputFPS={outputFPS}
-                    outputDuration={outputDuration}
-                    outputSpec={outputSpec}
-                    setOutputFPS={setOutputFPS}
-                    setOutputDuration={setOutputDuration}
-                    setOutputSpec={setOutputSpec}
-                    recordingStatus={props.recordingStatus}
-                    enableSavePictures={enableSavePictures}
-                    setEnableSavePictures={setEnableSavePictures}
-                  />
-                  <CameraSettings
-                    setCameraSettings={props.setCameraSettings}
-                    cameraStatus={cameraStatus}
-                    cameraSettings={props.cameraSettings}
-                    activeTrack={activeTrack}
-                    supportedCameraCapabilities={supportedCameraCapabilities}
-                    recordingStatus={props.recordingStatus}
-                    cameraSettingsLoading={cameraSettingsLoading}
-                    setCameraSettingsLoading={setCameraSettingsLoading}
-                    applySettingsChanges={applySettingsChanges}
-                    screenOrientation={screenOrientation}
-                  />
-                </div>
-              </>
-            }
-            icon={<Stopwatch />}
-            disabled={
-              props.recordingStatus === "Recording" ||
-              props.recordingStatus === "Paused"
-            }
-          />
-          <Tab
-            className="no-highlight minimal-top-margin"
-            id="Solar"
-            title={<div className="spacer">Solar</div>}
-            panel={
-              <>
-                {props.recordingStatus === "Recording" ? (
-                  <SolarRecordingStats
-                    mode={props.recordingMode}
-                    framesCaptured={props.capturedFrames.length}
-                    outputFPS={outputFPS}
-                    outputSpec={outputSpec}
-                    outputDuration={outputDuration}
-                    timelapseInterval={timelapseInterval}
-                    captureQueue={captureQueue}
-                    location={location}
-                    recordingStatus={props.recordingStatus}
-                    statusMessages={statusMessages}
-                  />
-                ) : null}
-                <div>
-                  <SolarParameters
-                    location={location}
-                    captureTimes={captureTimes}
-                    setLocation={setLocation}
-                    setCaptureTimes={setCaptureTimes}
-                    outputFPS={outputFPS}
-                    outputDuration={outputDuration}
-                    outputSpec={outputSpec}
-                    setOutputFPS={setOutputFPS}
-                    setOutputDuration={setOutputDuration}
-                    setOutputSpec={setOutputSpec}
-                    recordingStatus={props.recordingStatus}
-                    enableSavePictures={enableSavePictures}
-                    setEnableSavePictures={setEnableSavePictures}
-                  />
-                  <CameraSettings
-                    setCameraSettings={props.setCameraSettings}
-                    cameraStatus={cameraStatus}
-                    cameraSettings={props.cameraSettings}
-                    activeTrack={activeTrack}
-                    supportedCameraCapabilities={supportedCameraCapabilities}
-                    recordingStatus={props.recordingStatus}
-                    cameraSettingsLoading={cameraSettingsLoading}
-                    setCameraSettingsLoading={setCameraSettingsLoading}
-                    applySettingsChanges={applySettingsChanges}
-                    screenOrientation={screenOrientation}
-                  />
-                </div>
-              </>
-            }
-            icon={<Flash />}
-            disabled={
-              props.recordingStatus === "Recording" ||
-              props.recordingStatus === "Paused"
-            }
-          />
-        </Tabs>
+        <div>
+          <Tabs
+            fill={true}
+            large={true}
+            onChange={handelRecordModeChange}
+            selectedTabId={props.recordingMode}
+          >
+            <Tab
+              className="no-highlight minimal-top-margin"
+              id="Timelapse"
+              title={<div className="spacer">Timelapse</div>}
+              panel={
+                <>
+                  {props.recordingStatus === "Recording" ||
+                  props.recordingStatus === "Paused" ? (
+                    <TimelapseRecordingStats
+                      mode={props.recordingMode}
+                      framesCaptured={props.capturedFrames.length}
+                      outputFPS={outputFPS}
+                      outputSpec={outputSpec}
+                      outputDuration={outputDuration}
+                      timelapseInterval={timelapseInterval}
+                      recordingStatus={props.recordingStatus}
+                      statusMessages={statusMessages}
+                    />
+                  ) : null}
+                  <div>
+                    <TimelapseParameters
+                      timelapseInterval={timelapseInterval}
+                      outputFPS={outputFPS}
+                      outputDuration={outputDuration}
+                      outputSpec={outputSpec}
+                      setTimelapseInterval={setTimelapseInterval}
+                      setOutputFPS={setOutputFPS}
+                      setOutputDuration={setOutputDuration}
+                      setOutputSpec={setOutputSpec}
+                      recordingStatus={props.recordingStatus}
+                      enableSavePictures={enableSavePictures}
+                      setEnableSavePictures={setEnableSavePictures}
+                    />
+                    <CameraSettings
+                      setCameraSettings={props.setCameraSettings}
+                      cameraStatus={cameraStatus}
+                      cameraSettings={props.cameraSettings}
+                      activeTrack={activeTrack}
+                      supportedCameraCapabilities={supportedCameraCapabilities}
+                      recordingStatus={props.recordingStatus}
+                      cameraSettingsLoading={cameraSettingsLoading}
+                      setCameraSettingsLoading={setCameraSettingsLoading}
+                      applySettingsChanges={applySettingsChanges}
+                      screenOrientation={screenOrientation}
+                    />
+                  </div>
+                </>
+              }
+              icon={<Time />}
+              disabled={
+                props.recordingStatus === "Recording" ||
+                props.recordingStatus === "Paused"
+              }
+            />
+            <Tab
+              className="no-highlight minimal-top-margin"
+              id="StopMotion"
+              title={<div className="spacer">Stop Motion</div>}
+              panel={
+                <>
+                  {props.recordingStatus === "Recording" ||
+                  props.recordingStatus === "Paused" ? (
+                    <StopMotionRecordingStats
+                      mode={props.recordingMode}
+                      framesCaptured={props.capturedFrames.length}
+                      outputFPS={outputFPS}
+                      outputSpec={outputSpec}
+                      outputDuration={outputDuration}
+                      timelapseInterval={timelapseInterval}
+                      recordingStatus={props.recordingStatus}
+                      statusMessages={statusMessages}
+                    />
+                  ) : null}
+                  <div>
+                    <StopMotionParameters
+                      outputFPS={outputFPS}
+                      outputDuration={outputDuration}
+                      outputSpec={outputSpec}
+                      setOutputFPS={setOutputFPS}
+                      setOutputDuration={setOutputDuration}
+                      setOutputSpec={setOutputSpec}
+                      recordingStatus={props.recordingStatus}
+                      enableSavePictures={enableSavePictures}
+                      setEnableSavePictures={setEnableSavePictures}
+                    />
+                    <CameraSettings
+                      setCameraSettings={props.setCameraSettings}
+                      cameraStatus={cameraStatus}
+                      cameraSettings={props.cameraSettings}
+                      activeTrack={activeTrack}
+                      supportedCameraCapabilities={supportedCameraCapabilities}
+                      recordingStatus={props.recordingStatus}
+                      cameraSettingsLoading={cameraSettingsLoading}
+                      setCameraSettingsLoading={setCameraSettingsLoading}
+                      applySettingsChanges={applySettingsChanges}
+                      screenOrientation={screenOrientation}
+                    />
+                  </div>
+                </>
+              }
+              icon={<Stopwatch />}
+              disabled={
+                props.recordingStatus === "Recording" ||
+                props.recordingStatus === "Paused"
+              }
+            />
+            <Tab
+              className="no-highlight minimal-top-margin"
+              id="Solar"
+              title={<div className="spacer">Solar</div>}
+              panel={
+                <>
+                  {props.recordingStatus === "Recording" ? (
+                    <SolarRecordingStats
+                      mode={props.recordingMode}
+                      framesCaptured={props.capturedFrames.length}
+                      outputFPS={outputFPS}
+                      outputSpec={outputSpec}
+                      outputDuration={outputDuration}
+                      timelapseInterval={timelapseInterval}
+                      captureQueue={captureQueue}
+                      location={location}
+                      recordingStatus={props.recordingStatus}
+                      statusMessages={statusMessages}
+                    />
+                  ) : null}
+                  <div>
+                    <SolarParameters
+                      location={location}
+                      captureTimes={captureTimes}
+                      setLocation={setLocation}
+                      setCaptureTimes={setCaptureTimes}
+                      outputFPS={outputFPS}
+                      outputDuration={outputDuration}
+                      outputSpec={outputSpec}
+                      setOutputFPS={setOutputFPS}
+                      setOutputDuration={setOutputDuration}
+                      setOutputSpec={setOutputSpec}
+                      recordingStatus={props.recordingStatus}
+                      enableSavePictures={enableSavePictures}
+                      setEnableSavePictures={setEnableSavePictures}
+                    />
+                    <CameraSettings
+                      setCameraSettings={props.setCameraSettings}
+                      cameraStatus={cameraStatus}
+                      cameraSettings={props.cameraSettings}
+                      activeTrack={activeTrack}
+                      supportedCameraCapabilities={supportedCameraCapabilities}
+                      recordingStatus={props.recordingStatus}
+                      cameraSettingsLoading={cameraSettingsLoading}
+                      setCameraSettingsLoading={setCameraSettingsLoading}
+                      applySettingsChanges={applySettingsChanges}
+                      screenOrientation={screenOrientation}
+                    />
+                  </div>
+                </>
+              }
+              icon={<Flash />}
+              disabled={
+                props.recordingStatus === "Recording" ||
+                props.recordingStatus === "Paused"
+              }
+            />
+          </Tabs>
+        </div>
       )}
-      {cameraStatus === "initialized" && !savingVideo ? getControls() : null}
     </div>
   );
 }

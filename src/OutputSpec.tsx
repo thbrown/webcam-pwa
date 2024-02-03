@@ -166,7 +166,7 @@ export function OutputSpecProps(props: OutputSpecProps): JSX.Element {
                 >
                   <Media></Media>
                 </div>
-                <div>Save pictures</div>
+                <div>Save images</div>
               </div>
             </Checkbox>
           </div>

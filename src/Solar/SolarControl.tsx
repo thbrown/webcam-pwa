@@ -1,7 +1,7 @@
-import { Button, Tab, Tabs } from "@blueprintjs/core";
-import React, { useRef, useState, useEffect } from "react";
+import { Button, Tooltip } from "@blueprintjs/core";
+import React from "react";
 
-import { Record, Stop, Pause } from "@blueprintjs/icons";
+import { Record, Stop, Trash } from "@blueprintjs/icons";
 import { RecordingStatus } from "../Types";
 
 interface SolarControlProps {
@@ -13,38 +13,47 @@ interface SolarControlProps {
 export function SolarControl(props: SolarControlProps): JSX.Element {
   if (props.recordingStatus === "Recording") {
     return (
-      <div className="footer" style={{ display: "flex" }}>
-        <Button
-          className={"big-button simple-label"}
-          icon={<Stop />}
-          large={true}
-          fill={true}
-          onClick={props.onStop}
-          style={{ paddingLeft: "2px" }}
+      <>
+        <div
+          className={"overlay-button"}
+          style={{
+            bottom: "60px",
+            right: "10px",
+          }}
         >
-          Stop
-        </Button>
-      </div>
+          <Tooltip content="Stop and save recording">
+            <Button
+              className={"big-button simple-label"}
+              icon={<Stop />}
+              large={true}
+              fill={true}
+              onClick={props.onStop}
+            ></Button>
+          </Tooltip>
+        </div>
+      </>
     );
   } else if (props.recordingStatus === "Stopped") {
     return (
-      <div className="footer">
-        <Button
-          className={"big-button simple-label"}
-          icon={<Record />}
-          large={true}
-          fill={true}
-          onClick={props.onStart}
-        >
-          Start Recording Solar Timelapse
-        </Button>
+      <div
+        className={"overlay-button"}
+        style={{
+          bottom: "10px",
+          right: "10px",
+        }}
+      >
+        <Tooltip content="Start recording">
+          <Button
+            icon={<Record color="red" />}
+            large={true}
+            fill={true}
+            onClick={props.onStart}
+          ></Button>
+        </Tooltip>
       </div>
     );
   } else if (props.recordingStatus === "Paused") {
-    return (
-      <div className="footer" style={{ display: "flex" }}>
-        INVALID STATE
-      </div>
-    );
+    // Invalid state
+    return <></>;
   }
 }
