@@ -4,7 +4,6 @@ import localforage from "localforage";
 import FileSaver from "file-saver";
 import React from "react";
 import { convertToWebP } from "./WebpConversionUtil";
-import { sideEffectLink } from "../tsWhammyPatch";
 import {
   CapturedFrame,
   CompiledVideo,
@@ -12,9 +11,7 @@ import {
   SaveImageMetadata,
   SavedVideoMetadata,
 } from "../Types";
-
-// If you remove this the whammy monkey patch will not run (since this makes it a dependency and prevents tree shaking from removing it)
-console.warn("whammy patch", sideEffectLink);
+import WhammyWorker from "./whammy.worker.ts";
 
 function uint8ArrayToBlob(
   uint8Array: Uint8Array,
@@ -73,7 +70,8 @@ export const savePictures = async (
 
 export const compileVideo = async (
   inputFrames: string[],
-  outputFPS: number
+  outputFPS: number,
+  updateProgress: (message: string) => void
 ): Promise<CompiledVideo> => {
   try {
     // iOS is frustrating, it produces .png images when I specifically asked for webp
@@ -85,13 +83,18 @@ export const compileVideo = async (
           inputFrames.length +
           " images"
       );
-      inputFrames = await convertToWebP(inputFrames);
+      inputFrames = await convertToWebP(inputFrames, updateProgress);
     }
 
     let videoBlob = undefined;
     while (inputFrames.length > 0) {
       try {
-        videoBlob = tsWhammy.fromImageArray(inputFrames, outputFPS);
+        videoBlob = await whammyWebWorker(inputFrames, outputFPS, (val) => {
+          console.log("GOT PROGRESS", val);
+          updateProgress(
+            `Parsing Frames ${parseInt(val) + 1} of ${inputFrames.length}`
+          );
+        }); //tsWhammy.fromImageArray(inputFrames, outputFPS);
         break;
       } catch (err) {
         // Sometimes we can get an error on a partial frame. I think this happens when the browser
@@ -139,6 +142,39 @@ export const compileVideo = async (
   } catch (e) {
     alert("Video compile error: " + e + " - " + e.stack);
   }
+};
+
+const whammyWebWorker = async (
+  images: string[],
+  fps: number,
+  updateProgress: (a: string) => void
+) => {
+  // Create a Web Worker and execute the tsWhammy.fromImageArray inside it
+  //@ts-ignore
+  const worker = new WhammyWorker();
+  const resultPromise = new Promise<Blob | Uint8Array>((resolve) => {
+    worker.onmessage = (event: { data: { type: string; value: any } }) => {
+      if (event.data.type === "Result") {
+        resolve(event.data.value as Blob | Uint8Array);
+      } else if (event.data.type === "Progress") {
+        updateProgress(event.data.value as string);
+      } else {
+        console.warn("Unrecognized web worker message", event.data);
+      }
+    };
+  });
+
+  // Start the Web Worker and wait for the result
+  worker.postMessage({
+    images,
+    fps,
+  });
+  const result = await resultPromise;
+
+  // Clean up the Web Worker
+  worker.terminate();
+
+  return result;
 };
 
 const METADATA_PREFIX = "metadata_";

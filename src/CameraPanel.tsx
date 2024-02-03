@@ -93,6 +93,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   >(undefined);
   const [cameraStatus, setCameraStatus] = useState<CameraStatus>("idle");
   const [savingVideo, setSavingVideo] = useState<boolean>(false);
+  const [videoSaveMessage, setVideoSaveMessage] = useState<string>("Init");
   const [supportedCameraCapabilities, setSupportedCameraCapabilities] =
     useState<MediaTrackCapabilities | undefined>(undefined);
   const [cameraSettingsLoading, setCameraSettingsLoading] = useState<string[]>(
@@ -583,7 +584,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                 : (processedCaptures.length / outputDuration) * 1000;
             const videoBlob = await compileVideo(
               processedCaptures.map((v) => v.image),
-              calculatedFPS
+              calculatedFPS,
+              setVideoSaveMessage
             );
             if (enableSavePictures) {
               await savePictures(
@@ -609,6 +611,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         } finally {
           props.setCapturedFrames([]);
           setSavingVideo(false);
+          setVideoSaveMessage("Init");
         }
       }, 100);
     }
@@ -1142,6 +1145,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         <div>
           <div style={{ padding: "20px", textAlign: "center" }}>
             <b>Saving Video...</b>
+            <br></br>
+            <div>{videoSaveMessage}</div>
           </div>
           <Spinner size={64} />
         </div>

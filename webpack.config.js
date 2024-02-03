@@ -68,6 +68,10 @@ module.exports = {
         loader: "url-loader",
         options: { limit: false },
       },
+      {
+        test: /\.worker\.ts$/,
+        use: { loader: "worker-loader" },
+      },
     ],
   },
 };

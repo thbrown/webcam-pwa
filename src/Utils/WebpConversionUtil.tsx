@@ -1,5 +1,19 @@
-import wasm_webp from "@saschazar/wasm-webp";
+import wasm_webp, { WebPModule } from "@saschazar/wasm-webp";
 import defaultOptions from "@saschazar/wasm-webp/options";
+
+let memoizedWebpModule: Promise<WebPModule>;
+
+// idk that this actually helps
+async function memoizedWasmWebp() {
+  // Check if the module is already memoized
+  if (!memoizedWebpModule) {
+    // If not, initialize the WebAssembly Module
+    //@ts-ignore
+    memoizedWebpModule = await wasm_webp();
+  }
+
+  return memoizedWebpModule;
+}
 
 // Function to convert a base64 encoded images (png, jpeg, etc.) to WebP
 async function innerConvertToWebP(imageBase64: string): Promise<string> {
@@ -28,7 +42,7 @@ async function innerConvertToWebP(imageBase64: string): Promise<string> {
         let result;
 
         // Initialize the WebAssembly Module
-        const webpModule = await wasm_webp();
+        const webpModule = await memoizedWasmWebp(); //await wasm_webp();
         result = webpModule.encode(
           uint8Array,
           width,
@@ -36,7 +50,7 @@ async function innerConvertToWebP(imageBase64: string): Promise<string> {
           channels,
           options
         ); // encode image data and return a new Uint8Array
-        webpModule.free(); // clean up memory after encoding is done
+        //webpModule.free(); // clean up memory after encoding is done
 
         // Convert the BufferSource to a Blob so we can get base 64 encoded webp image
         const blob = new Blob([result], { type: "image/webp" });
@@ -59,7 +73,8 @@ async function innerConvertToWebP(imageBase64: string): Promise<string> {
 // Function to convert a base64 encoded images (png, jpeg, etc.) to WebP
 // This function does the conversion in batches to avoid OOM errors
 export async function convertToWebP(
-  imageBase64Array: string[]
+  imageBase64Array: string[],
+  updateProgress: (message: string) => void
 ): Promise<string[]> {
   const batchSize = 10; // Define the batch size
   // TODO: make this dynamic based on image size?
@@ -70,7 +85,12 @@ export async function convertToWebP(
   }
 
   const results: string[] = [];
+  let counter = 0;
   for (const batch of batches) {
+    counter++;
+    updateProgress(
+      `Paying iOS PWA tax ${counter * batchSize} of ${imageBase64Array.length}`
+    );
     const batchResults = await Promise.all(batch.map(innerConvertToWebP));
     results.push(...batchResults);
   }
