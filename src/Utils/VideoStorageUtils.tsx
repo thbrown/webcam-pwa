@@ -76,7 +76,7 @@ export const compileVideo = async (
   outputFPS: number
 ): Promise<CompiledVideo> => {
   try {
-    // iOS is frustrating, it produces pngs when I specifically asked for webp
+    // iOS is frustrating, it produces .png images when I specifically asked for webp
     // Which means we need to do a bunch of extra work to support an additional 10% of users
     // We'll get a png instead and convert it to webp via wasm
     if (inputFrames.some((frame) => !isWebP(frame))) {

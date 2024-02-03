@@ -58,6 +58,7 @@ export function StopMotionControl(props: StopMotionControlProps): JSX.Element {
       >
         <Tooltip content="Start recording">
           <Button
+            className={"big-button simple-label"}
             icon={<Record color="red" />}
             large={true}
             fill={true}
