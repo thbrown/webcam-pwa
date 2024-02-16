@@ -1,8 +1,8 @@
-# Web Timelapse 
+# Web Timelapse
 
-Web timelapse video recorder.
+Browser based timelapse and stop motion video recorder application.
 
-Live at: https://thbrown.github.io/webcam-pwa/
+Live at: https://camera.endlesswips.com/
 
 ### Develop
 
