@@ -28,7 +28,7 @@
   ],
   "background_color": "#ffce34",
   "theme_color": "#ffce34",
-  "start_url": "?source=applaunch",
+  "start_url": "/?source=applaunch",
   "display": "standalone",
   "scope": "/"
 }
