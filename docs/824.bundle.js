@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkwebcam_pwa=self.webpackChunkwebcam_pwa||[]).push([[824],{9946:(e,n,t)=>{t.r(n),t.d(n,{allPathsLoader:()=>s});var a=t(1635),s=function(e,n){return(0,a.sH)(void 0,void 0,void 0,(function(){return(0,a.YH)(this,(function(a){switch(a.label){case 0:return[4,Promise.all([t.e(783),t.e(672),t.e(860)]).then(t.bind(t,9803))];case 1:return[2,(0,a.sent().getIconPaths)(e,n)]}}))}))}}}]);
+//# sourceMappingURL=824.bundle.js.map

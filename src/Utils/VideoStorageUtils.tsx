@@ -115,6 +115,7 @@ export const compileVideo = async (
           }
         } else {
           // Re-throw the error if the condition is not met.
+          alert(err);
           throw err;
         }
       }
@@ -142,6 +143,7 @@ export const compileVideo = async (
   } catch (e) {
     alert("Video compile error: " + e + " - " + e.stack);
   }
+  console.log("Done compiling video");
 };
 
 const whammyWebWorker = async (
@@ -310,7 +312,7 @@ export const getAllSavedImageMetadata = async () => {
   return filteredImages.sort((a, b) => b.timestamp - a.timestamp);
 };
 
-async function resizeBase64Image(
+export async function resizeBase64Image(
   base64: string,
   width: number,
   height: number

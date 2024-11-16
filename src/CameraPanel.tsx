@@ -27,6 +27,7 @@ import {
 } from "@blueprintjs/icons";
 import {
   compileVideo,
+  resizeBase64Image,
   savePictures,
   saveVideo,
 } from "./Utils/VideoStorageUtils";
@@ -116,7 +117,7 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   const [outputSpec, setOutputSpec] = useState<OutputSpec>("FPS");
   const [outputDuration, setOutputDuration] = useState<number>(1000);
   const [outputFPS, setOutputFPS] = useState<number>(30);
-  const [enableSavePictures, setEnableSavePictures] = useState<boolean>(false);
+  const [enableSavePictures, setEnableSavePictures] = useState<boolean>(true);
 
   // Timelapse State
   const [timelapseInterval, setTimelapseInterval] = useState<number>(1000);
@@ -436,7 +437,14 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           canvasRef.current.height
         );
 
-        const frameImageData = canvasRef.current.toDataURL("image/webp");
+        // const frameImageData = canvasRef.current.toDataURL("image/webp");
+        const frameImageData = await new Promise<string>((resolve) => {
+          canvasRef.current.toBlob((blob) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+          }, "image/webp");
+        });
 
         const newFrame = getCapturedFrameObject(frameImageData, captureQueue);
         props.setCapturedFrames((prevFrames) => {
@@ -578,6 +586,19 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             processedCaptures
           );
           if (processedCaptures.length > 0) {
+            // Save images first (is case there is some issue with compiling the video)
+            if (enableSavePictures) {
+              alert("Saving images");
+              await savePictures(
+                processedCaptures,
+                await resizeBase64Image(processedCaptures[0].image, 50, 41),
+                props.reloadSavedMedia,
+                props.cameraSettings.width,
+                props.cameraSettings.height
+              );
+            }
+            alert("Compiling video");
+
             const calculatedFPS =
               outputSpec === "FPS"
                 ? outputFPS
@@ -587,15 +608,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
               calculatedFPS,
               setVideoSaveMessage
             );
-            if (enableSavePictures) {
-              await savePictures(
-                processedCaptures,
-                videoBlob.previewImage,
-                props.reloadSavedMedia,
-                props.cameraSettings.width,
-                props.cameraSettings.height
-              );
-            }
+
+            alert("Saving video");
             await saveVideo(
               videoBlob.blob,
               videoBlob.previewImage,
@@ -608,7 +622,12 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           } else {
             props.setInfoDialogContent(<div>No frames were captured!</div>);
           }
+        } catch (e) {
+          console.error("Error saving video", e);
+          alert(e);
         } finally {
+          alert("All Done!");
+
           props.setCapturedFrames([]);
           setSavingVideo(false);
           setVideoSaveMessage("Init");
