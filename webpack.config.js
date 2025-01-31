@@ -30,7 +30,7 @@ module.exports = {
   output: {
     path: isDevServer
       ? path.resolve(__dirname, "dev")
-      : path.resolve(__dirname, "docs"), // Because this is where github pages likes it
+      : path.resolve(__dirname, "docs"), // Because this is where GitHub Pages likes it
     filename: "bundle.js",
   },
   plugins,
@@ -50,7 +50,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(ts|tsx)$/, // .js and .jsx files
+        test: /\.(ts|tsx)$/,
         use: {
           loader: "babel-loader",
           options: {
@@ -60,11 +60,11 @@ module.exports = {
         exclude: /node_modules\/(?!ts-whammy)/,
       },
       {
-        test: /\.(sa|sc|c)ss$/, // styles files
+        test: /\.(sa|sc|c)ss$/,
         use: ["style-loader", "css-loader", "sass-loader"],
       },
       {
-        test: /\.(png|woff|woff2|eot|ttf|svg)$/, // to import images and fonts
+        test: /\.(png|woff|woff2|eot|ttf|svg)$/,
         loader: "url-loader",
         options: { limit: false },
       },
@@ -72,6 +72,21 @@ module.exports = {
         test: /\.worker\.ts$/,
         use: { loader: "worker-loader" },
       },
+      /*
+      {
+        test: /worker\.js$/,
+        type: "asset/resource",
+      },*/
+      //{
+      //  test: /@ffmpeg\/ffmpeg/,
+      //  type: "javascript/auto", // Ensures Webpack processes FFmpeg properly
+      //},
     ],
+  },
+  experiments: {
+    topLevelAwait: true, // ✅ Allow WebAssembly and top-level `await`
+  },
+  stats: {
+    errorDetails: true,
   },
 };

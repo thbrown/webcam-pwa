@@ -588,7 +588,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           if (processedCaptures.length > 0) {
             // Save images first (is case there is some issue with compiling the video)
             if (enableSavePictures) {
-              alert("Saving images");
               await savePictures(
                 processedCaptures,
                 await resizeBase64Image(processedCaptures[0].image, 50, 41),
@@ -597,7 +596,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                 props.cameraSettings.height
               );
             }
-            alert("Compiling video");
 
             const calculatedFPS =
               outputSpec === "FPS"
@@ -606,19 +604,20 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
             const videoBlob = await compileVideo(
               processedCaptures.map((v) => v.image),
               calculatedFPS,
-              setVideoSaveMessage
+              setVideoSaveMessage,
+              "ffmpeg"
             );
-
-            alert("Saving video");
-            await saveVideo(
-              videoBlob.blob,
-              videoBlob.previewImage,
-              props.recordingMode,
-              props.reloadSavedMedia,
-              props.cameraSettings.width,
-              props.cameraSettings.height
-            );
-            props.setVideoToShow(videoBlob.blob);
+            if (videoBlob != null) {
+              await saveVideo(
+                videoBlob.blob,
+                videoBlob.previewImage,
+                props.recordingMode,
+                props.reloadSavedMedia,
+                props.cameraSettings.width,
+                props.cameraSettings.height
+              );
+              props.setVideoToShow(videoBlob.blob);
+            }
           } else {
             props.setInfoDialogContent(<div>No frames were captured!</div>);
           }
@@ -626,8 +625,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
           console.error("Error saving video", e);
           alert(e);
         } finally {
-          alert("All Done!");
-
           props.setCapturedFrames([]);
           setSavingVideo(false);
           setVideoSaveMessage("Init");

@@ -12,6 +12,8 @@ import {
   SavedVideoMetadata,
 } from "../Types";
 import WhammyWorker from "./whammy.worker.ts";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile } from "@ffmpeg/util";
 
 function uint8ArrayToBlob(
   uint8Array: Uint8Array,
@@ -71,7 +73,8 @@ export const savePictures = async (
 export const compileVideo = async (
   inputFrames: string[],
   outputFPS: number,
-  updateProgress: (message: string) => void
+  updateProgress: (message: string) => void,
+  mode: "whammy" | "ffmpeg"
 ): Promise<CompiledVideo> => {
   try {
     // iOS is frustrating, it produces .png images when I specifically asked for webp
@@ -87,45 +90,86 @@ export const compileVideo = async (
     }
 
     let videoBlob = undefined;
-    while (inputFrames.length > 0) {
-      try {
-        videoBlob = await whammyWebWorker(inputFrames, outputFPS, (val) => {
-          console.log("GOT PROGRESS", val);
-          updateProgress(
-            `Parsing Frames ${parseInt(val) + 1} of ${inputFrames.length}`
-          );
-        }); //tsWhammy.fromImageArray(inputFrames, outputFPS);
-        break;
-      } catch (err) {
-        // Sometimes we can get an error on a partial frame. I think this happens when the browser
-        // tab is closed before a complete write to localforage can happen.
-        // e.g. "Before toWebM Error, Image Index 31
-        if (err.message.includes("Before toWebM Error, Image Index")) {
-          const errorMessageParts = err.message.split(" ");
-          const lastIndex = errorMessageParts.length - 1;
-          const imageIndex = parseInt(errorMessageParts[lastIndex], 10);
-          console.warn("Corrupted frame dropped", errorMessageParts);
 
-          if (!isNaN(imageIndex)) {
-            // Remove the problematic frame and try again!
-            console.warn("Corrupted frame dropped", imageIndex);
-            inputFrames.splice(imageIndex, 1);
+    if (mode === "whammy") {
+      console.log("Compiling video with whammy", inputFrames.length);
+      while (inputFrames.length > 0) {
+        try {
+          videoBlob = await whammyWebWorker(inputFrames, outputFPS, (val) => {
+            console.log("GOT PROGRESS", val);
+            updateProgress(
+              `Parsing Frames ${parseInt(val) + 1} of ${inputFrames.length}`
+            );
+          });
+          break;
+        } catch (err) {
+          if (err.message.includes("Before toWebM Error, Image Index")) {
+            const errorMessageParts = err.message.split(" ");
+            const lastIndex = errorMessageParts.length - 1;
+            const imageIndex = parseInt(errorMessageParts[lastIndex], 10);
+            console.warn("Corrupted frame dropped", errorMessageParts);
+
+            if (!isNaN(imageIndex)) {
+              console.warn("Corrupted frame dropped", imageIndex);
+              inputFrames.splice(imageIndex, 1);
+            } else {
+              throw err;
+            }
           } else {
+            alert(err);
             throw err;
           }
-        } else {
-          // Re-throw the error if the condition is not met.
-          alert(err);
-          throw err;
         }
       }
+    } else if (mode === "ffmpeg") {
+      console.log("Compiling video with ffmpeg", inputFrames.length);
+      const ffmpeg = new FFmpeg();
+      await ffmpeg.load(); // Ensure FFmpeg is loaded before use
+
+      // Write each frame to the FFmpeg virtual filesystem
+      for (let i = 0; i < inputFrames.length; i++) {
+        const frameBlob = await fetchFile(inputFrames[i]);
+        console.log("Writing frame to virtual filesystem", i);
+        await ffmpeg.writeFile(`frame-${i}.webp`, frameBlob);
+      }
+
+      // Run FFmpeg command to convert image sequence into a WebM video
+      const params = [
+        "-framerate",
+        outputFPS.toString(), // Set input frame rate
+        "-i",
+        "frame-%d.webp", // Input pattern for sequential frames
+        "-c:v",
+        "libvpx", // Use VP8 codec (more stable in WASM, "libvpx-vp9" gives mem issues)
+        "-b:v",
+        "500K", // Lower bitrate to reduce memory usage
+        "-vf",
+        "scale=640:-2,format=yuv420p",
+        "-deadline",
+        "realtime", // Lower CPU usage (can also try "good" or "best")
+        "-cpu-used",
+        "4", // Increase speed, but lower efficiency (0=best, 5=fastest)
+        "-an", // No audio
+        "output.webm", // Output file
+      ];
+      console.log("Running ffmpeg command", params);
+      await ffmpeg.exec(params);
+
+      // Delete files in temp virtual directory
+      for (let i = 0; i < inputFrames.length; i++) {
+        await ffmpeg.deleteFile(`frame-${i}.webp`);
+      }
+      //await ffmpeg.deleteFile("output.webm");
+
+      // Read the output video file
+      const fileData = await ffmpeg.readFile("output.webm");
+      videoBlob = new Blob([fileData], { type: "video/webm" });
     }
 
     if (inputFrames.length === 0) {
       throw new Error("No valid frames available for compilation");
     }
 
-    // This is to satisfy type checking, I'm not sure it actually can happen
     if (videoBlob instanceof Uint8Array) {
       console.log(
         "webm output is Uint8Array converting... not sure if this is correct"
@@ -142,6 +186,7 @@ export const compileVideo = async (
     };
   } catch (e) {
     alert("Video compile error: " + e + " - " + e.stack);
+    console.error("Video compile error", e);
   }
   console.log("Done compiling video");
 };
