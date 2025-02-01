@@ -35,6 +35,14 @@ tsWhammy.modifiedFromImageArray = function (
   );
 };
 
-export const getPatchedWhammy = () => {
-  return tsWhammy;
+type PatchedWhammy = typeof tsWhammy & {
+  modifiedFromImageArray: (
+    images: string[],
+    fps: number,
+    updateProgress: (index: any) => void
+  ) => Blob | Uint8Array;
+};
+
+export const getPatchedWhammy = (): PatchedWhammy => {
+  return tsWhammy as PatchedWhammy;
 };

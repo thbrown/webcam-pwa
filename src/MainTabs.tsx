@@ -152,6 +152,63 @@ export function Main(props: MainProps): JSX.Element {
     }
   };
 
+  // Skip 10% back
+  const handleBigBackwardClick = () => {
+    if (currentIndex > 0) {
+      const newIndex = Math.max(
+        0,
+        currentIndex - Math.ceil(imagesToShow.length * 0.1)
+      );
+      setCurrentIndex(newIndex);
+    }
+  };
+
+  // Skip 10% fwd
+  const handleBigForwardClick = () => {
+    if (currentIndex < imagesToShow.length - 1) {
+      const newIndex = Math.min(
+        imagesToShow.length - 1,
+        currentIndex + Math.ceil(imagesToShow.length * 0.1)
+      );
+      setCurrentIndex(newIndex);
+    }
+  };
+
+  const showBigButtons = imagesToShow != null && imagesToShow.length > 100;
+  const bigBackward = showBigButtons ? (
+    <Button
+      className={"overlay-button"}
+      style={{
+        bottom: "10px",
+        left: "10px",
+        opacity: ".7",
+        height: "48px",
+        width: "48px",
+      }}
+      onClick={handleBigBackwardClick}
+      disabled={currentIndex === 0}
+    >
+      {"<<"}
+    </Button>
+  ) : null;
+
+  const bigForward = showBigButtons ? (
+    <Button
+      className={"overlay-button"}
+      style={{
+        bottom: "10px",
+        right: "10px",
+        opacity: ".7",
+        height: "48px",
+        width: "48px",
+      }}
+      onClick={handleBigForwardClick}
+      disabled={currentIndex === imagesToShow.length - 1}
+    >
+      {">>"}
+    </Button>
+  ) : null;
+
   return (
     <>
       <Tabs
@@ -287,11 +344,12 @@ export function Main(props: MainProps): JSX.Element {
             }}
             className="parent"
           >
+            {bigBackward}
             <Button
               className={"overlay-button"}
               style={{
                 bottom: "10px",
-                left: "10px",
+                left: showBigButtons ? "64px" : "10px",
                 opacity: ".7",
                 height: "48px",
                 width: "48px",
@@ -299,7 +357,7 @@ export function Main(props: MainProps): JSX.Element {
               onClick={handleBackwardClick}
               disabled={currentIndex === 0}
             >
-              {"<<"}
+              {"<"}
             </Button>
 
             <img
@@ -344,7 +402,7 @@ export function Main(props: MainProps): JSX.Element {
               className={"overlay-button"}
               style={{
                 bottom: "10px",
-                right: "10px",
+                right: showBigButtons ? "64px" : "10px",
                 opacity: ".7",
                 height: "48px",
                 width: "48px",
@@ -352,8 +410,9 @@ export function Main(props: MainProps): JSX.Element {
               onClick={handleForwardClick}
               disabled={currentIndex === imagesToShow.length - 1}
             >
-              {">>"}
+              {">"}
             </Button>
+            {bigForward}
           </div>
         </Dialog>
       ) : null}

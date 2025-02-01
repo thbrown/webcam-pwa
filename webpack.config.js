@@ -7,6 +7,7 @@ const BundleAnalyzerPlugin =
 
 const isDevServer = process.argv.includes("serve");
 console.log("Is dev server", isDevServer);
+const webpack = require("webpack");
 
 const plugins = [
   new HtmlWebpackPlugin({
@@ -72,21 +73,17 @@ module.exports = {
         test: /\.worker\.ts$/,
         use: { loader: "worker-loader" },
       },
-      /*
       {
-        test: /worker\.js$/,
-        type: "asset/resource",
-      },*/
-      //{
-      //  test: /@ffmpeg\/ffmpeg/,
-      //  type: "javascript/auto", // Ensures Webpack processes FFmpeg properly
-      //},
+        test: /\.worker\.js$/,
+        use: { loader: "worker-loader" },
+      },
     ],
-  },
-  experiments: {
-    topLevelAwait: true, // ✅ Allow WebAssembly and top-level `await`
   },
   stats: {
     errorDetails: true,
+    // Not ideal, but this warning showed up after adding ffmpeg wasm and I can't figure out how to ignore it except for this, ffmpeg seems to work
+    warningsFilter: [
+      /Critical dependency: the request of a dependency is an expression/,
+    ],
   },
 };

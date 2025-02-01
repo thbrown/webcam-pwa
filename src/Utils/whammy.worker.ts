@@ -11,7 +11,7 @@ onmessage = async (event) => {
     getPatchedWhammy().fromImageArray
   );
 
-  const callback = (index) => {
+  const callback = (index: number) => {
     postMessage({ type: "Progress", value: index });
   };
 

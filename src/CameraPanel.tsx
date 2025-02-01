@@ -797,7 +797,8 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
                 if (targetKey === "width" || targetKey === "height") {
                   delete patch.aspectRatio;
                   console.log(
-                    `Re-applying ${targetKey} constraints without aspect ratio`
+                    `Re-applying ${targetKey} constraints without aspect ratio`,
+                    patch
                   );
                   await track.applyConstraints(patch);
                 }
@@ -828,8 +829,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
   );
 
   const resizeVideo = () => {
-    console.log("VIDEO RESIZE ");
-
     let vidHeight = 0;
     if (videoRef.current) {
       vidHeight = videoRef.current.offsetWidth / 2.031;
@@ -850,11 +849,6 @@ export function CameraPanel(props: CameraPanelProps): JSX.Element {
         overlayHeight
       )}px`;
     }
-
-    console.log(
-      "VIDEO RESIZE - div",
-      `${Math.max(vidHeight, overlayHeight)}px`
-    );
   };
 
   const setIsCameraInitializing = async () => {

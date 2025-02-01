@@ -10,6 +10,7 @@ import {
 import { ChevronDown, ChevronRight } from "@blueprintjs/icons";
 import { groupedSettings } from "./Utils/SettingsStorageUtils";
 import { CameraStatus, RecordingStatus } from "./Types";
+import { setSetting } from "./Utils/SettingsStorageUtils";
 
 interface CameraSettingsProps {
   setCameraSettings: (value: React.SetStateAction<MediaTrackSettings>) => void;
@@ -231,6 +232,11 @@ export const CameraSettings = React.memo(
         props.applySettingsChanges(constraints);
         setCustomResolutionWidth(undefined);
         setCustomResolutionHeight(undefined);
+      };
+
+      const resetCamera = () => {
+        setSetting("cameraSettings", undefined);
+        window.location.reload();
       };
 
       const handleAspectRatioChange = (value: aspectRatio): void => {
@@ -616,6 +622,9 @@ export const CameraSettings = React.memo(
                   props.supportedCameraCapabilities,
                   props.cameraSettings
                 )}
+                <Button fill={true} onClick={resetCamera}>
+                  Reset Camera
+                </Button>
               </div>
             )
           ) : null}

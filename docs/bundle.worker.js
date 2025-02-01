@@ -1,2 +1,873 @@
-(()=>{"use strict";function t(t){const e=[];for(;t>0;)e.push(255&t),t>>=8;return new Uint8Array(e.reverse())}function e(t,e){const r=new Uint8Array(e);for(let n=e-1;n>=0;n--)r[n]=255&t,t>>=8;return r}function r(t){const e=new Uint8Array(t.length);for(let r=0;r<t.length;r++)e[r]=t.charCodeAt(r);return e}function n(t){const e=[],r=(t.length%8?new Array(9-t.length%8).join("0"):"")+t;for(let t=0;t<r.length;t+=8)e.push(parseInt(r.substr(t,8),2));return new Uint8Array(e)}function o(t){return{id:187,data:[{data:Math.round(t),id:179},{id:183,data:[{data:1,id:247},{data:0,size:8,id:241}]}]}}function a(t,e){e||(e=[]);for(const r of t)"object"==typeof r&&r[Symbol.iterator]?a(r,e):e.push(r);return e}function i(o,s){const d=[];for(const a of o){if(!("id"in a)){d.push(a);continue}let o=a.data;"object"==typeof o&&(o=i(o,s)),"number"==typeof o&&(o="size"in a?e(o,a.size||0):n(o.toString(2))),"string"==typeof o&&(o=r(o));const c=o.size||o.byteLength||o.length,u=Math.ceil(Math.ceil(Math.log(c)/Math.log(2))/8),f=c.toString(2),h=new Array(7*u+7+1-f.length).join("0")+f,l=new Array(u).join("0")+"1"+h;d.push(t(a.id)),d.push(n(l)),d.push(o)}if(s){const t=a(d);return new Uint8Array(t)}return new Blob(d,{type:"video/webm"})}function s(t){let e=0;if(t.keyframe&&(e|=128),t.invisible&&(e|=8),t.lacing&&(e|=t.lacing<<1),t.discardable&&(e|=1),t.trackNum>127)throw new Error("TrackNumber > 127 not supported");return[128|t.trackNum,t.timecode>>8,255&t.timecode,e].map((t=>String.fromCharCode(t))).join("")+t.frame}function d(t,e){const r=function(t){const e=t[0].width,r=t[0].height;let n=t[0].duration;for(let o=1;o<t.length;o++){if(t[o].width!==e)throw new Error("Frame "+(o+1)+" has a different width");if(t[o].height!==r)throw new Error("Frame "+(o+1)+" has a different height");if(t[o].duration<0||t[o].duration>32767)throw new Error("Frame "+(o+1)+" has a weird duration (must be between 0 and 32767)");n+=t[o].duration}return{duration:n,width:e,height:r}}(t),n=function(t){var e;return[{id:440786851,data:[{data:1,id:17030},{data:1,id:17143},{data:4,id:17138},{data:8,id:17139},{data:"webm",id:17026},{data:2,id:17031},{data:2,id:17029}]},{id:408125543,data:[{id:357149030,data:[{data:1e6,id:2807729},{data:"whammy",id:19840},{data:"whammy",id:22337},{data:(e=t.duration,[].slice.call(new Uint8Array(new Float64Array([e]).buffer),0).map((t=>String.fromCharCode(t))).reverse().join("")),id:17545}]},{id:374648427,data:[{id:174,data:[{data:1,id:215},{data:1,id:29637},{data:0,id:156},{data:"und",id:2274716},{data:"V_VP8",id:134},{data:"VP8",id:2459272},{data:1,id:131},{id:224,data:[{data:t.width,id:176},{data:t.height,id:186}]}]}]},{id:475249515,data:[]}]}]}(r),a=n[1],d=a.data[2];let c=0,u=0;for(;c<t.length;){const e=o(u);d.data.push(e);const r=[];let n=0;do{r.push(t[c]),n+=t[c].duration,c++}while(c<t.length&&n<3e4);let i=0;const f=r.map((t=>{const e=s({discardable:0,frame:t.data.slice(4),invisible:0,keyframe:1,lacing:0,trackNum:1,timecode:Math.round(i)});return i+=t.duration,{data:e,id:163}})),h={id:524531317,data:[{data:Math.round(u),id:231},...f]};a.data.push(h),u+=n}let f=0;for(let t=0;t<a.data.length;t++){t>=3&&(d.data[t-3].data[1].data[1].data=f);const r=i([a.data[t]],e);"undefined"!=typeof Blob&&r instanceof Blob&&(f+=r.size),r instanceof Uint8Array&&(f+=r.byteLength),2!==t&&(a.data[t]=r)}return i(n,e)}function c(t){const e=t.RIFF[0].WEBP[0],r=e.indexOf("*"),n=[];for(let t=0;t<4;t++)n[t]=e.charCodeAt(r+3+t);let o=n[1]<<8|n[0];const a=16383&o;return o=n[3]<<8|n[2],{width:a,height:16383&o,data:e,riff:t}}function u(t,e){return parseInt(t.substr(e,4).split("").map((t=>{const e=t.charCodeAt(0).toString(2);return new Array(8-e.length+1).join("0")+e})).reverse().join(""),2)}function f(t){let e=14;for(;e<t.length;){const r=t.substr(e,4);e+=4;const n=u(t,e);switch(e+=4,r){case"VP8 ":case"VP8L":return t.substr(e-4,4)+t.substr(e,n);default:e+=n}}throw new Error("VP8X format error: missing VP8/VP8L chunk.")}function h(t){let e=0;const r={};for(;e<t.length;){const n=t.substr(e,4);if(r[n]=r[n]||[],"RIFF"===n||"LIST"===n){const o=u(t,e+4),a=t.substr(e+4+4,o);e+=8+o,r[n].push(h(a))}else if("WEBP"===n){const o=t.substr(e+4,4);switch(o){case"VP8X":r[n].push(f(t.substr(e+8)));break;case"VP8 ":case"VP8L":r[n].push(t.substr(e+8));break;default:console.error(`not supported webp version: '${o}'`)}e=t.length}else r[n].push(t.substr(e+4)),e=t.length}return r}function l(t){return"undefined"!=typeof atob?atob(t):Buffer.from(t,"base64").toString("binary")}const m=(t,e)=>new Promise(((r,n)=>{const o=new Image;o.src=t,o.onload=()=>{const t=document.createElement("canvas"),n=t.getContext("2d");t.width=e?.width||o.width,t.height=e?.height||o.height,n.fillStyle=e?.backgroundColor||"#000",n.fillRect(0,0,t.width,t.height),n?.drawImage(o,0,0,o.width,o.height,0,0,t.width,t.height);const a=t.toDataURL("image/webp");r(a)},o.onerror=t=>{n(t)}})),g={fromImageArray(t,e,r){const n="undefined"==typeof Blob||r,o=e||1;return d(t.map(((t,e)=>{try{return{...c(h(l(t.slice(23)))),duration:1e3/o}}catch(t){throw console.error(`Before toWebM Error, Image Index ${e}`),t}})),n)},fromImageArrayWithOptions(t,e={}){const{fps:r,duration:n,outputAsArray:o}=e;let a=r||1;return n&&(a=1e3/(1e3*n/t.length)),this.fromImageArray(t,a,o)},async fixImageDataList(t,e){const r=[];for(const n of t){const t=await m(n,e);r.push(t)}return r}};function p(t){return p="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t},p(t)}function y(t,e){var r=Object.keys(t);if(Object.getOwnPropertySymbols){var n=Object.getOwnPropertySymbols(t);e&&(n=n.filter((function(e){return Object.getOwnPropertyDescriptor(t,e).enumerable}))),r.push.apply(r,n)}return r}function b(t){for(var e=1;e<arguments.length;e++){var r=null!=arguments[e]?arguments[e]:{};e%2?y(Object(r),!0).forEach((function(e){var n,o,a,i;n=t,o=e,a=r[e],i=function(t,e){if("object"!=p(t)||!t)return t;var r=t[Symbol.toPrimitive];if(void 0!==r){var n=r.call(t,"string");if("object"!=p(n))return n;throw new TypeError("@@toPrimitive must return a primitive value.")}return String(t)}(o),(o="symbol"==p(i)?i:String(i))in n?Object.defineProperty(n,o,{value:a,enumerable:!0,configurable:!0,writable:!0}):n[o]=a})):Object.getOwnPropertyDescriptors?Object.defineProperties(t,Object.getOwnPropertyDescriptors(r)):y(Object(r)).forEach((function(e){Object.defineProperty(t,e,Object.getOwnPropertyDescriptor(r,e))}))}return t}console.warn("Applying whammy patch"),g.modifiedFromImageArray=function(t,e,r){var n="undefined"==typeof Blob,o=e||1;return d(t.map((function(t,e){r(e);try{return b(b({},c(h(l(t.slice(23))))),{},{duration:1e3/o})}catch(t){throw console.error(t),new Error("Before toWebM Error, Image Index ".concat(e))}})),n)};var w=function(){return g};console.warn("Loading whammy worker"),onmessage=async t=>{const{images:e,fps:r,updateProgress:n}=t.data;console.warn("Whammy worker running!",e,r,w().fromImageArray);const o=w().modifiedFromImageArray(e,r,(t=>{postMessage({type:"Progress",value:t})}));postMessage({type:"Result",value:o})}})();
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./node_modules/ts-whammy/src/libs/index.ts":
+/*!**************************************************!*\
+  !*** ./node_modules/ts-whammy/src/libs/index.ts ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _utils_toWebM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/toWebM */ "./node_modules/ts-whammy/src/libs/utils/toWebM.ts");
+/* harmony import */ var _utils_parseWebP__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/parseWebP */ "./node_modules/ts-whammy/src/libs/utils/parseWebP.ts");
+/* harmony import */ var _utils_parseRIFF2__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/parseRIFF2 */ "./node_modules/ts-whammy/src/libs/utils/parseRIFF2.ts");
+/* harmony import */ var _utils_adaptor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/adaptor */ "./node_modules/ts-whammy/src/libs/utils/adaptor.ts");
+/* harmony import */ var _utils_imageSrcToWebpDataUrl__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/imageSrcToWebpDataUrl */ "./node_modules/ts-whammy/src/libs/utils/imageSrcToWebpDataUrl.ts");
+
+
+
+
+
+const defaultFps = 1;
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  fromImageArray(images, fps, outputAsArray) {
+    const curOutputAsArray = typeof Blob !== 'undefined' ? outputAsArray : true;
+    const curFps = fps || defaultFps;
+    return (0,_utils_toWebM__WEBPACK_IMPORTED_MODULE_0__["default"])(images.map((image, index) => {
+      try {
+        const webp = (0,_utils_parseWebP__WEBPACK_IMPORTED_MODULE_1__["default"])((0,_utils_parseRIFF2__WEBPACK_IMPORTED_MODULE_2__["default"])((0,_utils_adaptor__WEBPACK_IMPORTED_MODULE_3__.autoAtob)(image.slice(23))));
+        const webpFrame = {
+          ...webp,
+          duration: 1000 / curFps
+        };
+        return webpFrame;
+      } catch (error) {
+        console.error(`Before toWebM Error, Image Index ${index}`);
+        throw error;
+      }
+    }), curOutputAsArray);
+  },
+  fromImageArrayWithOptions(images, options = {}) {
+    const {
+      fps,
+      duration,
+      outputAsArray
+    } = options;
+    let curFps = fps || defaultFps;
+    if (duration) {
+      curFps = 1000 / (duration * 1000 / images.length);
+    }
+    return this.fromImageArray(images, curFps, outputAsArray);
+  },
+  async fixImageDataList(images, options) {
+    const result = [];
+    for (const item of images) {
+      const temp = await (0,_utils_imageSrcToWebpDataUrl__WEBPACK_IMPORTED_MODULE_4__.imageSrcToWebpDataUrl)(item, options);
+      result.push(temp);
+    }
+    return result;
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/ts-whammy/src/libs/utils/adaptor.ts":
+/*!**********************************************************!*\
+  !*** ./node_modules/ts-whammy/src/libs/utils/adaptor.ts ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   autoAtob: () => (/* binding */ autoAtob)
+/* harmony export */ });
+function autoAtob(str) {
+  if (typeof atob !== 'undefined') {
+    return atob(str);
+  }
+  return Buffer.from(str, 'base64').toString('binary');
+}
+
+/***/ }),
+
+/***/ "./node_modules/ts-whammy/src/libs/utils/base.ts":
+/*!*******************************************************!*\
+  !*** ./node_modules/ts-whammy/src/libs/utils/base.ts ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   bitsToBuffer: () => (/* binding */ bitsToBuffer),
+/* harmony export */   doubleToString: () => (/* binding */ doubleToString),
+/* harmony export */   numToBuffer: () => (/* binding */ numToBuffer),
+/* harmony export */   numToFixedBuffer: () => (/* binding */ numToFixedBuffer),
+/* harmony export */   strToBuffer: () => (/* binding */ strToBuffer),
+/* harmony export */   toBinStr_old: () => (/* binding */ toBinStr_old)
+/* harmony export */ });
+function numToBuffer(num) {
+  const parts = [];
+  while (num > 0) {
+    parts.push(num & 0xff);
+    num = num >> 8;
+  }
+  return new Uint8Array(parts.reverse());
+}
+function numToFixedBuffer(num, size) {
+  const parts = new Uint8Array(size);
+  for (let i = size - 1; i >= 0; i--) {
+    parts[i] = num & 0xff;
+    num = num >> 8;
+  }
+  return parts;
+}
+function strToBuffer(str) {
+  const arr = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; i++) {
+    arr[i] = str.charCodeAt(i);
+  }
+  return arr;
+}
+function bitsToBuffer(bits) {
+  const data = [];
+  const pad = bits.length % 8 ? new Array(1 + 8 - bits.length % 8).join('0') : '';
+  const curBits = pad + bits;
+  for (let i = 0; i < curBits.length; i += 8) {
+    data.push(parseInt(curBits.substr(i, 8), 2));
+  }
+  return new Uint8Array(data);
+}
+function toBinStr_old(bits) {
+  let data = '';
+  const pad = bits.length % 8 ? new Array(1 + 8 - bits.length % 8).join('0') : '';
+  const curBits = pad + bits;
+  for (let i = 0; i < curBits.length; i += 8) {
+    data += String.fromCharCode(parseInt(curBits.substr(i, 8), 2));
+  }
+  return data;
+}
+function doubleToString(num) {
+  return [].slice.call(new Uint8Array(new Float64Array([num]).buffer), 0).map(e => String.fromCharCode(e)).reverse().join('');
+}
+
+/***/ }),
+
+/***/ "./node_modules/ts-whammy/src/libs/utils/checkFrames.ts":
+/*!**************************************************************!*\
+  !*** ./node_modules/ts-whammy/src/libs/utils/checkFrames.ts ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ checkFrames)
+/* harmony export */ });
+function checkFrames(frames) {
+  const width = frames[0].width;
+  const height = frames[0].height;
+  let duration = frames[0].duration;
+  for (let i = 1; i < frames.length; i++) {
+    if (frames[i].width !== width) {
+      throw new Error('Frame ' + (i + 1) + ' has a different width');
+    }
+    if (frames[i].height !== height) {
+      throw new Error('Frame ' + (i + 1) + ' has a different height');
+    }
+    if (frames[i].duration < 0 || frames[i].duration > 0x7fff) {
+      throw new Error('Frame ' + (i + 1) + ' has a weird duration (must be between 0 and 32767)');
+    }
+    duration += frames[i].duration;
+  }
+  return {
+    duration,
+    width,
+    height
+  };
+}
+
+/***/ }),
+
+/***/ "./node_modules/ts-whammy/src/libs/utils/generateEBML.ts":
+/*!***************************************************************!*\
+  !*** ./node_modules/ts-whammy/src/libs/utils/generateEBML.ts ***!
+  \***************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ generateEBML)
+/* harmony export */ });
+/* harmony import */ var _base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./base */ "./node_modules/ts-whammy/src/libs/utils/base.ts");
+/* harmony import */ var _toFlatArray__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./toFlatArray */ "./node_modules/ts-whammy/src/libs/utils/toFlatArray.ts");
+
+
+function generateEBML(json, outputAsArray) {
+  const ebml = [];
+  for (const item of json) {
+    if (!('id' in item)) {
+      // already encoded blob or byteArray
+      ebml.push(item);
+      continue;
+    }
+    let data = item.data;
+    if (typeof data === 'object') {
+      data = generateEBML(data, outputAsArray);
+    }
+    if (typeof data === 'number') {
+      data = 'size' in item ? (0,_base__WEBPACK_IMPORTED_MODULE_0__.numToFixedBuffer)(data, item.size || 0) : (0,_base__WEBPACK_IMPORTED_MODULE_0__.bitsToBuffer)(data.toString(2));
+    }
+    if (typeof data === 'string') {
+      data = (0,_base__WEBPACK_IMPORTED_MODULE_0__.strToBuffer)(data);
+    }
+
+    // if (data.length) {
+    //   const z = z
+    // }
+
+    const len = data.size || data.byteLength || data.length;
+    const zeroes = Math.ceil(Math.ceil(Math.log(len) / Math.log(2)) / 8);
+    const sizeStr = len.toString(2);
+    const padded = new Array(zeroes * 7 + 7 + 1 - sizeStr.length).join('0') + sizeStr;
+    const size = new Array(zeroes).join('0') + '1' + padded;
+
+    // i actually dont quite understand what went on up there, so I'm not really
+    // going to fix this, i'm probably just going to write some hacky thing which
+    // converts that string into a buffer-esque thing
+
+    ebml.push((0,_base__WEBPACK_IMPORTED_MODULE_0__.numToBuffer)(item.id));
+    ebml.push((0,_base__WEBPACK_IMPORTED_MODULE_0__.bitsToBuffer)(size));
+    ebml.push(data);
+  }
+
+  // output as blob or byteArray
+  if (outputAsArray) {
+    // convert ebml to an array
+    const buffer = (0,_toFlatArray__WEBPACK_IMPORTED_MODULE_1__["default"])(ebml);
+    return new Uint8Array(buffer);
+  } else {
+    return new Blob(ebml, {
+      type: 'video/webm'
+    });
+  }
+}
+
+/***/ }),
+
+/***/ "./node_modules/ts-whammy/src/libs/utils/getEBMLCuePoint.ts":
+/*!******************************************************************!*\
+  !*** ./node_modules/ts-whammy/src/libs/utils/getEBMLCuePoint.ts ***!
+  \******************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* export default binding */ __WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ function __WEBPACK_DEFAULT_EXPORT__(clusterTimecode) {
+  const cuePoint = {
+    id: 0xbb,
+    // CuePoint
+    data: [{
+      data: Math.round(clusterTimecode),
+      id: 0xb3 // CueTime
+    }, {
+      id: 0xb7,
+      // CueTrackPositions
+      data: [{
+        data: 1,
+        id: 0xf7 // CueTrack
+      }, {
+        data: 0,
+        // to be filled in when we know it
+        size: 8,
+        id: 0xf1 // CueClusterPosition
+      }]
+    }]
+  };
+  return cuePoint;
+}
+
+/***/ }),
+
+/***/ "./node_modules/ts-whammy/src/libs/utils/getEBMLShell.ts":
+/*!***************************************************************!*\
+  !*** ./node_modules/ts-whammy/src/libs/utils/getEBMLShell.ts ***!
+  \***************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ getEBMLShell)
+/* harmony export */ });
+/* harmony import */ var _base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./base */ "./node_modules/ts-whammy/src/libs/utils/base.ts");
+
+function getEBMLShell(info) {
+  const EBML = [{
+    id: 0x1a45dfa3,
+    // EBML
+    data: [{
+      data: 1,
+      id: 0x4286 // EBMLVersion
+    }, {
+      data: 1,
+      id: 0x42f7 // EBMLReadVersion
+    }, {
+      data: 4,
+      id: 0x42f2 // EBMLMaxIDLength
+    }, {
+      data: 8,
+      id: 0x42f3 // EBMLMaxSizeLength
+    }, {
+      data: 'webm',
+      id: 0x4282 // DocType
+    }, {
+      data: 2,
+      id: 0x4287 // DocTypeVersion
+    }, {
+      data: 2,
+      id: 0x4285 // DocTypeReadVersion
+    }]
+  }, {
+    id: 0x18538067,
+    // Segment
+    data: [{
+      id: 0x1549a966,
+      // Info
+      data: [{
+        data: 1e6,
+        // do things in millisecs (num of nanosecs for duration scale)
+        id: 0x2ad7b1 // TimecodeScale
+      }, {
+        data: 'whammy',
+        id: 0x4d80 // MuxingApp
+      }, {
+        data: 'whammy',
+        id: 0x5741 // WritingApp
+      }, {
+        data: (0,_base__WEBPACK_IMPORTED_MODULE_0__.doubleToString)(info.duration),
+        id: 0x4489 // Duration
+      }]
+    }, {
+      id: 0x1654ae6b,
+      // Tracks
+      data: [{
+        id: 0xae,
+        // TrackEntry
+        data: [{
+          data: 1,
+          id: 0xd7 // TrackNumber
+        }, {
+          data: 1,
+          id: 0x73c5 // TrackUID
+        }, {
+          data: 0,
+          id: 0x9c // FlagLacing
+        }, {
+          data: 'und',
+          id: 0x22b59c // Language
+        }, {
+          data: 'V_VP8',
+          id: 0x86 // CodecID
+        }, {
+          data: 'VP8',
+          id: 0x258688 // CodecName
+        }, {
+          data: 1,
+          id: 0x83 // TrackType
+        }, {
+          id: 0xe0,
+          // Video
+          data: [{
+            data: info.width,
+            id: 0xb0 // PixelWidth
+          }, {
+            data: info.height,
+            id: 0xba // PixelHeight
+          }]
+        }]
+      }]
+    }, {
+      id: 0x1c53bb6b,
+      // Cues
+      data: [
+        // cue insertion point
+      ]
+    }
+
+    // cluster insertion point
+    ]
+  }];
+  return EBML;
+}
+
+/***/ }),
+
+/***/ "./node_modules/ts-whammy/src/libs/utils/imageSrcToWebpDataUrl.ts":
+/*!************************************************************************!*\
+  !*** ./node_modules/ts-whammy/src/libs/utils/imageSrcToWebpDataUrl.ts ***!
+  \************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   imageSrcToWebpDataUrl: () => (/* binding */ imageSrcToWebpDataUrl)
+/* harmony export */ });
+const imageSrcToWebpDataUrl = (src, options) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = options?.width || img.width;
+      canvas.height = options?.height || img.height;
+      ctx.fillStyle = options?.backgroundColor || '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx?.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+      const webp = canvas.toDataURL("image/webp");
+      resolve(webp);
+    };
+    img.onerror = error => {
+      reject(error);
+    };
+  });
+};
+
+/***/ }),
+
+/***/ "./node_modules/ts-whammy/src/libs/utils/makeSimpleBlock.ts":
+/*!******************************************************************!*\
+  !*** ./node_modules/ts-whammy/src/libs/utils/makeSimpleBlock.ts ***!
+  \******************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ makeSimpleBlock)
+/* harmony export */ });
+function makeSimpleBlock(data) {
+  let flags = 0;
+  if (data.keyframe) {
+    flags |= 128;
+  }
+  if (data.invisible) {
+    flags |= 8;
+  }
+  if (data.lacing) {
+    flags |= data.lacing << 1;
+  }
+  if (data.discardable) {
+    flags |= 1;
+  }
+  if (data.trackNum > 127) {
+    throw new Error('TrackNumber > 127 not supported');
+  }
+  const out = [data.trackNum | 0x80, data.timecode >> 8, data.timecode & 0xff, flags].map(e => {
+    return String.fromCharCode(e);
+  }).join('') + data.frame;
+  return out;
+}
+
+/***/ }),
+
+/***/ "./node_modules/ts-whammy/src/libs/utils/parseRIFF2.ts":
+/*!*************************************************************!*\
+  !*** ./node_modules/ts-whammy/src/libs/utils/parseRIFF2.ts ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ parseRIFF)
+/* harmony export */ });
+// https://github.com/antimatter15/whammy/issues/70
+// https://github.com/Akimyou/ts-whammy/issues/29
+
+function readUint32LittleEndian(buffer, offset) {
+  const val = parseInt(buffer.substr(offset, 4).split('').map(i => {
+    const unpadded = i.charCodeAt(0).toString(2);
+    return new Array(8 - unpadded.length + 1).join('0') + unpadded;
+  }).reverse().join(''), 2);
+  return val;
+}
+
+/**
+ * 对于 VP8X，需要提取出其中的 VP8 或 VP8L bit stream chunk。
+ * 关于 VP8X 格式，参见 Extended file format: https://developers.google.com/speed/webp/docs/riff_container#extended_file_format
+ * @param buffer VP8X Chunk数据，不含 'VP8X' tag
+ */
+function extractBitStreamFromVp8x(buffer) {
+  /*
+   32bit VP8X Chunk size
+   8bit Flags: Rsv I L E X A R
+   24bit Reserved
+   24bit Canvas Width Minus One
+   24bit Canvas Height Minus One
+  */
+  let offset = 4 + 1 + 3 + 3 + 3;
+  while (offset < buffer.length) {
+    const chunkTag = buffer.substr(offset, 4);
+    offset += 4;
+    const chunkSize = readUint32LittleEndian(buffer, offset);
+    offset += 4;
+    switch (chunkTag) {
+      case 'VP8 ':
+      case 'VP8L':
+        // eslint-disable-next-line no-case-declarations
+        const size = buffer.substr(offset - 4, 4);
+        // eslint-disable-next-line no-case-declarations
+        const body = buffer.substr(offset, chunkSize);
+        return size + body;
+      default:
+        offset += chunkSize;
+        break;
+    }
+  }
+  throw new Error('VP8X format error: missing VP8/VP8L chunk.');
+}
+function parseRIFF(str) {
+  let offset = 0;
+  const chunks = {};
+  while (offset < str.length) {
+    const id = str.substr(offset, 4);
+    chunks[id] = chunks[id] || [];
+    if (id === 'RIFF' || id === 'LIST') {
+      const len = readUint32LittleEndian(str, offset + 4);
+      const data = str.substr(offset + 4 + 4, len);
+      offset += 4 + 4 + len;
+      chunks[id].push(parseRIFF(data));
+    } else if (id === 'WEBP') {
+      const vpVersion = str.substr(offset + 4, 4);
+      switch (vpVersion) {
+        case 'VP8X':
+          chunks[id].push(extractBitStreamFromVp8x(str.substr(offset + 8)));
+          break;
+        case 'VP8 ':
+        case 'VP8L':
+          // Use (offset + 8) to skip past 'VP8 ' / 'VP8L' field after 'WEBP'
+          chunks[id].push(str.substr(offset + 8));
+          break;
+        default:
+          // eslint-disable-next-line no-console
+          console.error(`not supported webp version: '${vpVersion}'`);
+          break;
+      }
+      offset = str.length;
+    } else {
+      // Unknown chunk type push entire payload
+      chunks[id].push(str.substr(offset + 4));
+      offset = str.length;
+    }
+  }
+  return chunks;
+}
+
+/***/ }),
+
+/***/ "./node_modules/ts-whammy/src/libs/utils/parseWebP.ts":
+/*!************************************************************!*\
+  !*** ./node_modules/ts-whammy/src/libs/utils/parseWebP.ts ***!
+  \************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ parseWebP)
+/* harmony export */ });
+function parseWebP(riff) {
+  const VP8 = riff.RIFF[0].WEBP[0];
+
+  // A VP8 keyframe starts with the 0x9d012a header
+  const frameStart = VP8.indexOf('\x9d\x01\x2a');
+  const c = [];
+  for (let i = 0; i < 4; i++) {
+    c[i] = VP8.charCodeAt(frameStart + 3 + i);
+  }
+
+  // the code below is literally copied verbatim from the bit stream spec
+  let tmp = c[1] << 8 | c[0];
+  const width = tmp & 0x3FFF;
+  // const horizontal_scale = tmp >> 14;
+  tmp = c[3] << 8 | c[2];
+  const height = tmp & 0x3FFF;
+  // const vertical_scale = tmp >> 14;
+
+  return {
+    width,
+    height,
+    data: VP8,
+    riff
+  };
+}
+
+/***/ }),
+
+/***/ "./node_modules/ts-whammy/src/libs/utils/toFlatArray.ts":
+/*!**************************************************************!*\
+  !*** ./node_modules/ts-whammy/src/libs/utils/toFlatArray.ts ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ toFlatArray)
+/* harmony export */ });
+function toFlatArray(arr, outBuffer) {
+  if (!outBuffer) {
+    outBuffer = [];
+  }
+  for (const item of arr) {
+    if (typeof item === 'object' && item[Symbol.iterator]) {
+      toFlatArray(item, outBuffer);
+    } else {
+      outBuffer.push(item);
+    }
+  }
+  return outBuffer;
+}
+
+/***/ }),
+
+/***/ "./node_modules/ts-whammy/src/libs/utils/toWebM.ts":
+/*!*********************************************************!*\
+  !*** ./node_modules/ts-whammy/src/libs/utils/toWebM.ts ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ toWebM)
+/* harmony export */ });
+/* harmony import */ var _getEBMLShell__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./getEBMLShell */ "./node_modules/ts-whammy/src/libs/utils/getEBMLShell.ts");
+/* harmony import */ var _getEBMLCuePoint__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./getEBMLCuePoint */ "./node_modules/ts-whammy/src/libs/utils/getEBMLCuePoint.ts");
+/* harmony import */ var _generateEBML__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./generateEBML */ "./node_modules/ts-whammy/src/libs/utils/generateEBML.ts");
+/* harmony import */ var _checkFrames__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./checkFrames */ "./node_modules/ts-whammy/src/libs/utils/checkFrames.ts");
+/* harmony import */ var _makeSimpleBlock__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./makeSimpleBlock */ "./node_modules/ts-whammy/src/libs/utils/makeSimpleBlock.ts");
+
+
+
+
+
+function toWebM(frames, outputAsArray) {
+  const info = (0,_checkFrames__WEBPACK_IMPORTED_MODULE_3__["default"])(frames);
+
+  // max duration by cluster in milliseconds
+  const CLUSTER_MAX_DURATION = 30000;
+  const EBML = (0,_getEBMLShell__WEBPACK_IMPORTED_MODULE_0__["default"])(info);
+  const segment = EBML[1];
+  const cues = segment.data[2];
+
+  // Generate clusters (max duration)
+  let frameNumber = 0;
+  let clusterTimecode = 0;
+  while (frameNumber < frames.length) {
+    const cuePoint = (0,_getEBMLCuePoint__WEBPACK_IMPORTED_MODULE_1__["default"])(clusterTimecode);
+    cues.data.push(cuePoint);
+    const clusterFrames = [];
+    let clusterDuration = 0;
+    do {
+      clusterFrames.push(frames[frameNumber]);
+      clusterDuration += frames[frameNumber].duration;
+      frameNumber++;
+    } while (frameNumber < frames.length && clusterDuration < CLUSTER_MAX_DURATION);
+    let clusterCounter = 0;
+    const clusterDataList = clusterFrames.map(webp => {
+      const block = (0,_makeSimpleBlock__WEBPACK_IMPORTED_MODULE_4__["default"])({
+        discardable: 0,
+        frame: webp.data.slice(4),
+        invisible: 0,
+        keyframe: 1,
+        lacing: 0,
+        trackNum: 1,
+        timecode: Math.round(clusterCounter)
+      });
+      clusterCounter += webp.duration;
+      return {
+        data: block,
+        id: 0xa3
+      };
+    });
+    const cluster = {
+      id: 0x1f43b675,
+      // Cluster
+      data: [{
+        data: Math.round(clusterTimecode),
+        id: 0xe7 // Timecode
+      }, ...clusterDataList]
+    };
+
+    // Add cluster to segment
+    segment.data.push(cluster);
+    clusterTimecode += clusterDuration;
+  }
+
+  // First pass to compute cluster positions
+  let position = 0;
+  for (let i = 0; i < segment.data.length; i++) {
+    if (i >= 3) {
+      cues.data[i - 3].data[1].data[1].data = position;
+    }
+    const data = (0,_generateEBML__WEBPACK_IMPORTED_MODULE_2__["default"])([segment.data[i]], outputAsArray);
+    if (typeof Blob !== 'undefined' && data instanceof Blob) {
+      position += data.size;
+    }
+    if (data instanceof Uint8Array) {
+      position += data.byteLength;
+    }
+    if (i !== 2) {
+      // not cues
+      // Save results to avoid having to encode everything twice
+      segment.data[i] = data;
+    }
+  }
+  return (0,_generateEBML__WEBPACK_IMPORTED_MODULE_2__["default"])(EBML, outputAsArray);
+}
+
+/***/ }),
+
+/***/ "./src/tsWhammyPatch.tsx":
+/*!*******************************!*\
+  !*** ./src/tsWhammyPatch.tsx ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   getPatchedWhammy: () => (/* binding */ getPatchedWhammy)
+/* harmony export */ });
+/* harmony import */ var ts_whammy_src_libs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ts-whammy/src/libs */ "./node_modules/ts-whammy/src/libs/index.ts");
+/* harmony import */ var ts_whammy_src_libs_utils_adaptor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ts-whammy/src/libs/utils/adaptor */ "./node_modules/ts-whammy/src/libs/utils/adaptor.ts");
+/* harmony import */ var ts_whammy_src_libs_utils_parseRIFF2__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ts-whammy/src/libs/utils/parseRIFF2 */ "./node_modules/ts-whammy/src/libs/utils/parseRIFF2.ts");
+/* harmony import */ var ts_whammy_src_libs_utils_parseWebP__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ts-whammy/src/libs/utils/parseWebP */ "./node_modules/ts-whammy/src/libs/utils/parseWebP.ts");
+/* harmony import */ var ts_whammy_src_libs_utils_toWebM__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ts-whammy/src/libs/utils/toWebM */ "./node_modules/ts-whammy/src/libs/utils/toWebM.ts");
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+
+
+
+
+
+console.warn("Applying whammy patch");
+
+// We need the index of the error message here
+//@ts-ignore
+ts_whammy_src_libs__WEBPACK_IMPORTED_MODULE_0__["default"].modifiedFromImageArray = function (images, fps, updateProgress) {
+  var curOutputAsArray = typeof Blob !== "undefined" ? false : true;
+  var curFps = fps || 1;
+  return (0,ts_whammy_src_libs_utils_toWebM__WEBPACK_IMPORTED_MODULE_4__["default"])(images.map(function (image, index) {
+    updateProgress(index);
+    try {
+      var webp = (0,ts_whammy_src_libs_utils_parseWebP__WEBPACK_IMPORTED_MODULE_3__["default"])((0,ts_whammy_src_libs_utils_parseRIFF2__WEBPACK_IMPORTED_MODULE_2__["default"])((0,ts_whammy_src_libs_utils_adaptor__WEBPACK_IMPORTED_MODULE_1__.autoAtob)(image.slice(23))));
+      var webpFrame = _objectSpread(_objectSpread({}, webp), {}, {
+        duration: 1000 / curFps
+      });
+      return webpFrame;
+    } catch (error) {
+      console.error(error);
+      throw new Error("Before toWebM Error, Image Index ".concat(index));
+    }
+  }), curOutputAsArray);
+};
+var getPatchedWhammy = function getPatchedWhammy() {
+  return ts_whammy_src_libs__WEBPACK_IMPORTED_MODULE_0__["default"];
+};
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+(() => {
+/*!************************************!*\
+  !*** ./src/Utils/whammy.worker.ts ***!
+  \************************************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _tsWhammyPatch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../tsWhammyPatch */ "./src/tsWhammyPatch.tsx");
+
+
+console.warn("Loading whammy worker");
+
+onmessage = async (event) => {
+  const { images, fps, updateProgress } = event.data;
+  console.warn(
+    "Whammy worker running!",
+    images,
+    fps,
+    (0,_tsWhammyPatch__WEBPACK_IMPORTED_MODULE_0__.getPatchedWhammy)().fromImageArray
+  );
+
+  const callback = (index) => {
+    postMessage({ type: "Progress", value: index });
+  };
+
+  const videoBlob = (0,_tsWhammyPatch__WEBPACK_IMPORTED_MODULE_0__.getPatchedWhammy)().modifiedFromImageArray(
+    images,
+    fps,
+    callback
+  );
+  postMessage({ type: "Result", value: videoBlob });
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({}); // Add a default export to satisfy the linter
+
+})();
+
+/******/ })()
+;
 //# sourceMappingURL=bundle.worker.js.map

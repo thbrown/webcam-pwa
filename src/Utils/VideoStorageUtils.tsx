@@ -11,7 +11,7 @@ import {
   SaveImageMetadata,
   SavedVideoMetadata,
 } from "../Types";
-import WhammyWorker from "./whammy.worker.ts";
+//import WhammyWorker from "./whammy.worker.ts";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
 
@@ -92,7 +92,7 @@ export const compileVideo = async (
     let videoBlob = undefined;
 
     if (mode === "whammy") {
-      console.log("Compiling video with whammy", inputFrames.length);
+      console.log("Compiling video with whammy", inputFrames.length); /*
       while (inputFrames.length > 0) {
         try {
           videoBlob = await whammyWebWorker(inputFrames, outputFPS, (val) => {
@@ -120,11 +120,13 @@ export const compileVideo = async (
             throw err;
           }
         }
-      }
+      }*/
     } else if (mode === "ffmpeg") {
       console.log("Compiling video with ffmpeg", inputFrames.length);
       const ffmpeg = new FFmpeg();
-      await ffmpeg.load(); // Ensure FFmpeg is loaded before use
+      if (!ffmpeg.loaded) {
+        await ffmpeg.load(); // Ensure FFmpeg is loaded before use
+      }
 
       // Write each frame to the FFmpeg virtual filesystem
       for (let i = 0; i < inputFrames.length; i++) {
@@ -132,6 +134,13 @@ export const compileVideo = async (
         console.log("Writing frame to virtual filesystem", i);
         await ffmpeg.writeFile(`frame-${i}.webp`, frameBlob);
       }
+
+      // Assuming all frames have the same size, get the first frame's dimensions
+      const { width, height } = await getImageDimensions(inputFrames[0]);
+
+      // Dynamically calculate bitrate
+      const bitrate = calculateBitrate(width, height, outputFPS);
+      console.log(`Using dynamic bitrate: ${bitrate}Kbps`);
 
       // Run FFmpeg command to convert image sequence into a WebM video
       const params = [
@@ -142,28 +151,33 @@ export const compileVideo = async (
         "-c:v",
         "libvpx", // Use VP8 codec (more stable in WASM, "libvpx-vp9" gives mem issues)
         "-b:v",
-        "500K", // Lower bitrate to reduce memory usage
+        `${bitrate}K`, // Lower bitrate to reduce memory usage
         "-vf",
         "scale=640:-2,format=yuv420p",
         "-deadline",
-        "realtime", // Lower CPU usage (can also try "good" or "best")
+        "good", // Lower CPU usage "realtime", "good", "best")
         "-cpu-used",
         "4", // Increase speed, but lower efficiency (0=best, 5=fastest)
         "-an", // No audio
         "output.webm", // Output file
       ];
       console.log("Running ffmpeg command", params);
+      ffmpeg.on("progress", ({ progress }) => {
+        const progressString = (progress * 100).toFixed(1);
+        updateProgress(`${progressString}% complete`);
+        console.log("Progress", progressString);
+      });
       await ffmpeg.exec(params);
 
       // Delete files in temp virtual directory
       for (let i = 0; i < inputFrames.length; i++) {
         await ffmpeg.deleteFile(`frame-${i}.webp`);
       }
-      //await ffmpeg.deleteFile("output.webm");
 
       // Read the output video file
       const fileData = await ffmpeg.readFile("output.webm");
       videoBlob = new Blob([fileData], { type: "video/webm" });
+      await ffmpeg.deleteFile("output.webm");
     }
 
     if (inputFrames.length === 0) {
@@ -191,6 +205,7 @@ export const compileVideo = async (
   console.log("Done compiling video");
 };
 
+/*
 const whammyWebWorker = async (
   images: string[],
   fps: number,
@@ -223,6 +238,7 @@ const whammyWebWorker = async (
 
   return result;
 };
+*/
 
 const METADATA_PREFIX = "metadata_";
 const IMAGE_METADATA_PREFIX = "img_metadata_";
@@ -419,3 +435,21 @@ export const humanFileSize = (bytes: number, si = false, dp = 1) => {
 
   return bytes.toFixed(dp) + " " + units[u];
 };
+
+// Function to compute dynamic bitrate
+// Idk if this is actually any good, but it's a start
+function calculateBitrate(width: number, height: number, fps: number) {
+  return Math.round(width * height * fps * 0.07); // Adjust multiplier as needed
+}
+
+// Extract width and height from an image
+async function getImageDimensions(url: string): Promise<{
+  width: number;
+  height: number;
+}> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve({ width: img.width, height: img.height });
+    img.src = url;
+  });
+}
