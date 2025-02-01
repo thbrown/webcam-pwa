@@ -260,8 +260,9 @@ function getImageKey(keyUuid: string) {
 }
 
 export const downloadVideo = async (videoBlob: Blob) => {
-  // TODO: Date here?
-  FileSaver.saveAs(videoBlob, "timelapse.webm");
+  const date = new Date();
+  const dateString = date.toISOString().replace(/[:.]/g, "-");
+  FileSaver.saveAs(videoBlob, `timelapse-${dateString}.webm`);
 };
 
 export const getVideoElement = (videoBlob: Blob, style?: object) => {
